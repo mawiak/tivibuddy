@@ -15,4 +15,6 @@ abstract final class AppColors {
 
   static const focusBorder = Color(0xFFFFFFFF);
   static const focusFill = Color(0xFF2A3441);
+
+  static const danger = Color(0xFFDA3633);
 }
