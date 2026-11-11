@@ -18,8 +18,20 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
           logLevel: MPVLogLevel.warn,
         ),
       ) {
-    // Hardware decoding is enabled by default (PLAY-2).
-    controller = VideoController(player);
+    controller = VideoController(
+      player,
+      configuration: _isAndroid
+          // The hardware decoder renders straight into the video surface.
+          // Copying decoded frames back (the default) is slower and shows
+          // striped green frames on MediaTek chips such as the Fire TV
+          // Stick Lite, whose decoders use their own pixel layouts.
+          ? const VideoControllerConfiguration(
+              vo: 'mediacodec_embed',
+              hwdec: 'mediacodec',
+            )
+          // Elsewhere media_kit picks hardware decoding itself (PLAY-2).
+          : const VideoControllerConfiguration(),
+    );
     _subscriptions.addAll([
       // Warnings and errors of mpv end up in the platform log (logcat on
       // Android), which is the only way to diagnose streams on devices.
@@ -78,6 +90,9 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
   final Player player;
   late final VideoController controller;
 
+  static bool get _isAndroid =>
+      !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+
   final _states = StreamController<PlaybackState>.broadcast();
   final _subscriptions = <StreamSubscription<Object?>>[];
   PlaybackState _state = PlaybackState.idle;
@@ -97,6 +112,8 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
     final platform = player.platform;
     if (platform is! NativePlayer) return;
     await platform.setProperty('network-timeout', '15');
+    // Live streams are buffered in memory only.
+    await platform.setProperty('cache-on-disk', 'no');
     // Reconnect on short network drops of live streams.
     await platform.setProperty(
       'stream-lavf-o',

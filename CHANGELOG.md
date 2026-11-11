@@ -41,6 +41,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Green, striped video and stuttering sound on Fire TV: the hardware decoder now renders
+  directly into the video surface.
 - White frame shown on Android before the first Flutter frame.
 - Saving an edited profile did not return to the profile picker.
 - Changing any profile could switch back to the start profile while another profile was in
