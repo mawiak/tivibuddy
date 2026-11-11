@@ -16,6 +16,8 @@ UI-3.
   soon as they get focus. "All channels" is the first entry, "Update channels" the last.
   With more than one playlist, the first entry selects the playlist. Select or right closes
   them and returns to the grid; left or back opens the side menu, which also closes them.
+- **Select or right on "Live TV"** in the menu starts in the categories, focused on the
+  selected one.
 - **Back from the player** returns to the guide on the channel played last, which continues
   in the preview. Select on it returns to full screen without opening the stream again.
   Leaving the live TV section stops playback. The screen stays on while a stream plays.

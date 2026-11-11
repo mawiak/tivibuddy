@@ -7,6 +7,7 @@ import 'package:tivibuddy/features/movies/application/movie_providers.dart';
 import 'package:tivibuddy/features/movies/data/movie_data_providers.dart';
 import 'package:tivibuddy/features/movies/domain/movie.dart';
 import 'package:tivibuddy/features/movies/presentation/movie_detail_screen.dart';
+import 'package:tivibuddy/features/movies/presentation/movie_poster.dart';
 import 'package:tivibuddy/features/movies/presentation/vod_player_screen.dart';
 import 'package:tivibuddy/features/player/data/player_providers.dart';
 import 'package:tivibuddy/features/player/domain/playback_engine.dart';
@@ -40,6 +41,12 @@ String? focusedText() {
       .evaluate();
   return texts.isEmpty ? null : (texts.first.widget as Text).data;
 }
+
+/// Names of the movies in the grid.
+List<String?> posterNames() => [
+  for (final element in find.byType(MoviePoster).evaluate())
+    (element.widget as MoviePoster).movie?.name,
+];
 
 void main() {
   late FakeMovieCatalogSource source;
@@ -139,7 +146,7 @@ void main() {
     // Moving through the categories switches the grid.
     await press(tester, LogicalKeyboardKey.arrowDown);
     expect(focusedText(), 'Action');
-    expect(find.text('Movie 1'), findsNothing);
+    expect(posterNames(), isNot(contains('Movie 1')));
     await press(tester, LogicalKeyboardKey.arrowDown);
     expect(focusedText(), 'Drama');
     await press(tester, LogicalKeyboardKey.arrowUp);
@@ -210,12 +217,11 @@ void main() {
     await press(tester, LogicalKeyboardKey.arrowLeft);
     await press(tester, LogicalKeyboardKey.arrowUp);
     expect(focusedText(), 'Favorites');
-    expect(find.text('Movie 1'), findsOneWidget);
-    expect(find.text('Movie 2'), findsNothing);
+    expect(posterNames(), ['Movie 1']);
 
     await press(tester, LogicalKeyboardKey.arrowUp);
     expect(focusedText(), 'Continue watching');
-    expect(find.text('Movie 1'), findsOneWidget);
+    expect(posterNames(), ['Movie 1']);
   });
 
   testWidgets('the end of a movie marks it watched', (tester) async {

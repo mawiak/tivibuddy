@@ -48,9 +48,10 @@ becomes the entry point of the next `enter()`, so each section decides with `aut
 focus lands (for example the programme grid of the TV guide instead of its header). The same building block connects the
 categories and the channel list of live TV; use it for every list-detail layout.
 
-Back from the content focuses the menu, unless the content handles it first: a section
-registers a handler with `ContentBack` (`app/lib/shared/widgets/content_back.dart`), for
-example live TV, which opens its categories. Nested `PopScope`s cannot do this, because the
+Select on a menu entry opens its section and moves into it, like right. Back from the
+content focuses the menu. A section can handle both first by registering hooks with
+`ContentHooks` (`app/lib/shared/widgets/content_hooks.dart`): live TV and movies start in
+their categories when entered from the menu and open them with back from the grid. Nested `PopScope`s cannot do this, because the
 back key is a route pop that every `PopScope` of the route receives.
 
 Nested `FocusMemoryScopeNode`s also respect the `allowAutofocus` rules of the scopes around

@@ -38,6 +38,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Background loading of the provider XMLTV guide with a streaming XML parser; now and next
   come from the loaded guide.
 - Setting for how many days of guide are loaded, including switching it off.
+- Select or right on Live TV and Movies in the menu starts in the category list; the movie
+  grid shows the details of the focused movie above one row of posters.
 - Movies: categories with continue watching and favorites, poster grid, detail page with
   provider metadata, player with seeking, resume position, watched state and favorites per
   profile.

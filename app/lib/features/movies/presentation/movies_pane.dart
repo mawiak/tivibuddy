@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -40,6 +41,20 @@ class _MoviesPaneState extends ConsumerState<MoviesPane> {
 
   bool _categoriesOpen = false;
 
+  /// Movie shown in the details above the grid. Updated after focus rested
+  /// briefly, so moving over posters does not request details for every
+  /// movie passed.
+  final _infoMovie = ValueNotifier<Movie?>(null);
+  Timer? _infoDelay;
+
+  void _onMovieFocused(Movie? movie) {
+    _infoDelay?.cancel();
+    _infoDelay = Timer(
+      const Duration(milliseconds: 300),
+      () => _infoMovie.value = movie,
+    );
+  }
+
   /// While the categories are open, a new grid must not take focus with its
   /// first poster.
   late final _gridScope = FocusMemoryScopeNode(
@@ -60,6 +75,8 @@ class _MoviesPaneState extends ConsumerState<MoviesPane> {
   @override
   void dispose() {
     _hooks?.unregister(back: _onBack, enter: _onEnter);
+    _infoDelay?.cancel();
+    _infoMovie.dispose();
     _gridScope.dispose();
     _categoryScope.dispose();
     super.dispose();
@@ -180,18 +197,36 @@ class _MoviesPaneState extends ConsumerState<MoviesPane> {
     }
 
     final isPhone = ScreenClass.of(context).isPhone;
+    if (isPhone) {
+      return _MovieGrid(
+        key: ValueKey(filter),
+        movies: movies,
+        posterWidth: 112,
+        header: _GridHeader(
+          playlist: playlist,
+          filter: filter,
+          status: status,
+          selectable: true,
+        ),
+      );
+    }
+    final categories =
+        ref.watch(movieCategoriesProvider(playlist.id)).value ?? const [];
     final grid = _MovieGrid(
       // A new filter starts at its first poster.
       key: ValueKey(filter),
       movies: movies,
-      header: _GridHeader(
-        playlist: playlist,
-        filter: filter,
-        status: status,
-        selectable: isPhone,
+      // One row of posters below the details, the next one peeking in.
+      posterWidth: 150,
+      onFocused: _onMovieFocused,
+      header: ValueListenableBuilder(
+        valueListenable: _infoMovie,
+        builder: (context, movie, _) => _MovieInfoHeader(
+          movie: movie,
+          listTitle: filterLabel(l10n, filter, categories),
+        ),
       ),
     );
-    if (isPhone) return grid;
 
     _showsGrid = true;
     if (_enterPending) {
@@ -341,18 +376,32 @@ String filterLabel(
 /// Poster grid with fixed cell sizes, so it is virtualized and jumps to any
 /// row without measuring (RES-3, UI-3).
 class _MovieGrid extends StatelessWidget {
-  const _MovieGrid({super.key, required this.movies, required this.header});
+  const _MovieGrid({
+    super.key,
+    required this.movies,
+    required this.header,
+    required this.posterWidth,
+    this.onFocused,
+  });
 
   final PagedList<Movie>? movies;
   final Widget header;
 
-  static const _posterWidth = 124.0;
+  /// Width posters aim for; columns fill the available width.
+  final double posterWidth;
+
+  /// Called with the movie whose poster got focus. When set, the focused
+  /// row scrolls to the top, so the row below shows only partly, like the
+  /// TV layout of common IPTV players.
+  final ValueChanged<Movie?>? onFocused;
+
   static const _spacing = 12.0;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final movies = this.movies;
+    final onFocused = this.onFocused;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -370,7 +419,8 @@ class _MovieGrid extends StatelessWidget {
               builder: (context, constraints) {
                 final columns = math.max(
                   2,
-                  ((constraints.maxWidth - 16) / (_posterWidth + _spacing))
+                  ((constraints.maxWidth - 32 + _spacing) /
+                          (posterWidth + _spacing))
                       .floor(),
                 );
                 return ListenableBuilder(
@@ -393,6 +443,16 @@ class _MovieGrid extends StatelessWidget {
                         key: ValueKey(index),
                         movie: movie,
                         autofocus: index == 0,
+                        onFocusChange: onFocused == null
+                            ? null
+                            : (focused, posterContext) {
+                                if (!focused) return;
+                                onFocused(movie);
+                                Scrollable.ensureVisible(
+                                  posterContext,
+                                  duration: const Duration(milliseconds: 150),
+                                );
+                              },
                         onSelect: movie == null
                             ? null
                             : () => context.push(
@@ -408,6 +468,108 @@ class _MovieGrid extends StatelessWidget {
           },
         ),
       ],
+    );
+  }
+}
+
+/// Details of the focused movie above the grid: backdrop, title, year,
+/// duration, genre, rating and plot.
+class _MovieInfoHeader extends ConsumerWidget {
+  const _MovieInfoHeader({required this.movie, required this.listTitle});
+
+  final Movie? movie;
+  final String listTitle;
+
+  static const height = 220.0;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final textTheme = Theme.of(context).textTheme;
+    final movie = this.movie;
+    final info = movie == null
+        ? MovieDetails.empty
+        : ref.watch(movieDetailsProvider(movie)).value ?? MovieDetails.empty;
+    final rating = info.rating ?? movie?.rating;
+    final duration = info.duration;
+    final meta = [
+      ?info.year,
+      if (duration != null) l10n.guideMinutes(duration.inMinutes),
+      ?info.genre,
+      if (rating != null) '★ ${rating.toStringAsFixed(1)}',
+    ].join('  ·  ');
+
+    return SizedBox(
+      height: height,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          if (info.backdropUrl case final backdrop?)
+            Align(
+              alignment: Alignment.centerRight,
+              child: FractionallySizedBox(
+                widthFactor: 0.6,
+                heightFactor: 1,
+                child: ShaderMask(
+                  // Fades the backdrop into the background towards the text.
+                  shaderCallback: (bounds) => const LinearGradient(
+                    colors: [Color(0x00FFFFFF), Color(0x99FFFFFF)],
+                  ).createShader(bounds),
+                  blendMode: BlendMode.dstIn,
+                  child: PosterImage(url: backdrop, width: 560),
+                ),
+              ),
+            ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: FractionallySizedBox(
+              widthFactor: 0.62,
+              alignment: Alignment.topLeft,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    listTitle,
+                    style: textTheme.bodySmall?.copyWith(
+                      color: AppColors.accent,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    movie?.name ?? '',
+                    style: textTheme.headlineSmall,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 6),
+                  if (meta.isNotEmpty)
+                    Text(
+                      meta,
+                      style: textTheme.bodyMedium?.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  const SizedBox(height: 8),
+                  if (info.plot case final plot?)
+                    Expanded(
+                      child: Text(
+                        plot,
+                        style: textTheme.bodySmall?.copyWith(
+                          color: AppColors.textPrimary,
+                        ),
+                        overflow: TextOverflow.fade,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

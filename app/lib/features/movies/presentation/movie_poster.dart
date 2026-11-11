@@ -41,11 +41,16 @@ class MoviePoster extends ConsumerWidget {
     super.key,
     required this.movie,
     required this.onSelect,
+    this.onFocusChange,
     this.autofocus = false,
   });
 
   final Movie? movie;
   final VoidCallback? onSelect;
+
+  /// Called with the focus state and the poster's context, for example to
+  /// scroll it into a position.
+  final void Function(bool focused, BuildContext context)? onFocusChange;
   final bool autofocus;
 
   static const _titleHeight = 30.0;
@@ -65,6 +70,9 @@ class MoviePoster extends ConsumerWidget {
     return TvFocusable(
       autofocus: autofocus,
       onSelect: onSelect,
+      onFocusChange: onFocusChange == null
+          ? null
+          : (focused) => onFocusChange!(focused, context),
       builder: (context, focused) => LayoutBuilder(
         builder: (context, constraints) => Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
