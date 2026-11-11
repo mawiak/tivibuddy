@@ -1,6 +1,7 @@
 # Live TV
 
-Requirements: LIVE-1, DATA-1 to DATA-3, RES-1 to RES-3, PLAY-1 to PLAY-3, UI-1 to UI-3.
+Requirements: LIVE-1, LIVE-2, DATA-1 to DATA-3, RES-1 to RES-3, PLAY-1 to PLAY-3, UI-1 to
+UI-3.
 
 ## Behaviour
 
@@ -49,9 +50,50 @@ lists jump to any position without measuring.
 
 ## Programme information
 
-Now and next come from `get_short_epg` (titles are base64 encoded), are requested only for
-the channel that rested in focus for 400 ms or is playing, cached for five minutes and
-refreshed when the current programme ends. The full guide follows with the EPG milestone.
+Now and next are requested only for the channel that rested in focus for 400 ms or is
+playing, cached for five minutes and refreshed when the current programme ends. They come
+from the loaded guide; channels without guide data fall back to `get_short_epg` (titles are
+base64 encoded).
+
+## TV guide
+
+The TV guide section shows the channels of the category selected in live TV (shared
+selection) as a grid: channels as rows, time as columns, details of the focused programme
+above the grid and a line at the current time.
+
+| Key                          | Action                                                  |
+|------------------------------|---------------------------------------------------------|
+| Right / left                 | Next / previous programme; empty times move by 30 min   |
+| Up / down, channel up / down | Previous / next channel, keeping the time position      |
+| Page up / down               | One screen of channels                                  |
+| Select                       | Play the channel                                        |
+| Up from the first channel    | Category button                                         |
+| Left from the current programme | Side menu (no catch-up yet, so the past is hidden)   |
+
+On touch screens a tap plays the channel and dragging sideways moves the time axis.
+
+The grid is one focus node that tracks the focused row and a time inside the focused
+programme, instead of a focus node per programme. Rows are virtualized with a fixed height.
+Each visible row loads its programmes from SQLite for a window of 12 hours aligned to 6 hour
+chunks, so moving within a chunk does not query again (`guide_providers.dart`).
+
+## Guide loading
+
+1. The guide is loaded after every catalog load and when the live TV or guide section opens
+   and the last complete guide load is older than 12 hours.
+2. `xmltv.php` can be hundreds of megabytes. `xmltv_loader.dart` downloads it in a background
+   isolate and feeds the XML event stream to `XmltvReader`, which keeps only programmes of
+   channels in the catalog (`epg_channel_id`) from three hours ago up to the configured days
+   ahead. Programmes arrive in batches of 1000.
+3. Programmes are stored in `epg_programmes` (`WITHOUT ROWID`, times as epoch seconds,
+   primary key playlist, channel, start). Like channels, each load marks its rows and
+   removes the rows of older loads when it completes.
+4. Changing the number of days marks all guides as outdated; switching the guide off
+   deletes them.
+
+On the Fire TV Stick Lite a real provider guide (more than 85,000 programmes kept) loads in
+about one minute in the background, with the app at about 120 to 145 MB.
+
 
 ## Playback
 
@@ -65,5 +107,5 @@ after short network drops. The screen stays awake during playback (wakelock).
 
 ## Not yet implemented
 
-Favorites, channel number input, recently watched, EPG grid, catch-up, HLS output option and a
-configurable user agent.
+Favorites, channel number input, recently watched, catch-up, external XMLTV sources, HLS
+output option and a configurable user agent.

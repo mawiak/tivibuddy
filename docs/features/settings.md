@@ -21,11 +21,12 @@ cleared value keeps a row with `deleted = true` so the change can be synchronize
 
 ## Device section (this installation only)
 
-| Setting       | Values                                        | Default               |
-|---------------|-----------------------------------------------|-----------------------|
-| Start profile | Profile selection or one profile              | Profile selection     |
-| Profiles      | Opens the profile picker                      | -                     |
-| Reset         | Restores the defaults of all device settings  | -                     |
+| Setting         | Values                                        | Default               |
+|-----------------|-----------------------------------------------|-----------------------|
+| Start profile   | Profile selection or one profile              | Profile selection     |
+| Programme guide | Do not load, 1, 2, 3, 5 or 7 days ahead       | 3 days ahead          |
+| Profiles        | Opens the profile picker                      | -                     |
+| Reset           | Restores the defaults of all device settings  | -                     |
 
 Device settings are stored in `device_setting_entries` and are never synchronized.
 

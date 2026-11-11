@@ -57,8 +57,9 @@ the profile list or the active profile change:
 ## Data flow for large provider data
 
 1. The Xtream client downloads responses as byte streams.
-2. A background isolate parses them with a streaming parser (`JsonArraySplitter` for JSON,
-   XMLTV follows with the EPG milestone).
+2. A background isolate (`streamFromIsolate` in `core/data/isolate_stream.dart`) parses them
+   with a streaming parser: `JsonArraySplitter` for JSON, `XmltvReader` on the event stream
+   of the `xml` package for XMLTV.
 3. Parsed records are written to SQLite in batches.
 4. The UI reads paged, indexed SQL queries through `PagedList`. It never holds the full
    catalogue in memory.

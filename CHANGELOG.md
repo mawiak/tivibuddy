@@ -31,6 +31,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   screen player with zapping, info bar and channel list overlay.
 - Background loading of large channel catalogs with a streaming JSON parser.
 - Video playback with libmpv/FFmpeg and hardware decoding.
+- TV guide: programme grid per category with details of the focused programme, now line,
+  remote navigation through channels and time, playback with OK, sideways drag on touch.
+- Background loading of the provider XMLTV guide with a streaming XML parser; now and next
+  come from the loaded guide.
+- Setting for how many days of guide are loaded, including switching it off.
 
 ### Fixed
 
