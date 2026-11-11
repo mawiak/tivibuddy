@@ -7,4 +7,7 @@ abstract interface class DeviceSettingsRepository {
   Future<String?> getDefaultProfileId();
 
   Future<void> setDefaultProfileId(String? profileId);
+
+  /// Restores the defaults of all device settings.
+  Future<void> reset();
 }

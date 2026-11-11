@@ -56,3 +56,51 @@ final class DeviceSettingsRepositoryProvider
 
 String _$deviceSettingsRepositoryHash() =>
     r'c2b20c7ba48c3522cc1e6268b7910aca00faee2b';
+
+@ProviderFor(profileSettingsRepository)
+final profileSettingsRepositoryProvider = ProfileSettingsRepositoryProvider._();
+
+final class ProfileSettingsRepositoryProvider
+    extends
+        $FunctionalProvider<
+          ProfileSettingsRepository,
+          ProfileSettingsRepository,
+          ProfileSettingsRepository
+        >
+    with $Provider<ProfileSettingsRepository> {
+  ProfileSettingsRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'profileSettingsRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$profileSettingsRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<ProfileSettingsRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  ProfileSettingsRepository create(Ref ref) {
+    return profileSettingsRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ProfileSettingsRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ProfileSettingsRepository>(value),
+    );
+  }
+}
+
+String _$profileSettingsRepositoryHash() =>
+    r'3d0d694a3310d181a97f28cc16581be71c39b4e8';

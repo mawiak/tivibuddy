@@ -6,23 +6,27 @@ import '../../features/playlists/data/playlists_table.dart';
 import '../../features/playlists/domain/playlist.dart';
 import '../../features/profiles/data/profiles_table.dart';
 import '../../features/settings/data/device_settings_table.dart';
+import '../../features/settings/data/profile_settings_table.dart';
 
 part 'app_database.g.dart';
 
 /// Local SQLite database. It is the single source of truth for the UI
 /// (DATA-3). Feature tables are defined in the data layer of their feature
 /// and registered here.
-@DriftDatabase(tables: [Profiles, Playlists, DeviceSettingEntries])
+@DriftDatabase(
+  tables: [Profiles, Playlists, ProfileSettingEntries, DeviceSettingEntries],
+)
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _open());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onUpgrade: (migrator, from, to) async {
       if (from < 2) await migrator.createTable(playlists);
+      if (from < 3) await migrator.createTable(profileSettingEntries);
     },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');

@@ -20,6 +20,9 @@ class DriftDeviceSettingsRepository implements DeviceSettingsRepository {
   Future<void> setDefaultProfileId(String? profileId) =>
       _set(_defaultProfileKey, profileId);
 
+  @override
+  Future<void> reset() => _db.delete(_db.deviceSettingEntries).go();
+
   Future<String?> _get(String key) async =>
       (await _query(key).getSingleOrNull())?.value;
 

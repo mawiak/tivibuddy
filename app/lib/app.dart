@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/input/tv_shortcuts.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'features/settings/application/settings_providers.dart';
 import 'l10n/app_localizations.dart';
 
 class TiviBuddyApp extends ConsumerWidget {
@@ -18,6 +19,13 @@ class TiviBuddyApp extends ConsumerWidget {
       themeMode: ThemeMode.dark,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
+      locale: switch (ref.watch(appLanguageProvider)) {
+        final tag? => Locale.fromSubtags(
+          languageCode: tag.split('-').first,
+          countryCode: tag.contains('-') ? tag.split('-').last : null,
+        ),
+        null => null,
+      },
       shortcuts: {...WidgetsApp.defaultShortcuts, ...tvShortcuts},
       routerConfig: ref.watch(appRouterProvider),
     );
