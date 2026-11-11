@@ -17,6 +17,13 @@ layouts.
 - `MarqueeText` (`app/lib/shared/widgets/marquee_text.dart`) shows single-line text with an
   ellipsis and scrolls it while `active` is true and the text overflows. Pass the focus state
   of the surrounding row as `active`.
+- `TvButton`, `TvListTile`, `TvSwitchTile` (`app/lib/shared/widgets/`) cover buttons and
+  settings-like rows.
+- `TvTextField` is focused like any other element. Select starts editing and opens the
+  keyboard; up/down, submit or leaving the field end editing. A plain `TextField` would trap
+  the D-pad.
+- `showTvConfirmDialog` and `showTvChoiceDialog` (`tv_dialogs.dart`) are the standard dialogs.
+  Confirm dialogs focus cancel first, so destructive actions need a deliberate move.
 
 ## Keys
 

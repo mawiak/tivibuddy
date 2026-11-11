@@ -15,3 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Marquee text for list entries that do not fit.
 - English and German translations.
 - Fire TV launcher integration and adb deploy script.
+- User profiles: create, edit and delete profiles with name, bundled or custom avatar and
+  optional PIN; profile picker with manage mode; optional default profile on start.
+- Local SQLite database.
+
+### Fixed
+
+- White frame shown on Android before the first Flutter frame.

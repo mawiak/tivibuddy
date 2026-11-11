@@ -25,3 +25,4 @@ Notes:
   updated-at timestamps, soft-delete flags), so milestone 10 does not require migrations of
   existing semantics.
 - Each milestone is tested on a Fire TV before it is marked `done`.
+- Open item for web support: add `sqlite3.wasm` and `drift_worker.js` to `app/web/`.

@@ -32,6 +32,28 @@ Shared contracts between app and server (sync DTOs, API paths) live in `packages
   beyond pure Dart.
 - **Data** implements repositories with drift (SQLite), HTTP clients and secure storage.
 
+## Local database
+
+drift (SQLite) with a single `AppDatabase` (`app/lib/core/database/app_database.dart`). Tables
+are defined in the data layer of their feature and registered there. Synchronizable tables
+use the `SyncColumns` mixin: UUID v7 primary key, `createdAt`, `updatedAt` (UTC, stored as
+ISO-8601 text with milliseconds) and a `deleted` flag. Rows are never removed directly.
+
+Device-only settings live in a key-value table and are never synchronized.
+
+On the web, drift needs `sqlite3.wasm` and `drift_worker.js` in `app/web/`. They are added
+when web support is worked on.
+
+## Startup and navigation
+
+go_router with a redirect (`resolveRedirect`) that is re-evaluated whenever startup state,
+the profile list or the active profile change:
+
+1. `/startup` until the database is open and the default profile is resolved.
+2. `/profiles/new` while no profile exists.
+3. `/profiles` while no profile is active.
+4. `/` (home) otherwise.
+
 ## Data flow for large provider data
 
 1. The Xtream client downloads responses as byte streams.
