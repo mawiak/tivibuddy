@@ -66,9 +66,10 @@ class XtreamApiClient {
   final http.Client _http;
   final Duration timeout;
 
-  static const _headers = {'User-Agent': 'TiviBuddy', 'Accept': '*/*'};
+  static const headers = {'User-Agent': 'TiviBuddy', 'Accept': '*/*'};
 
-  Uri _apiUri(
+  /// URL of the player API, optionally with an `action` and parameters.
+  static Uri apiUri(
     String serverUrl,
     String username,
     String password, [
@@ -77,29 +78,47 @@ class XtreamApiClient {
     queryParameters: {'username': username, 'password': password, ...extra},
   );
 
+  /// Throws the matching exception for responses that are not usable.
+  static void checkStatus(int statusCode) {
+    if (statusCode == 401 || statusCode == 403) {
+      throw const XtreamUnauthorizedException();
+    }
+    if (statusCode != 200) throw XtreamFormatException('HTTP $statusCode');
+  }
+
+  /// Fetches and decodes a small JSON response. Large catalogs are streamed
+  /// instead (see `JsonArraySplitter`).
+  Future<Object?> getJson({
+    required String serverUrl,
+    required String username,
+    required String password,
+    Map<String, String> parameters = const {},
+  }) async {
+    final response = await _http
+        .get(
+          apiUri(serverUrl, username, password, parameters),
+          headers: headers,
+        )
+        .timeout(timeout);
+    checkStatus(response.statusCode);
+    try {
+      return jsonDecode(utf8.decode(response.bodyBytes, allowMalformed: true));
+    } on FormatException {
+      throw const XtreamFormatException('Response is not JSON');
+    }
+  }
+
   /// Calls the API without an action, which returns account and server info.
   Future<XtreamUserInfo> getUserInfo({
     required String serverUrl,
     required String username,
     required String password,
   }) async {
-    final response = await _http
-        .get(_apiUri(serverUrl, username, password), headers: _headers)
-        .timeout(timeout);
-
-    if (response.statusCode == 401 || response.statusCode == 403) {
-      throw const XtreamUnauthorizedException();
-    }
-    if (response.statusCode != 200) {
-      throw XtreamFormatException('HTTP ${response.statusCode}');
-    }
-
-    final Object? body;
-    try {
-      body = jsonDecode(utf8.decode(response.bodyBytes, allowMalformed: true));
-    } on FormatException {
-      throw const XtreamFormatException('Response is not JSON');
-    }
+    final body = await getJson(
+      serverUrl: serverUrl,
+      username: username,
+      password: password,
+    );
     // Some servers answer wrong credentials with an empty list.
     if (body is List && body.isEmpty) throw const XtreamUnauthorizedException();
     if (body is! Map<String, Object?>) {
