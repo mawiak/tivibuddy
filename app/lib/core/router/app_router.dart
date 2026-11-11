@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../features/home/presentation/home_shell.dart';
+import '../../features/playlists/presentation/playlist_edit_screen.dart';
+import '../../features/playlists/presentation/playlists_screen.dart';
 import '../../features/profiles/application/profile_providers.dart';
 import '../../features/profiles/presentation/profile_edit_screen.dart';
 import '../../features/profiles/presentation/profile_picker_screen.dart';
@@ -63,6 +65,21 @@ GoRouter appRouter(Ref ref) {
             path: ':id/edit',
             builder: (context, state) =>
                 ProfileEditScreen(profileId: state.pathParameters['id']),
+          ),
+        ],
+      ),
+      GoRoute(
+        path: AppRoutes.playlists,
+        builder: (context, state) => const PlaylistsScreen(),
+        routes: [
+          GoRoute(
+            path: 'new',
+            builder: (context, state) => const PlaylistEditScreen(),
+          ),
+          GoRoute(
+            path: ':id/edit',
+            builder: (context, state) =>
+                PlaylistEditScreen(playlistId: state.pathParameters['id']),
           ),
         ],
       ),

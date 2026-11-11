@@ -17,4 +17,5 @@ abstract final class AppColors {
   static const focusFill = Color(0xFF2A3441);
 
   static const danger = Color(0xFFDA3633);
+  static const success = Color(0xFF2DA44E);
 }

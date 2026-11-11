@@ -17,12 +17,10 @@ void main() {
 
     // Recreate the state of a version 1 installation: no playlists table.
     final v1 = AppDatabase(NativeDatabase(file));
-    await v1.customStatement(
-      '''
+    await v1.customStatement('''
 INSERT INTO profiles (id, created_at, updated_at, name)
 VALUES ('p1', '2026-01-01T00:00:00.000Z', '2026-01-01T00:00:00.000Z', 'Anna')
-''',
-    );
+''');
     await v1.customStatement('DROP TABLE playlists');
     await v1.customStatement('PRAGMA user_version = 1');
     await v1.close();

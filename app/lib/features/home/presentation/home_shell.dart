@@ -8,6 +8,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../profiles/application/profile_providers.dart';
 import '../../profiles/domain/profile.dart';
 import '../../profiles/presentation/profile_avatar_view.dart';
+import '../../settings/presentation/settings_pane.dart';
 import '../application/home_section.dart';
 import 'home_section_display.dart';
 import 'section_placeholder.dart';
@@ -54,10 +55,10 @@ class _HomeShellState extends ConsumerState<HomeShell> {
   Widget build(BuildContext context) {
     final selected = ref.watch(selectedHomeSectionProvider);
     final profile = ref.watch(activeProfileProvider);
-    final content = SectionPlaceholder(
-      key: ValueKey(selected),
-      section: selected,
-    );
+    final content = switch (selected) {
+      HomeSection.settings => const SettingsPane(),
+      _ => SectionPlaceholder(key: ValueKey(selected), section: selected),
+    };
 
     if (ScreenClass.of(context).isPhone) {
       return _PhoneLayout(

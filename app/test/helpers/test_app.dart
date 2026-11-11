@@ -2,12 +2,16 @@ import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tivibuddy/app.dart';
 import 'package:tivibuddy/core/database/app_database.dart';
 import 'package:tivibuddy/core/input/tv_shortcuts.dart';
 import 'package:tivibuddy/core/theme/app_theme.dart';
+import 'package:tivibuddy/features/playlists/data/playlist_data_providers.dart';
 import 'package:tivibuddy/l10n/app_localizations.dart';
+
+import 'fake_credential_store.dart';
 
 /// Logical screen size of a 1080p Fire TV.
 const tvSize = Size(960, 540);
@@ -25,6 +29,26 @@ AppDatabase createTestDatabase() {
   );
 }
 
+ProviderContainer _createContainer(
+  AppDatabase? database,
+  List<Override> overrides,
+) {
+  final db = database ?? createTestDatabase();
+  final container = ProviderContainer(
+    overrides: [
+      appDatabaseProvider.overrideWithValue(db),
+      // Platform secure storage is not available in tests.
+      credentialStoreProvider.overrideWithValue(FakeCredentialStore()),
+      ...overrides,
+    ],
+  );
+  addTearDown(() async {
+    container.dispose();
+    await db.close();
+  });
+  return container;
+}
+
 void _setSize(WidgetTester tester, Size size) {
   tester.view
     ..physicalSize = size
@@ -38,16 +62,10 @@ Future<ProviderContainer> pumpTestApp(
   Widget child, {
   Size size = tvSize,
   AppDatabase? database,
+  List<Override> overrides = const [],
 }) async {
   _setSize(tester, size);
-  final db = database ?? createTestDatabase();
-  final container = ProviderContainer(
-    overrides: [appDatabaseProvider.overrideWithValue(db)],
-  );
-  addTearDown(() async {
-    container.dispose();
-    await db.close();
-  });
+  final container = _createContainer(database, overrides);
 
   await tester.pumpWidget(
     UncontrolledProviderScope(
@@ -71,16 +89,10 @@ Future<ProviderContainer> pumpFullApp(
   WidgetTester tester, {
   Size size = tvSize,
   AppDatabase? database,
+  List<Override> overrides = const [],
 }) async {
   _setSize(tester, size);
-  final db = database ?? createTestDatabase();
-  final container = ProviderContainer(
-    overrides: [appDatabaseProvider.overrideWithValue(db)],
-  );
-  addTearDown(() async {
-    container.dispose();
-    await db.close();
-  });
+  final container = _createContainer(database, overrides);
 
   await tester.pumpWidget(
     UncontrolledProviderScope(
