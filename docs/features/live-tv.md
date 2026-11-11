@@ -14,8 +14,8 @@ UI-3.
 - **Left or back** from the programme running now opens the **categories** as a column that
   pushes the grid to the right, focused on the selected category. They switch the grid as
   soon as they get focus. "All channels" is the first entry, "Update channels" the last.
-  With more than one playlist, the first entry selects the playlist. Right closes them and
-  returns to the grid; left or back opens the side menu, which also closes them.
+  With more than one playlist, the first entry selects the playlist. Select or right closes
+  them and returns to the grid; left or back opens the side menu, which also closes them.
 - **Back from the player** returns to the guide on the channel played last, which continues
   in the preview. Select on it returns to full screen without opening the stream again.
   Leaving the live TV section stops playback. The screen stays on while a stream plays.

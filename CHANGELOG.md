@@ -52,5 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   use.
 - Left from the live TV channel list did not reach the categories, and left from the
   content did not reach the side menu.
+- Switching to "All channels" or "All movies" reset the focus to the first category.
+- The first poster of a new grid could take the focus away from the side menu.
 - Moving right from the side menu focused the element at the same height instead of the last
   focused or first element of the content.

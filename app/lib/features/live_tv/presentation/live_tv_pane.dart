@@ -146,12 +146,19 @@ class _LiveTvPaneState extends ConsumerState<LiveTvPane> {
     final channels = ref
         .watch(liveChannelListProvider(playlist.id, categoryId))
         .value;
+    // Whether there is a catalog at all, independent of the selected
+    // category: switching categories must keep categories and grid on
+    // screen.
+    final allChannels = ref
+        .watch(liveChannelListProvider(playlist.id, null))
+        .value;
+
     // Nothing focusable while the list opens: a button shown only for a
     // moment would take the focus with it when it disappears.
-    if (channels == null && categoryId == null) {
+    if (allChannels == null) {
       return const Center(child: CircularProgressIndicator());
     }
-    if (channels != null && channels.length == 0 && categoryId == null) {
+    if (allChannels.length == 0) {
       return CatalogStateView(
         loadedText: switch (status) {
           LiveCatalogLoading(:final channelsLoaded) => l10n.liveLoadingCount(
@@ -241,6 +248,7 @@ class _LiveTvPaneState extends ConsumerState<LiveTvPane> {
                         playlists: playlists.value!,
                         selectedCategoryId: categoryId,
                         status: status,
+                        onChosen: _closeCategories,
                       ),
                     ),
                   ),
@@ -333,12 +341,16 @@ class _CategoryColumn extends ConsumerStatefulWidget {
     required this.playlists,
     required this.selectedCategoryId,
     required this.status,
+    required this.onChosen,
   });
 
   final Playlist playlist;
   final List<Playlist> playlists;
   final String? selectedCategoryId;
   final LiveCatalogStatus status;
+
+  /// Select on a category: it is chosen, the column closes.
+  final VoidCallback onChosen;
 
   @override
   ConsumerState<_CategoryColumn> createState() => _CategoryColumnState();
@@ -414,6 +426,7 @@ class _CategoryColumnState extends ConsumerState<_CategoryColumn> {
         label: l10n.liveAllChannels,
         selected: selectedCategoryId == null,
         focusNode: _openedCategoryId == null ? _openedOn : null,
+        onSelect: widget.onChosen,
         onFocus: () => selection.select(null),
       ),
       for (final category in categories)
@@ -422,6 +435,7 @@ class _CategoryColumnState extends ConsumerState<_CategoryColumn> {
           count: category.channelCount,
           selected: category.id == selectedCategoryId,
           focusNode: category.id == _openedCategoryId ? _openedOn : null,
+          onSelect: widget.onChosen,
           onFocus: () => selection.select(category.id),
         ),
       _CategoryTile(

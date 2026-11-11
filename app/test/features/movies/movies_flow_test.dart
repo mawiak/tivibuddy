@@ -7,7 +7,6 @@ import 'package:tivibuddy/features/movies/application/movie_providers.dart';
 import 'package:tivibuddy/features/movies/data/movie_data_providers.dart';
 import 'package:tivibuddy/features/movies/domain/movie.dart';
 import 'package:tivibuddy/features/movies/presentation/movie_detail_screen.dart';
-import 'package:tivibuddy/features/movies/presentation/movie_poster.dart';
 import 'package:tivibuddy/features/movies/presentation/vod_player_screen.dart';
 import 'package:tivibuddy/features/player/data/player_providers.dart';
 import 'package:tivibuddy/features/player/domain/playback_engine.dart';
@@ -105,23 +104,65 @@ void main() {
     await settle(tester);
   }
 
+  /// First text inside the focused element.
+  String? focusedText() {
+    final context = FocusManager.instance.primaryFocus?.context;
+    if (context == null) return null;
+    final texts = find
+        .descendant(
+          of: find.byWidget(context.widget),
+          matching: find.byType(Text),
+        )
+        .evaluate();
+    return texts.isEmpty ? null : (texts.first.widget as Text).data;
+  }
+
   Future<void> press(WidgetTester tester, LogicalKeyboardKey key) async {
     await tester.sendKeyEvent(key);
     await settle(tester);
   }
 
-  testWidgets('shows the poster grid and filters by category', (tester) async {
+  testWidgets('categories open with left and back and close with select', (
+    tester,
+  ) async {
     await openMovies(tester);
 
     expect(source.loads, 1);
-    expect(find.byType(MoviePoster), findsWidgets);
-    expect(find.text('Movie 1'), findsOneWidget);
+    expect(focusedText(), 'Movie 1');
+    expect(find.text('Action'), findsNothing, reason: 'categories hidden');
 
-    // Focusing a category selects it.
-    Focus.of(tester.element(find.text('Action'))).requestFocus();
-    await settle(tester);
+    await press(tester, LogicalKeyboardKey.arrowLeft);
+    expect(focusedText(), 'All movies', reason: 'opens on the selected one');
+
+    // Moving through the categories switches the grid.
+    await press(tester, LogicalKeyboardKey.arrowDown);
+    expect(focusedText(), 'Action');
     expect(find.text('Movie 1'), findsNothing);
-    expect(find.text('Movie 2'), findsOneWidget);
+    await press(tester, LogicalKeyboardKey.arrowDown);
+    expect(focusedText(), 'Drama');
+    await press(tester, LogicalKeyboardKey.arrowUp);
+    await press(tester, LogicalKeyboardKey.arrowUp);
+    await press(tester, LogicalKeyboardKey.arrowUp);
+    expect(focusedText(), 'Favorites');
+    await press(tester, LogicalKeyboardKey.arrowDown);
+    await press(tester, LogicalKeyboardKey.arrowDown);
+    expect(focusedText(), 'Action');
+
+    await press(tester, LogicalKeyboardKey.select);
+    expect(find.text('Drama'), findsNothing, reason: 'categories close');
+    expect(focusedText(), 'Movie 2');
+
+    await pressBack(tester);
+    await settle(tester);
+    expect(focusedText(), 'Action');
+    await press(tester, LogicalKeyboardKey.arrowRight);
+    expect(focusedText(), 'Movie 2');
+
+    await pressBack(tester);
+    await settle(tester);
+    await pressBack(tester);
+    await settle(tester);
+    expect(focusedLabel(), 'menu.movies');
   });
 
   testWidgets('plays a movie, resumes it and keeps favorites', (tester) async {
@@ -164,13 +205,14 @@ void main() {
 
     await pressBack(tester);
     await settle(tester);
-    Focus.of(tester.element(find.text('Favorites'))).requestFocus();
-    await settle(tester);
+    await press(tester, LogicalKeyboardKey.arrowLeft);
+    await press(tester, LogicalKeyboardKey.arrowUp);
+    expect(focusedText(), 'Favorites');
     expect(find.text('Movie 1'), findsOneWidget);
     expect(find.text('Movie 2'), findsNothing);
 
-    Focus.of(tester.element(find.text('Continue watching'))).requestFocus();
-    await settle(tester);
+    await press(tester, LogicalKeyboardKey.arrowUp);
+    expect(focusedText(), 'Continue watching');
     expect(find.text('Movie 1'), findsOneWidget);
   });
 

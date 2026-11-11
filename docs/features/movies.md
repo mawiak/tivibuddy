@@ -5,8 +5,10 @@ PLAY-4 (resume), UI-1 to UI-4.
 
 ## Behaviour
 
-- **Section layout (TV):** categories on the left, poster grid on the right. Phones show the
-  grid with a category selector in the header.
+- **Section layout (TV):** the poster grid uses the full width. Left from the first column or
+  back opens the categories next to it, focused on (and scrolled to) the selected one. Select
+  or right on a category closes them and focuses the first poster; left or back from them
+  opens the side menu. Phones show the grid with a category selector in the header.
 - **Categories:** "Continue watching", "Favorites" and "All movies" (per profile), then the
   provider categories and "Update movies" last. A category switches the grid as soon as it
   gets focus. The playlist choice is shared with live TV.

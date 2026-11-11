@@ -9,6 +9,7 @@ import '../../../core/layout/screen_class.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../shared/widgets/content_back.dart';
 import '../../../shared/widgets/focus_memory_scope.dart';
 import '../../../shared/widgets/marquee_text.dart';
 import '../../../shared/widgets/tv_dialogs.dart';
@@ -23,8 +24,10 @@ import '../domain/movie.dart';
 import '../domain/movie_repository.dart';
 import 'movie_poster.dart';
 
-/// Movies section of the home screen (VOD-1): categories on the left, a
-/// poster grid of the selected one on the right.
+/// Movies section of the home screen (VOD-1): a poster grid of the selected
+/// category. Left from the first column or back opens the categories next
+/// to it, focused on the selected one; select or right on a category closes
+/// them again, like common IPTV players.
 class MoviesPane extends ConsumerStatefulWidget {
   const MoviesPane({super.key});
 
@@ -35,20 +38,53 @@ class MoviesPane extends ConsumerStatefulWidget {
 class _MoviesPaneState extends ConsumerState<MoviesPane> {
   String? _checkedPlaylistId;
 
-  /// While the categories have focus, a new grid must not take focus with
-  /// its first poster.
-  bool _categoriesFocused = false;
+  bool _categoriesOpen = false;
+
+  /// While the categories are open, a new grid must not take focus with its
+  /// first poster.
   late final _gridScope = FocusMemoryScopeNode(
     debugLabel: 'movieGrid',
-    allowAutofocus: () => !_categoriesFocused,
+    allowAutofocus: () => !_categoriesOpen,
   );
   final _categoryScope = FocusMemoryScopeNode(debugLabel: 'movieCategories');
+  ContentBackController? _back;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _back?.unregister(_onBack);
+    _back = ContentBack.maybeOf(context)?..register(_onBack);
+  }
 
   @override
   void dispose() {
+    _back?.unregister(_onBack);
     _gridScope.dispose();
     _categoryScope.dispose();
     super.dispose();
+  }
+
+  /// Back from the grid opens the categories; back from the categories is
+  /// left to the home screen, which focuses the menu.
+  bool _onBack() {
+    if (_categoriesOpen || !_gridScope.hasFocus) return false;
+    if (ScreenClass.of(context).isPhone) return false;
+    _openCategories();
+    return true;
+  }
+
+  void _openCategories() {
+    // The category column focuses the selected category when it opens.
+    setState(() => _categoriesOpen = true);
+  }
+
+  void _closeCategories({bool focusGrid = true}) {
+    if (!_categoriesOpen) return;
+    setState(() => _categoriesOpen = false);
+    if (!focusGrid) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _gridScope.enter();
+    });
   }
 
   /// Loads the catalog once per playlist when it is missing or outdated.
@@ -81,13 +117,18 @@ class _MoviesPaneState extends ConsumerState<MoviesPane> {
     final status = ref.watch(movieCatalogControllerProvider(playlist.id));
     final filter = ref.watch(movieFilterSelectionProvider(playlist.id));
     final movies = ref.watch(movieListProvider(playlist.id, filter)).value;
+    // Whether there is a catalog at all, independent of the selected list:
+    // switching lists must keep categories and grid on screen.
+    final allMovies = ref
+        .watch(movieListProvider(playlist.id, MovieFilter.all))
+        .value;
 
     // Nothing focusable while the list opens: a button shown only for a
     // moment would take the focus with it when it disappears.
-    if (movies == null && filter == MovieFilter.all) {
+    if (allMovies == null) {
       return const Center(child: CircularProgressIndicator());
     }
-    if (movies != null && movies.length == 0 && filter == MovieFilter.all) {
+    if (allMovies.length == 0) {
       return CatalogStateView(
         loadedText: switch (status) {
           MovieCatalogLoading(:final moviesLoaded) => l10n.moviesLoadingCount(
@@ -125,35 +166,40 @@ class _MoviesPaneState extends ConsumerState<MoviesPane> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SizedBox(
-          width: 240,
-          child: Focus(
-            canRequestFocus: false,
-            skipTraversal: true,
-            onFocusChange: (focused) => _categoriesFocused = focused,
-            child: ExitRight(
-              onRight: _gridScope.enter,
-              // Left from the categories reaches the menu through the
-              // LeaveLeft of the home screen.
-              child: LeaveLeft(
-                child: FocusScope(
-                  node: _categoryScope,
-                  child: FocusTraversalGroup(
-                    child: _CategoryColumn(
-                      playlist: playlist,
-                      playlists: playlists.value!,
-                      selected: filter,
-                      status: status,
+        if (_categoriesOpen)
+          SizedBox(
+            width: 240,
+            child: Focus(
+              canRequestFocus: false,
+              skipTraversal: true,
+              // Leaving the categories in any direction closes them.
+              onFocusChange: (focused) {
+                if (!focused) _closeCategories(focusGrid: false);
+              },
+              child: ExitRight(
+                onRight: _closeCategories,
+                // Left from the categories reaches the menu through the
+                // LeaveLeft of the home screen.
+                child: LeaveLeft(
+                  child: FocusScope(
+                    node: _categoryScope,
+                    child: FocusTraversalGroup(
+                      child: _CategoryColumn(
+                        playlist: playlist,
+                        playlists: playlists.value!,
+                        selected: filter,
+                        status: status,
+                        onChosen: _closeCategories,
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
           ),
-        ),
         Expanded(
           child: LeaveLeft(
-            onLeftEdge: _categoryScope.enter,
+            onLeftEdge: _openCategories,
             child: FocusScope(
               node: _gridScope,
               child: FocusTraversalGroup(child: grid),
@@ -329,12 +375,13 @@ class _MovieGrid extends StatelessWidget {
   }
 }
 
-class _CategoryColumn extends ConsumerWidget {
+class _CategoryColumn extends ConsumerStatefulWidget {
   const _CategoryColumn({
     required this.playlist,
     required this.playlists,
     required this.selected,
     required this.status,
+    required this.onChosen,
   });
 
   final Playlist playlist;
@@ -342,8 +389,63 @@ class _CategoryColumn extends ConsumerWidget {
   final MovieFilter selected;
   final MovieCatalogStatus status;
 
+  /// Select on a category: it is chosen, the column closes.
+  final VoidCallback onChosen;
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_CategoryColumn> createState() => _CategoryColumnState();
+}
+
+class _CategoryColumnState extends ConsumerState<_CategoryColumn> {
+  /// Fixed lists before the provider categories.
+  static const _lists = [
+    MovieFilter.list(MovieList.continueWatching),
+    MovieFilter.list(MovieList.favorites),
+    MovieFilter.all,
+  ];
+
+  /// The column opens scrolled to the selected entry, so its tile is built
+  /// and can take focus; lists only build the visible rows.
+  late final _scroll = ScrollController(
+    initialScrollOffset: math.max(0, _openedIndex - 3) * _CategoryTile.extent,
+  );
+
+  /// Focus node of the entry selected when the column opened. It stays with
+  /// that tile, so moving on and changing the selection never moves a
+  /// focused node between tiles.
+  final _openedOn = FocusNode(debugLabel: 'openedMovieCategory');
+  late final MovieFilter _openedFilter = widget.selected;
+
+  int get _openedIndex {
+    final categories =
+        ref.read(movieCategoriesProvider(widget.playlist.id)).value ?? const [];
+    final offset = widget.playlists.length > 1 ? 1 : 0;
+    final list = _lists.indexOf(widget.selected);
+    if (list >= 0) return offset + list;
+    final index = categories.indexWhere(
+      (c) => c.id == widget.selected.categoryId,
+    );
+    return offset + _lists.length + math.max(0, index);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _openedOn.requestFocus();
+    });
+  }
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    _openedOn.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final playlist = widget.playlist;
     final l10n = AppLocalizations.of(context);
     final categories =
         ref.watch(movieCategoriesProvider(playlist.id)).value ?? const [];
@@ -355,12 +457,14 @@ class _CategoryColumn extends ConsumerWidget {
         _CategoryTile(
           label: label ?? filterLabel(l10n, filter, categories),
           count: count,
-          selected: filter == selected,
+          selected: filter == widget.selected,
+          focusNode: filter == _openedFilter ? _openedOn : null,
           onFocus: () => selection.select(filter),
+          onSelect: widget.onChosen,
         );
 
     final entries = <Widget>[
-      if (playlists.length > 1)
+      if (widget.playlists.length > 1)
         _CategoryTile(
           label: playlist.name,
           icon: Icons.playlist_play,
@@ -368,16 +472,14 @@ class _CategoryColumn extends ConsumerWidget {
             final chosen = await showTvChoiceDialog<Playlist>(
               context,
               title: l10n.liveChoosePlaylist,
-              choices: [for (final p in playlists) TvChoice(p, p.name)],
+              choices: [for (final p in widget.playlists) TvChoice(p, p.name)],
             );
             if (chosen != null) {
               ref.read(livePlaylistSelectionProvider.notifier).select(chosen);
             }
           },
         ),
-      entry(const MovieFilter.list(MovieList.continueWatching)),
-      entry(const MovieFilter.list(MovieList.favorites)),
-      entry(MovieFilter.all),
+      for (final list in _lists) entry(list),
       for (final category in categories)
         entry(
           MovieFilter.category(category.id),
@@ -385,7 +487,7 @@ class _CategoryColumn extends ConsumerWidget {
           count: category.movieCount,
         ),
       _CategoryTile(
-        label: status is MovieCatalogLoading
+        label: widget.status is MovieCatalogLoading
             ? l10n.moviesUpdating
             : l10n.moviesRefresh,
         icon: Icons.refresh,
@@ -398,8 +500,9 @@ class _CategoryColumn extends ConsumerWidget {
     return ColoredBox(
       color: AppColors.surface,
       child: ListView.builder(
+        controller: _scroll,
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-        itemExtent: 46,
+        itemExtent: _CategoryTile.extent,
         itemCount: entries.length,
         itemBuilder: (context, index) => entries[index],
       ),
@@ -413,14 +516,19 @@ class _CategoryTile extends StatelessWidget {
     this.count,
     this.icon,
     this.selected = false,
+    this.focusNode,
     this.onFocus,
     this.onSelect,
   });
+
+  /// Height of a tile including its gap, fixed for jumping to an entry.
+  static const extent = 46.0;
 
   final String label;
   final int? count;
   final IconData? icon;
   final bool selected;
+  final FocusNode? focusNode;
 
   /// Categories switch the grid as soon as they are focused, like the live
   /// TV categories.
@@ -431,6 +539,7 @@ class _CategoryTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     return TvFocusable(
+      focusNode: focusNode,
       onFocusChange: (focused) {
         if (focused) onFocus?.call();
       },
