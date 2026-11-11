@@ -1,0 +1,27 @@
+# Roadmap
+
+Implementation order agreed with the project owner. Status values: `planned`, `in progress`,
+`done`.
+
+| #  | Milestone                                                              | Status      |
+|----|------------------------------------------------------------------------|-------------|
+| 0  | Repository skeleton, guidelines, documentation                         | done        |
+| 1  | App scaffold, workspace, theme, TV focus, i18n, adb deploy script      | planned     |
+| 2  | User profiles (CRUD), profile picker, avatars, PIN, default profile    | planned     |
+| 3  | Xtream Codes playlists (CRUD) per profile, connection test             | planned     |
+| 4  | Settings (device and profile)                                          | planned     |
+| 5  | VOD movies: categories, list, detail, playback, resume, favorites      | planned     |
+| 6  | VOD series: seasons, episodes, progress, watched state                 | planned     |
+| 7  | Metadata enrichment from key-less sources                              | planned     |
+| 8  | Live TV: channels, categories, zapping, now/next                       | planned     |
+| 9  | EPG grid                                                               | planned     |
+| 10 | Sync server (Dart, PostgreSQL, Docker) and client sync                 | planned     |
+| 11 | CI and release builds for all platforms                                | planned     |
+| 12 | M3U playlists, external XMLTV, catch-up, keyed metadata sources        | planned     |
+
+Notes:
+
+- Data models from milestone 2 on already carry the fields needed for sync (stable UUIDs,
+  updated-at timestamps, soft-delete flags), so milestone 10 does not require migrations of
+  existing semantics.
+- Each milestone is tested on a Fire TV before it is marked `done`.
