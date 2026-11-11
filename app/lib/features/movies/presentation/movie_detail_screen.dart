@@ -8,11 +8,11 @@ import '../../../core/theme/app_colors.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/tv_button.dart';
 import '../../player/presentation/playback_time.dart';
+import '../../vod/presentation/poster_tile.dart';
+import '../../vod/presentation/vod_player_screen.dart';
 import '../application/movie_actions.dart';
 import '../application/movie_providers.dart';
 import '../domain/movie.dart';
-import 'movie_poster.dart';
-import 'vod_player_screen.dart';
 
 /// Details of a movie with play, resume, favorite and watched actions
 /// (VOD-2, DATA-4).
@@ -33,7 +33,15 @@ class MovieDetailScreen extends ConsumerWidget {
 
     void play({Duration? start}) => context.push(
       AppRoutes.vodPlayer,
-      extra: VodPlayerArgs(movie: movie, start: start),
+      extra: VodPlayerArgs(
+        title: movie.name,
+        start: start,
+        resolveUrl: (ref) => ref.read(movieStreamUrlProvider(movie).future),
+        // The actions are read here: the player also saves when it closes,
+        // when its own ref can no longer be used.
+        saveProgress: (position, duration) =>
+            actions.savePosition(movie, position, duration),
+      ),
     );
 
     final rating = info.rating ?? movie.rating;

@@ -8,7 +8,6 @@ import 'package:tivibuddy/features/movies/data/movie_data_providers.dart';
 import 'package:tivibuddy/features/movies/domain/movie.dart';
 import 'package:tivibuddy/features/movies/presentation/movie_detail_screen.dart';
 import 'package:tivibuddy/features/movies/presentation/movie_poster.dart';
-import 'package:tivibuddy/features/movies/presentation/vod_player_screen.dart';
 import 'package:tivibuddy/features/player/data/player_providers.dart';
 import 'package:tivibuddy/features/player/domain/playback_engine.dart';
 import 'package:tivibuddy/features/playlists/domain/catalog_access.dart';
@@ -16,6 +15,7 @@ import 'package:tivibuddy/features/playlists/domain/playlist.dart';
 import 'package:tivibuddy/features/profiles/data/drift_profile_repository.dart';
 import 'package:tivibuddy/features/profiles/domain/profile.dart';
 import 'package:tivibuddy/features/settings/data/drift_device_settings_repository.dart';
+import 'package:tivibuddy/features/vod/presentation/vod_player_screen.dart';
 
 import '../../helpers/fake_credential_store.dart';
 import '../../helpers/live_tv_fakes.dart';

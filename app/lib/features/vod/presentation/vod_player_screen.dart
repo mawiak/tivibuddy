@@ -10,20 +10,32 @@ import '../../player/data/player_providers.dart';
 import '../../player/domain/playback_engine.dart';
 import '../../player/presentation/playback_surface.dart';
 import '../../player/presentation/playback_time.dart';
-import '../application/movie_actions.dart';
-import '../application/movie_providers.dart';
-import '../domain/movie.dart';
 
+/// What the VOD player plays and where it reports progress to, so movies
+/// and series episodes share one player.
 class VodPlayerArgs {
-  const VodPlayerArgs({required this.movie, this.start});
+  const VodPlayerArgs({
+    required this.title,
+    required this.resolveUrl,
+    required this.saveProgress,
+    this.start,
+  });
 
-  final Movie movie;
+  final String title;
+
+  /// Resolves the playback URL, which can need provider details first.
+  final Future<String> Function(WidgetRef ref) resolveUrl;
+
+  /// Stores the position; called while playing, when the player closes and
+  /// at the end of the media with the full duration.
+  final Future<void> Function(Duration position, Duration? duration)
+  saveProgress;
 
   /// Resume position, or null to start from the beginning.
   final Duration? start;
 }
 
-/// Full screen movie playback with seeking and resume (PLAY-4, DATA-4).
+/// Full screen VOD playback with seeking and resume (PLAY-4, DATA-4).
 class VodPlayerScreen extends ConsumerStatefulWidget {
   const VodPlayerScreen({super.key, required this.args});
 
@@ -42,11 +54,8 @@ class _VodPlayerScreenState extends ConsumerState<VodPlayerScreen> {
   late final ProviderSubscription<PlaybackEngine> _engineSubscription;
   final _subscriptions = <StreamSubscription<Object?>>[];
 
-  // The actions are read once: the position is also saved in dispose, when
-  // ref can no longer be used.
-  late final MovieActions _actions;
   PlaybackEngine get _engine => _engineSubscription.read();
-  Movie get _movie => widget.args.movie;
+  VodPlayerArgs get _args => widget.args;
 
   PlaybackState _playback = PlaybackState.idle;
   Duration _position = Duration.zero;
@@ -59,7 +68,6 @@ class _VodPlayerScreenState extends ConsumerState<VodPlayerScreen> {
   @override
   void initState() {
     super.initState();
-    _actions = ref.read(movieActionsProvider);
     // Listening keeps the auto-disposed engine alive while this screen is
     // open; closing the subscription releases it.
     _engineSubscription = ref.listenManual(playbackEngineProvider, (_, _) {});
@@ -93,7 +101,7 @@ class _VodPlayerScreenState extends ConsumerState<VodPlayerScreen> {
   }
 
   Future<void> _open(Duration? start) async {
-    final url = await ref.read(movieStreamUrlProvider(_movie).future);
+    final url = await _args.resolveUrl(ref);
     if (!mounted) return;
     await _engine.open(url, start: start);
   }
@@ -106,7 +114,7 @@ class _VodPlayerScreenState extends ConsumerState<VodPlayerScreen> {
       // beginning.
       _finished = true;
       final duration = state.duration;
-      unawaited(_actions.savePosition(_movie, duration ?? _position, duration));
+      unawaited(_args.saveProgress(duration ?? _position, duration));
       Navigator.of(context).maybePop();
     }
   }
@@ -114,7 +122,7 @@ class _VodPlayerScreenState extends ConsumerState<VodPlayerScreen> {
   void _save() {
     // Positions before the first frame would overwrite a resume position.
     if (_position <= Duration.zero) return;
-    unawaited(_actions.savePosition(_movie, _position, _playback.duration));
+    unawaited(_args.saveProgress(_position, _playback.duration));
   }
 
   void _showOsd() {
@@ -214,7 +222,7 @@ class _VodPlayerScreenState extends ConsumerState<VodPlayerScreen> {
                     opacity: _osdVisible || paused ? 1 : 0,
                     duration: const Duration(milliseconds: 200),
                     child: _VodOsd(
-                      title: _movie.name,
+                      title: _args.title,
                       position: _position,
                       duration: _playback.duration,
                       paused: paused,

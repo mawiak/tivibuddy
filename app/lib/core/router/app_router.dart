@@ -7,7 +7,7 @@ import '../../features/home/presentation/home_shell.dart';
 import '../../features/live_tv/presentation/live_player_screen.dart';
 import '../../features/movies/domain/movie.dart';
 import '../../features/movies/presentation/movie_detail_screen.dart';
-import '../../features/movies/presentation/vod_player_screen.dart';
+
 import '../../features/playlists/presentation/playlist_edit_screen.dart';
 import '../../features/playlists/presentation/playlists_screen.dart';
 import '../../features/profiles/application/profile_providers.dart';
@@ -15,6 +15,7 @@ import '../../features/profiles/presentation/profile_edit_screen.dart';
 import '../../features/profiles/presentation/profile_picker_screen.dart';
 import '../../features/startup/application/app_startup.dart';
 import '../../features/startup/presentation/startup_screen.dart';
+import '../../features/vod/presentation/vod_player_screen.dart';
 import 'app_routes.dart';
 
 part 'app_router.g.dart';
