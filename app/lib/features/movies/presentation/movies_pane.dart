@@ -555,14 +555,13 @@ class _MovieInfoHeader extends ConsumerWidget {
                     ),
                   const SizedBox(height: 8),
                   if (info.plot case final plot?)
-                    Expanded(
-                      child: Text(
-                        plot,
-                        style: textTheme.bodySmall?.copyWith(
-                          color: AppColors.textPrimary,
-                        ),
-                        overflow: TextOverflow.fade,
+                    Text(
+                      plot,
+                      style: textTheme.bodySmall?.copyWith(
+                        color: AppColors.textPrimary,
                       ),
+                      maxLines: 4,
+                      overflow: TextOverflow.ellipsis,
                     ),
                 ],
               ),
