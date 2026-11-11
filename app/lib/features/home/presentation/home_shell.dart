@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../../core/layout/screen_class.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../shared/widgets/focus_memory_scope.dart';
+import '../../live_tv/presentation/live_tv_pane.dart';
 import '../../profiles/application/profile_providers.dart';
 import '../../profiles/domain/profile.dart';
 import '../../profiles/presentation/profile_avatar_view.dart';
@@ -35,7 +37,10 @@ class _HomeShellState extends ConsumerState<HomeShell> {
   /// Remembers the last focused element of the content, so returning from
   /// the menu restores it instead of jumping to the geometrically closest
   /// element.
-  late final _contentScope = _ContentScopeNode(
+  /// While the menu has focus, sections cannot take focus with autofocus,
+  /// so switching sections keeps the focus in the menu.
+  late final _contentScope = FocusMemoryScopeNode(
+    debugLabel: 'content',
     allowAutofocus: () => !_menuHasFocus,
   );
 
@@ -52,15 +57,6 @@ class _HomeShellState extends ConsumerState<HomeShell> {
     ref.read(selectedHomeSectionProvider.notifier).select(section);
   }
 
-  void _focusContent() {
-    final last = _contentScope.focusedChild;
-    if (last != null && last.canRequestFocus) {
-      last.requestFocus();
-      return;
-    }
-    ReadingOrderTraversalPolicy().findFirstFocus(_contentScope)?.requestFocus();
-  }
-
   void _focusMenu() {
     final selected = ref.read(selectedHomeSectionProvider);
     _menuFocusNodes[selected]?.requestFocus();
@@ -73,6 +69,7 @@ class _HomeShellState extends ConsumerState<HomeShell> {
     final selected = ref.watch(selectedHomeSectionProvider);
     final profile = ref.watch(activeProfileProvider);
     final content = switch (selected) {
+      HomeSection.liveTv => const LiveTvPane(),
       HomeSection.settings => const SettingsPane(),
       _ => SectionPlaceholder(key: ValueKey(selected), section: selected),
     };
@@ -103,7 +100,7 @@ class _HomeShellState extends ConsumerState<HomeShell> {
               onProfileSelect: _switchProfile,
               onFocusChange: (hasFocus) =>
                   setState(() => _menuHasFocus = hasFocus),
-              onExitRight: _focusContent,
+              onExitRight: _contentScope.enter,
             ),
             Expanded(
               child: FocusScope(
@@ -163,20 +160,5 @@ class _PhoneLayout extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-
-/// Focus scope of the content area. Sections request autofocus for their
-/// first element when they are built. That must not take focus away from the
-/// menu while the user switches sections there.
-class _ContentScopeNode extends FocusScopeNode {
-  _ContentScopeNode({required this.allowAutofocus})
-    : super(debugLabel: 'content');
-
-  final bool Function() allowAutofocus;
-
-  @override
-  void autofocus(FocusNode node) {
-    if (allowAutofocus()) super.autofocus(node);
   }
 }
