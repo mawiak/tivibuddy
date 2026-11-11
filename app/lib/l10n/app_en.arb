@@ -233,5 +233,41 @@
   "aboutLicenseText": "TiviBuddy is free and open source software, licensed under the GNU General Public License version 3.",
   "aboutDisclaimerTitle": "Disclaimer",
   "aboutDisclaimerText": "TiviBuddy is a media player only. It does not provide any content, playlists or streams. You are responsible for the sources you add and must be entitled to access them. TiviBuddy must not be used for illegal or unauthorized streams. The authors accept no liability for how the software is used or for any content accessed with it.",
-  "aboutOpenSourceLicenses": "Open source licenses"
+  "aboutOpenSourceLicenses": "Open source licenses",
+  "liveNoPlaylistTitle": "No playlist yet",
+  "liveNoPlaylistMessage": "Add an Xtream Codes playlist to watch live TV.",
+  "liveAllChannels": "All channels",
+  "liveRefresh": "Update channels",
+  "liveLoading": "Loading channels",
+  "liveLoadingCount": "{count} channels loaded",
+  "@liveLoadingCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "liveUpdating": "Updating channels",
+  "liveNoChannels": "This playlist has no live channels.",
+  "liveLoadUnauthorized": "The provider rejected the username or password.",
+  "liveLoadUnreachable": "The provider could not be reached.",
+  "liveLoadInvalid": "The provider sent an unexpected response.",
+  "liveLoadMissingPassword": "The password of this playlist is missing. Please edit the playlist.",
+  "liveRetry": "Try again",
+  "liveChooseCategory": "Category",
+  "liveChoosePlaylist": "Playlist",
+  "liveNow": "Now",
+  "liveNext": "Next",
+  "liveNoProgramme": "No programme information",
+  "liveCatchupDays": "Catch-up: {days} days",
+  "@liveCatchupDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "playerFailed": "The channel could not be played.",
+  "playerRetryHint": "Press OK to try again or choose another channel.",
+  "playerChannelList": "Channels"
 }

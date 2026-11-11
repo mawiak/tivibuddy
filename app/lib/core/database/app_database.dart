@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../features/live_tv/data/live_tv_tables.dart';
 import '../../features/playlists/data/playlists_table.dart';
 import '../../features/playlists/domain/playlist.dart';
 import '../../features/profiles/data/profiles_table.dart';
@@ -14,19 +15,34 @@ part 'app_database.g.dart';
 /// (DATA-3). Feature tables are defined in the data layer of their feature
 /// and registered here.
 @DriftDatabase(
-  tables: [Profiles, Playlists, ProfileSettingEntries, DeviceSettingEntries],
+  tables: [
+    Profiles,
+    Playlists,
+    ProfileSettingEntries,
+    DeviceSettingEntries,
+    LiveCategories,
+    LiveChannels,
+    CatalogStates,
+  ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _open());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onUpgrade: (migrator, from, to) async {
       if (from < 2) await migrator.createTable(playlists);
       if (from < 3) await migrator.createTable(profileSettingEntries);
+      if (from < 4) {
+        await migrator.createTable(liveCategories);
+        await migrator.createTable(liveChannels);
+        await migrator.createTable(catalogStates);
+        await migrator.createIndex(liveChannelsByCategory);
+        await migrator.createIndex(liveChannelsByNumber);
+      }
     },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');

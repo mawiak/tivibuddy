@@ -31,14 +31,17 @@ AppDatabase createTestDatabase() {
 
 ProviderContainer _createContainer(
   AppDatabase? database,
-  List<Override> overrides,
-) {
+  List<Override> overrides, [
+  FakeCredentialStore? credentials,
+]) {
   final db = database ?? createTestDatabase();
   final container = ProviderContainer(
     overrides: [
       appDatabaseProvider.overrideWithValue(db),
       // Platform secure storage is not available in tests.
-      credentialStoreProvider.overrideWithValue(FakeCredentialStore()),
+      credentialStoreProvider.overrideWithValue(
+        credentials ?? FakeCredentialStore(),
+      ),
       ...overrides,
     ],
   );
@@ -90,9 +93,10 @@ Future<ProviderContainer> pumpFullApp(
   Size size = tvSize,
   AppDatabase? database,
   List<Override> overrides = const [],
+  FakeCredentialStore? credentials,
 }) async {
   _setSize(tester, size);
-  final container = _createContainer(database, overrides);
+  final container = _createContainer(database, overrides, credentials);
 
   await tester.pumpWidget(
     UncontrolledProviderScope(

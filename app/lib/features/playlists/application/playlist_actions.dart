@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../live_tv/data/live_tv_data_providers.dart';
 import '../../profiles/application/profile_providers.dart';
 import '../data/playlist_data_providers.dart';
 import '../domain/connection_test.dart';
@@ -111,9 +112,11 @@ class PlaylistActions {
     return (await repository.findById(savedId))!;
   }
 
+  /// Deletes the playlist, its password and its cached catalog.
   Future<void> delete(String id) async {
     await _ref.read(playlistRepositoryProvider).delete(id);
     await _ref.read(credentialStoreProvider).deletePassword(id);
+    await _ref.read(liveTvRepositoryProvider).deleteForPlaylist(id);
   }
 
   Future<void> deleteAllForProfile(String profileId) async {
@@ -121,8 +124,10 @@ class PlaylistActions {
         .read(playlistRepositoryProvider)
         .deleteAllForProfile(profileId);
     final credentials = _ref.read(credentialStoreProvider);
+    final liveTv = _ref.read(liveTvRepositoryProvider);
     for (final id in ids) {
       await credentials.deletePassword(id);
+      await liveTv.deleteForPlaylist(id);
     }
   }
 }
