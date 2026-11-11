@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Launcher banner for Fire TV and Android TV (16:9, 320x180 dp).
+     Placeholder artwork until the final logo exists. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="320dp"
+    android:height="180dp"
+    android:viewportWidth="320"
+    android:viewportHeight="180">
+
+    <path
+        android:fillColor="#0D1117"
+        android:pathData="M0,0h320v180h-320z" />
+
+    <!-- Antenna -->
+    <path
+        android:strokeColor="#2F81F7"
+        android:strokeWidth="6"
+        android:strokeLineCap="round"
+        android:pathData="M138,30 L160,50 L182,30" />
+
+    <!-- Screen frame -->
+    <path
+        android:strokeColor="#2F81F7"
+        android:strokeWidth="8"
+        android:fillColor="#161B22"
+        android:pathData="M108,50 h104 a14,14 0 0 1 14,14 v62 a14,14 0 0 1 -14,14 h-104 a14,14 0 0 1 -14,-14 v-62 a14,14 0 0 1 14,-14 z" />
+
+    <!-- Play symbol -->
+    <path
+        android:fillColor="#E6EDF3"
+        android:pathData="M148,72 L148,118 L184,95 z" />
+</vector>
