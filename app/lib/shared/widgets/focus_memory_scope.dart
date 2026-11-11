@@ -7,23 +7,34 @@ import 'package:flutter/widgets.dart';
 ///
 /// Elements inside request `autofocus` when they are built, for example the
 /// first row of a new list. [allowAutofocus] prevents that from taking focus
-/// away from a neighbouring area the user is currently navigating in.
+/// away from a neighbouring area the user is currently navigating in. The
+/// suppressed element is kept as the entry point for the next [enter], so
+/// screens decide with `autofocus` where focus lands.
 class FocusMemoryScopeNode extends FocusScopeNode {
   FocusMemoryScopeNode({super.debugLabel, this.allowAutofocus});
 
   bool Function()? allowAutofocus;
+  FocusNode? _deferredAutofocus;
 
   @override
   void autofocus(FocusNode node) {
-    if (allowAutofocus?.call() ?? true) super.autofocus(node);
+    if (allowAutofocus?.call() ?? true) {
+      super.autofocus(node);
+    } else {
+      _deferredAutofocus = node;
+    }
   }
 
-  /// Focuses the last focused element, or the first one in reading order.
+  /// Focuses the last focused element, else the element that asked for
+  /// autofocus, else the first one in reading order.
   void enter() {
-    final last = focusedChild;
-    if (last != null && last.canRequestFocus && last.context != null) {
-      last.requestFocus();
-      return;
+    final deferred = _deferredAutofocus;
+    _deferredAutofocus = null;
+    for (final node in [focusedChild, deferred]) {
+      if (node != null && node.canRequestFocus && node.context != null) {
+        node.requestFocus();
+        return;
+      }
     }
     ReadingOrderTraversalPolicy().findFirstFocus(this)?.requestFocus();
   }

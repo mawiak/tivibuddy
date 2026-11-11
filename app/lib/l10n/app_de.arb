@@ -137,5 +137,14 @@
   "liveCatchupDays": "Catch-up: {days} Tage",
   "playerFailed": "Der Kanal konnte nicht abgespielt werden.",
   "playerRetryHint": "Drücke OK, um es erneut zu versuchen, oder wähle einen anderen Kanal.",
-  "playerChannelList": "Kanäle"
+  "playerChannelList": "Kanäle",
+  "navGuide": "TV-Guide",
+  "guideNoChannels": "Noch keine Kanäle. Öffne Live-TV, um die Kanalliste zu laden.",
+  "guideLoading": "TV-Guide wird geladen: {count} Sendungen",
+  "guideFailed": "Der TV-Guide konnte nicht geladen werden.",
+  "guideOff": "Das Laden des TV-Guides ist in den Einstellungen ausgeschaltet.",
+  "guideNoInformation": "Keine Informationen",
+  "settingsGuideDays": "TV-Guide",
+  "settingsGuideDaysOff": "Nicht laden",
+  "settingsGuideDaysValue": "{days, plural, =1{1 Tag im Voraus} other{{days} Tage im Voraus}}"
 }

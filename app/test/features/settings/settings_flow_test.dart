@@ -78,6 +78,9 @@ void main() {
   testWidgets('resetting device settings asks first', (tester) async {
     await openSettings(tester);
     final settings = container.read(deviceSettingsRepositoryProvider);
+    await tester.scrollUntilVisible(find.text('Reset device settings'), 100);
+    await tester.ensureVisible(find.text('Reset device settings'));
+    await settle(tester);
 
     await tester.tap(find.text('Reset device settings'));
     await settle(tester);

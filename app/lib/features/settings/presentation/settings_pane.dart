@@ -26,6 +26,7 @@ class SettingsPane extends ConsumerWidget {
     final profiles = ref.watch(profilesProvider).value ?? const <Profile>[];
     final settings = ref.watch(activeProfileSettingsProvider).value;
     final startProfileId = ref.watch(defaultProfileIdProvider).value;
+    final guideDays = ref.watch(guideDaysProvider).value ?? defaultGuideDays;
     final playlistCount =
         ref.watch(activeProfilePlaylistsProvider).value?.length ?? 0;
 
@@ -81,6 +82,14 @@ class SettingsPane extends ConsumerWidget {
             subtitle: startProfile?.name ?? l10n.settingsStartProfileNone,
             leading: Icons.play_circle_outline,
             onSelect: () => _chooseStartProfile(context, actions, profiles),
+          ),
+        ),
+        _Entry(
+          TvListTile(
+            title: l10n.settingsGuideDays,
+            subtitle: guideDaysLabel(l10n, guideDays),
+            leading: Icons.view_timeline_outlined,
+            onSelect: () => _chooseGuideDays(context, actions, guideDays),
           ),
         ),
         _Entry(
@@ -165,10 +174,32 @@ class SettingsPane extends ConsumerWidget {
     await actions.setStartProfile(choice == _none ? null : choice);
   }
 
+  Future<void> _chooseGuideDays(
+    BuildContext context,
+    SettingsActions actions,
+    int current,
+  ) async {
+    final l10n = AppLocalizations.of(context);
+    final choice = await showTvChoiceDialog<int>(
+      context,
+      title: l10n.settingsGuideDays,
+      choices: [
+        for (final days in guideDayChoices)
+          TvChoice(days, guideDaysLabel(l10n, days)),
+      ],
+    );
+    if (choice != null && choice != current) {
+      await actions.setGuideDays(choice);
+    }
+  }
+
   // Dialog results use sentinels because null means "dismissed".
   static const _system = '';
   static const _none = '';
 }
+
+String guideDaysLabel(AppLocalizations l10n, int days) =>
+    days == 0 ? l10n.settingsGuideDaysOff : l10n.settingsGuideDaysValue(days);
 
 /// Display name of a stored language tag.
 String languageLabel(BuildContext context, String? languageCode) {

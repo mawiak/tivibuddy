@@ -43,7 +43,9 @@ it gets focus, following common IPTV player conventions.
 The content area is a `FocusMemoryScopeNode` (`app/lib/shared/widgets/focus_memory_scope.dart`). Right from the menu restores the last focused element
 of the content, or its first element after a section change, instead of the geometrically
 closest one. While the menu has focus, sections cannot take focus with `autofocus`, so
-switching sections keeps the focus in the menu. The same building block connects the
+switching sections keeps the focus in the menu. The element whose `autofocus` was suppressed
+becomes the entry point of the next `enter()`, so each section decides with `autofocus` where
+focus lands (for example the programme grid of the TV guide instead of its header). The same building block connects the
 categories and the channel list of live TV; use it for every list-detail layout.
 
 Directional traversal never leaves a focus scope. Wrap every scope in `LeaveLeft` (same file):

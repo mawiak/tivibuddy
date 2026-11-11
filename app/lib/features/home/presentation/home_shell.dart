@@ -6,6 +6,7 @@ import '../../../core/layout/screen_class.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/focus_memory_scope.dart';
+import '../../live_tv/presentation/guide_pane.dart';
 import '../../live_tv/presentation/live_tv_pane.dart';
 import '../../profiles/application/profile_providers.dart';
 import '../../profiles/domain/profile.dart';
@@ -70,6 +71,7 @@ class _HomeShellState extends ConsumerState<HomeShell> {
     final profile = ref.watch(activeProfileProvider);
     final content = switch (selected) {
       HomeSection.liveTv => const LiveTvPane(),
+      HomeSection.guide => const GuidePane(),
       HomeSection.settings => const SettingsPane(),
       _ => SectionPlaceholder(key: ValueKey(selected), section: selected),
     };
