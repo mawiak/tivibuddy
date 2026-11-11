@@ -26,3 +26,32 @@ Notes:
   existing semantics.
 - Each milestone is tested on a Fire TV before it is marked `done`.
 - Open item for web support: add `sqlite3.wasm` and `drift_worker.js` to `app/web/`.
+
+## Backlog of detail features
+
+Agreed with the owner on 2026-11-11: basics of every area first, details afterwards. Nothing
+here may be dropped silently; when an item is implemented, remove it here and mention it in
+`CHANGELOG.md`. Check this list when planning each milestone.
+
+Live TV and player:
+
+- Audio track and subtitle selection in the player (PLAY-4), remembered per channel.
+- Player options in the OSD: aspect ratio / zoom, playback speed for VOD, stream info
+  (codec, resolution, bitrate), sleep timer.
+- Decoder choice per device (hardware direct, hardware copy, software) and buffer size as
+  device settings (SET-1); software fallback when the hardware decoder fails.
+- Favorites for channels and a favorites category; recently watched channels.
+- Channel number input with the remote; jump to the previous channel.
+- Catch-up / timeshift (LIVE-3), past programmes in the guide.
+- Reminders and programme details for future programmes in the guide; guide search.
+- Category order and hidden categories per profile (SET-2); hidden channels.
+- Optional: hide the side menu entirely in the guide; autoplay the last channel in the
+  preview on start; long-press context menus (UI-1).
+- HLS output option and configurable user agent per playlist.
+- Gzip-compressed XMLTV, external XMLTV sources (PL-3).
+
+VOD and general:
+
+- Search across live, movies and series (VOD-1).
+- Sorting options (added, name, rating) for VOD grids.
+- Metadata enrichment and caching (milestone 9).
