@@ -26,4 +26,4 @@ Decisions agreed with the project owner. Do not reopen them without the owner as
 | 2026-11-11 | Settings scope M4   | Framework, language, start profile, about; feature settings grow with features |
 | 2026-11-11 | App language        | Per profile (system default), options read from ARB files                 |
 | 2026-11-11 | Order after settings | Live TV and EPG before VOD (core use case, player and data risk first) |
-| 2026-11-11 | Live TV layout      | The guide is the live TV view: details (preview while playing), grid; left goes to the channel column, then the categories column pushing the grid; back from the player returns to it |
+| 2026-11-11 | Live TV layout      | The guide is the live TV view: details (preview while playing), grid; left or back from the current programme opens the categories column on the selected category, pushing the grid; back from the player returns to it |

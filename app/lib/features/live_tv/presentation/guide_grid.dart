@@ -41,9 +41,10 @@ EpgEntry? _programmeAt(List<EpgEntry>? programmes, DateTime time) => programmes
 /// Instead of one focus node per programme, the grid is a single focus node
 /// that tracks the focused channel and a time within the focused programme.
 /// That keeps thousands of programmes cheap and lets up and down keep the
-/// time position like common IPTV guides. Left from the earliest programme
-/// focuses the channel column; left from there is not handled, so the
-/// caller decides where focus goes.
+/// time position like common IPTV guides. While the programme running now
+/// has focus, its channel is highlighted too, so up and down visibly move
+/// through the channel list. Left from the programme running now is not
+/// handled, so the caller decides where focus goes.
 class GuideGrid extends ConsumerStatefulWidget {
   const GuideGrid({
     super.key,
@@ -94,9 +95,6 @@ class GuideGridState extends ConsumerState<GuideGrid> {
   double _visibleMinutes = 120;
   bool _focused = false;
 
-  /// The channel column has focus instead of a programme.
-  bool _onChannels = false;
-
   @override
   void initState() {
     super.initState();
@@ -116,11 +114,12 @@ class GuideGridState extends ConsumerState<GuideGrid> {
 
   void focus() => _focusNode.requestFocus();
 
+  bool get hasFocus => _focusNode.hasFocus;
+
   /// Focuses the programme running now on the channel in [row].
   void showRow(int row) {
     setState(() {
       _row = row.clamp(0, math.max(0, widget.channels.length - 1));
-      _onChannels = false;
       _now = DateTime.now().toUtc();
       _anchor = _now;
       _viewStart = _floorSlot(_now);
@@ -173,20 +172,10 @@ class GuideGridState extends ConsumerState<GuideGrid> {
     if (key == LogicalKeyboardKey.pageDown) return _moveRow(page);
     if (key == LogicalKeyboardKey.pageUp) return _moveRow(-page);
     if (key == LogicalKeyboardKey.arrowRight) {
-      if (_onChannels) {
-        setState(() => _onChannels = false);
-      } else {
-        _moveRight();
-      }
+      _moveRight();
       return KeyEventResult.handled;
     }
-    if (key == LogicalKeyboardKey.arrowLeft) {
-      if (_onChannels) return KeyEventResult.ignored;
-      if (_moveLeft() == KeyEventResult.ignored) {
-        setState(() => _onChannels = true);
-      }
-      return KeyEventResult.handled;
-    }
+    if (key == LogicalKeyboardKey.arrowLeft) return _moveLeft();
     if (key == LogicalKeyboardKey.select ||
         key == LogicalKeyboardKey.enter ||
         key == LogicalKeyboardKey.numpadEnter ||
@@ -313,7 +302,7 @@ class GuideGridState extends ConsumerState<GuideGrid> {
               playlistId: widget.playlistId,
               channel: focusedChannel,
               chunkStart: chunkStart,
-              at: _onChannels ? _now : _anchor,
+              at: _anchor,
               now: _now,
               preview: widget.preview,
               subtitle: widget.subtitle,
@@ -359,10 +348,7 @@ class GuideGridState extends ConsumerState<GuideGrid> {
                               channelWidth: channelWidth,
                               now: _now,
                               playing: index == widget.playingIndex,
-                              channelFocused:
-                                  _focused && index == _row && _onChannels,
-                              focusedAt:
-                                  _focused && index == _row && !_onChannels
+                              focusedAt: _focused && index == _row
                                   ? _anchor
                                   : null,
                             ),
@@ -472,10 +458,15 @@ class _GuideDetails extends ConsumerWidget {
         if (programme != null)
           Row(
             children: [
-              Text(
-                '${formatTime(context, programme.start)} - '
-                '${formatTime(context, programme.end)}',
-                style: textTheme.bodySmall?.copyWith(color: AppColors.accent),
+              // Narrow next to the preview and the open categories.
+              Flexible(
+                child: Text(
+                  '${formatTime(context, programme.start)} - '
+                  '${formatTime(context, programme.end)}',
+                  style: textTheme.bodySmall?.copyWith(color: AppColors.accent),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
               if (!programme.start.isAfter(now) &&
                   programme.end.isAfter(now)) ...[
@@ -493,11 +484,15 @@ class _GuideDetails extends ConsumerWidget {
                 ),
               ],
               const SizedBox(width: 12),
-              Text(
-                l10n.guideMinutes(
-                  programme.end.difference(programme.start).inMinutes,
+              Flexible(
+                child: Text(
+                  l10n.guideMinutes(
+                    programme.end.difference(programme.start).inMinutes,
+                  ),
+                  style: textTheme.bodySmall,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                style: textTheme.bodySmall,
               ),
             ],
           )
@@ -669,7 +664,6 @@ class _GuideRow extends ConsumerWidget {
     required this.channelWidth,
     required this.now,
     required this.playing,
-    required this.channelFocused,
     required this.focusedAt,
   });
 
@@ -684,7 +678,6 @@ class _GuideRow extends ConsumerWidget {
   final double channelWidth;
   final DateTime now;
   final bool playing;
-  final bool channelFocused;
 
   /// Time of the focused programme when this row has focus.
   final DateTime? focusedAt;
@@ -752,6 +745,12 @@ class _GuideRow extends ConsumerWidget {
     final focusedProgramme = focusedAt == null
         ? null
         : _programmeAt(programmes, focusedAt);
+    // On the programme running now, up and down move through the channel
+    // list, so the channel is highlighted like a list entry.
+    final channelFocused =
+        focusedAt != null &&
+        !focusedAt.isAfter(now) &&
+        (focusedProgramme == null || focusedProgramme.end.isAfter(now));
 
     final cells = <Widget>[
       for (final programme in visible)
@@ -788,12 +787,6 @@ class _GuideRow extends ConsumerWidget {
           decoration: BoxDecoration(
             color: channelFocused ? AppColors.focusFill : null,
             borderRadius: BorderRadius.circular(4),
-            border: Border.all(
-              color: channelFocused
-                  ? AppColors.focusBorder
-                  : Colors.transparent,
-              width: 2,
-            ),
           ),
           child: Row(
             children: [

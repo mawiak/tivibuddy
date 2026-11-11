@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/layout/screen_class.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../shared/widgets/content_back.dart';
 import '../../../shared/widgets/focus_memory_scope.dart';
 import '../../live_tv/presentation/live_tv_pane.dart';
 import '../../profiles/application/profile_providers.dart';
@@ -19,7 +20,8 @@ import 'side_menu.dart';
 /// Main screen: navigation menu plus the content of the selected section.
 ///
 /// Back key behaviour on TV follows the common IPTV player pattern: back from
-/// the content moves focus to the menu, back from the menu leaves the app.
+/// the content moves focus to the menu unless the content handles it (see
+/// [ContentBack]), back from the menu leaves the app.
 class HomeShell extends ConsumerStatefulWidget {
   const HomeShell({super.key});
 
@@ -33,6 +35,7 @@ class _HomeShellState extends ConsumerState<HomeShell> {
       section: FocusNode(debugLabel: 'menu.${section.name}'),
   };
   bool _menuHasFocus = false;
+  final _contentBack = ContentBackController();
 
   /// Remembers the last focused element of the content, so returning from
   /// the menu restores it instead of jumping to the geometrically closest
@@ -87,7 +90,7 @@ class _HomeShellState extends ConsumerState<HomeShell> {
     return PopScope(
       canPop: _menuHasFocus,
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) _focusMenu();
+        if (!didPop && !_contentBack.handle()) _focusMenu();
       },
       child: Scaffold(
         body: Row(
@@ -105,9 +108,12 @@ class _HomeShellState extends ConsumerState<HomeShell> {
             Expanded(
               child: LeaveLeft(
                 onLeftEdge: _focusMenu,
-                child: FocusScope(
-                  node: _contentScope,
-                  child: FocusTraversalGroup(child: content),
+                child: ContentBack(
+                  controller: _contentBack,
+                  child: FocusScope(
+                    node: _contentScope,
+                    child: FocusTraversalGroup(child: content),
+                  ),
                 ),
               ),
             ),

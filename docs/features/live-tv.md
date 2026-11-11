@@ -9,12 +9,13 @@ UI-3.
   layout: details of the focused programme at the top, with a preview of the channel played
   last on their left while it plays, and the programme grid below (see [TV guide](#tv-guide)).
   Phones show details and grid with a category selector in the header, without preview.
-- **Left** from the programme running now focuses the channel column of the grid (up and down
-  change the channel, select plays it, right returns to the programmes). Left from there
-  opens the **categories** as a column that pushes the grid to the right. They switch the grid
-  as soon as they get focus. "All channels" is the first entry, "Update channels" the last.
+- While the programme running now has focus, its channel is highlighted as well, so up and
+  down visibly move through the channel list.
+- **Left or back** from the programme running now opens the **categories** as a column that
+  pushes the grid to the right, focused on the selected category. They switch the grid as
+  soon as they get focus. "All channels" is the first entry, "Update channels" the last.
   With more than one playlist, the first entry selects the playlist. Right closes them and
-  returns to the grid, left opens the side menu, which also closes them.
+  returns to the grid; left or back opens the side menu, which also closes them.
 - **Back from the player** returns to the guide on the channel played last, which continues
   in the preview. Select on it returns to full screen without opening the stream again.
   Leaving the live TV section stops playback. The screen stays on while a stream plays.
@@ -71,8 +72,7 @@ line at the current time and the playing channel marked in the accent colour.
 | Page up / down               | One screen of channels                                  |
 | Select                       | Play the channel in full screen                         |
 | Up from the first channel    | Category button (phones)                                |
-| Left from the current programme | Channel column (no catch-up yet, past is hidden)     |
-| Left from the channel column | Categories                                              |
+| Left or back from the current programme | Categories (no catch-up yet, past is hidden) |
 
 On touch screens a tap plays the channel and dragging sideways moves the time axis.
 

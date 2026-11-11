@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -6,6 +8,7 @@ import '../../../core/layout/screen_class.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../shared/widgets/content_back.dart';
 import '../../../shared/widgets/focus_memory_scope.dart';
 import '../../../shared/widgets/marquee_text.dart';
 import '../../../shared/widgets/tv_button.dart';
@@ -23,9 +26,9 @@ import 'guide_grid.dart';
 import 'live_player_screen.dart';
 
 /// Live TV section of the home screen (LIVE-1, LIVE-2): the guide, with a
-/// preview of the channel played last. Left from the guide reaches its
-/// channel column, then the categories, which push the guide to the right,
-/// then the side menu.
+/// preview of the channel played last. Left or back from the programme
+/// running now opens the categories, which push the guide to the right;
+/// left or back from there reaches the side menu.
 class LiveTvPane extends ConsumerStatefulWidget {
   const LiveTvPane({super.key});
 
@@ -48,8 +51,28 @@ class _LiveTvPaneState extends ConsumerState<LiveTvPane> {
   /// the channel continues in the preview. Closed with this section.
   ProviderSubscription<PlaybackEngine>? _preview;
 
+  ContentBackController? _back;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _back?.unregister(_onBack);
+    _back = ContentBack.maybeOf(context)?..register(_onBack);
+  }
+
+  /// Back from the guide opens the categories; back from the categories
+  /// is left to the home screen, which focuses the menu.
+  bool _onBack() {
+    final grid = _gridKey.currentState;
+    if (_categoriesOpen || grid == null || !grid.hasFocus) return false;
+    if (ScreenClass.of(context).isPhone) return false;
+    _openCategories();
+    return true;
+  }
+
   @override
   void dispose() {
+    _back?.unregister(_onBack);
     _preview?.close();
     _categoryScope.dispose();
     super.dispose();
@@ -78,10 +101,8 @@ class _LiveTvPaneState extends ConsumerState<LiveTvPane> {
   }
 
   void _openCategories() {
+    // The category column focuses the selected category when it opens.
     setState(() => _categoriesOpen = true);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && !_categoryScope.hasFocus) _categoryScope.enter();
-    });
   }
 
   void _closeCategories({bool focusGrid = true}) {
@@ -389,7 +410,7 @@ class _CatalogState extends ConsumerWidget {
   }
 }
 
-class _CategoryColumn extends ConsumerWidget {
+class _CategoryColumn extends ConsumerStatefulWidget {
   const _CategoryColumn({
     required this.playlist,
     required this.playlists,
@@ -403,7 +424,52 @@ class _CategoryColumn extends ConsumerWidget {
   final LiveCatalogStatus status;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_CategoryColumn> createState() => _CategoryColumnState();
+}
+
+class _CategoryColumnState extends ConsumerState<_CategoryColumn> {
+  /// Opens scrolled to the selected category, so its tile is built and
+  /// takes focus; lists only build the visible rows.
+  late final _scroll = ScrollController(
+    initialScrollOffset: math.max(0, _selectedEntry - 3) * _CategoryTile.extent,
+  );
+
+  /// Focus node of the category selected when the column opened. It stays
+  /// with that tile, so focus moving on and changing the selection does not
+  /// move a focused node between tiles.
+  final _openedOn = FocusNode(debugLabel: 'openedCategory');
+  late final String? _openedCategoryId = widget.selectedCategoryId;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _openedOn.requestFocus();
+    });
+  }
+
+  int get _selectedEntry {
+    final categories =
+        ref.read(liveCategoriesProvider(widget.playlist.id)).value ?? const [];
+    final index = categories.indexWhere(
+      (c) => c.id == widget.selectedCategoryId,
+    );
+    return (widget.playlists.length > 1 ? 1 : 0) + index + 1;
+  }
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    _openedOn.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final playlist = widget.playlist;
+    final playlists = widget.playlists;
+    final selectedCategoryId = widget.selectedCategoryId;
+    final status = widget.status;
     final l10n = AppLocalizations.of(context);
     final categories =
         ref.watch(liveCategoriesProvider(playlist.id)).value ?? const [];
@@ -430,7 +496,7 @@ class _CategoryColumn extends ConsumerWidget {
       _CategoryTile(
         label: l10n.liveAllChannels,
         selected: selectedCategoryId == null,
-        autofocus: selectedCategoryId == null,
+        focusNode: _openedCategoryId == null ? _openedOn : null,
         onFocus: () => selection.select(null),
       ),
       for (final category in categories)
@@ -438,7 +504,7 @@ class _CategoryColumn extends ConsumerWidget {
           label: category.name,
           count: category.channelCount,
           selected: category.id == selectedCategoryId,
-          autofocus: category.id == selectedCategoryId,
+          focusNode: category.id == _openedCategoryId ? _openedOn : null,
           onFocus: () => selection.select(category.id),
         ),
       _CategoryTile(
@@ -455,7 +521,9 @@ class _CategoryColumn extends ConsumerWidget {
     return ColoredBox(
       color: AppColors.surface,
       child: ListView.builder(
+        controller: _scroll,
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+        itemExtent: _CategoryTile.extent,
         itemCount: entries.length,
         itemBuilder: (context, index) => entries[index],
       ),
@@ -469,16 +537,19 @@ class _CategoryTile extends StatelessWidget {
     this.count,
     this.icon,
     this.selected = false,
-    this.autofocus = false,
+    this.focusNode,
     this.onFocus,
     this.onSelect,
   });
+
+  /// Height of a tile including its gap, fixed for jumping to an entry.
+  static const extent = 46.0;
 
   final String label;
   final int? count;
   final IconData? icon;
   final bool selected;
-  final bool autofocus;
+  final FocusNode? focusNode;
 
   /// Categories switch the channel list as soon as they are focused, like in
   /// common IPTV players.
@@ -489,7 +560,7 @@ class _CategoryTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     return TvFocusable(
-      autofocus: autofocus,
+      focusNode: focusNode,
       onFocusChange: (focused) {
         if (focused) onFocus?.call();
       },

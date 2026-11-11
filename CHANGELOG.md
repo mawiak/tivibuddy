@@ -32,7 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Background loading of large channel catalogs with a streaming JSON parser.
 - Video playback with libmpv/FFmpeg and hardware decoding.
 - TV guide as the live TV view: preview of the channel played last, details of the focused
-  programme, programme grid with now line, channel column and categories reached with left, navigation
+  programme, programme grid with now line, categories reached with left or back, navigation
   through channels and time, playback with OK, sideways drag on touch. Back from the player
   returns to the guide while the channel continues in the preview.
 - Background loading of the provider XMLTV guide with a streaming XML parser; now and next

@@ -175,38 +175,41 @@ void main() {
     expect(activeTexts(), contains('Show A2'));
   });
 
-  testWidgets('left goes to the channels, the categories, then the menu', (
+  testWidgets('left and back open the categories on the selected one', (
     tester,
   ) async {
     await openLiveTv(tester);
 
     await press(tester, LogicalKeyboardKey.arrowLeft);
-    expect(activeTexts(), ['Channel 1'], reason: 'channel column focused');
-    await press(tester, LogicalKeyboardKey.arrowDown);
-    expect(activeTexts(), ['Channel 2']);
-    await press(tester, LogicalKeyboardKey.arrowRight);
-    expect(activeTexts(), containsAll(['Channel 2', 'Show A2']));
-    await press(tester, LogicalKeyboardKey.arrowLeft);
-
-    await press(tester, LogicalKeyboardKey.arrowLeft);
-    expect(find.text('Sport'), findsOneWidget);
     expect(activeTexts(), contains('All channels'));
     expect(
-      find.text('Channel 2'),
+      find.text('Channel 1'),
       findsWidgets,
       reason: 'the categories push the guide aside instead of covering it',
     );
+    await press(tester, LogicalKeyboardKey.arrowDown);
+    await press(tester, LogicalKeyboardKey.arrowDown);
+    await press(tester, LogicalKeyboardKey.arrowRight);
+    expect(find.text('News'), findsNothing, reason: 'categories close');
 
     await press(tester, LogicalKeyboardKey.arrowLeft);
+    expect(activeTexts(), contains('Sport'));
+    await press(tester, LogicalKeyboardKey.arrowRight);
+
+    await pressBack(tester);
+    await settle(tester);
+    expect(activeTexts(), contains('Sport'));
+
+    await pressBack(tester);
+    await settle(tester);
     expect(focusedLabel(), 'menu.liveTv');
-    expect(find.text('Sport'), findsNothing, reason: 'categories close');
+    expect(find.text('News'), findsNothing, reason: 'categories close');
   });
 
   testWidgets('a focused category filters and right returns to the guide', (
     tester,
   ) async {
     await openLiveTv(tester);
-    await press(tester, LogicalKeyboardKey.arrowLeft);
     await press(tester, LogicalKeyboardKey.arrowLeft);
 
     await press(tester, LogicalKeyboardKey.arrowDown);
@@ -265,6 +268,8 @@ void main() {
     await settle(tester);
 
     // Leaving live TV stops playback.
+    await pressBack(tester);
+    await settle(tester);
     await pressBack(tester);
     await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
     await press(tester, LogicalKeyboardKey.select);

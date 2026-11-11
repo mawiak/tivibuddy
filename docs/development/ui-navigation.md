@@ -48,6 +48,11 @@ becomes the entry point of the next `enter()`, so each section decides with `aut
 focus lands (for example the programme grid of the TV guide instead of its header). The same building block connects the
 categories and the channel list of live TV; use it for every list-detail layout.
 
+Back from the content focuses the menu, unless the content handles it first: a section
+registers a handler with `ContentBack` (`app/lib/shared/widgets/content_back.dart`), for
+example live TV, which opens its categories. Nested `PopScope`s cannot do this, because the
+back key is a route pop that every `PopScope` of the route receives.
+
 Directional traversal never leaves a focus scope. Wrap every scope in `LeaveLeft` (same file):
 it tries the normal move first and, at the left edge, hands focus to the area on the left
 (channel list to categories, any content to the side menu).
