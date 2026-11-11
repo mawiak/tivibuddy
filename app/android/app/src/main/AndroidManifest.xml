@@ -1,5 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Most IPTV providers serve their API and streams over plain HTTP,
+         so cleartext traffic is enabled in the application element. -->
 
     <!-- TV devices (Fire TV, Android TV) have no touch screen. Declaring these
          features as optional keeps the app installable on TVs and phones. -->
@@ -10,7 +12,8 @@
         android:label="TiviBuddy"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
-        android:banner="@drawable/tv_banner">
+        android:banner="@drawable/tv_banner"
+        android:usesCleartextTraffic="true">
         <activity
             android:name=".MainActivity"
             android:exported="true"
