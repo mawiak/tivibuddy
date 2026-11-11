@@ -19,3 +19,5 @@ Decisions agreed with the project owner. Do not reopen them without the owner as
 | 2026-11-11 | Git and releases    | `develop` until first release, Conventional Commits, SemVer, changelog    |
 | 2026-11-11 | Web support         | Best effort, browser codec and CORS limitations accepted                  |
 | 2026-11-11 | Metadata            | Key-less sources first (TVmaze, Wikidata, Cinemeta), keyed sources later  |
+| 2026-11-11 | Application ID      | `io.github.mawiak.tivibuddy` (Android package, iOS/macOS bundle ID)       |
+| 2026-11-11 | Hosting             | GitHub `mawiak/tivibuddy`, private until the owner decides otherwise      |
