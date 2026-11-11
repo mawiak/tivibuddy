@@ -148,6 +148,10 @@ void main() {
     });
     await pumpFullApp(tester, database: db);
 
+    // The start profile has a PIN, so its PIN is asked for first.
+    await pressBack(tester);
+    await settle(tester);
+
     await tester.tap(find.text('Manage profiles'));
     await tester.pump();
     await tester.tap(find.text('Ben'));
@@ -192,5 +196,37 @@ void main() {
     expect(find.byType(ProfilePickerScreen), findsOneWidget);
     expect(find.text('Ben'), findsNothing);
     expect(find.text('Anna'), findsOneWidget);
+  });
+
+  testWidgets('a pin protected start profile asks for its pin at start', (
+    tester,
+  ) async {
+    final db = createTestDatabase();
+    await tester.runAsync(() async {
+      final ben = await DriftProfileRepository(db)
+          .create(name: 'Ben', avatar: const PresetAvatar(1), pin: '1234');
+      await DriftDeviceSettingsRepository(db).setDefaultProfileId(ben.id);
+    });
+    await pumpFullApp(tester, database: db);
+
+    expect(find.text('Enter PIN for Ben'), findsOneWidget);
+    await enterPin(tester, '1234');
+    expect(find.byType(HomeShell), findsOneWidget);
+  });
+
+  testWidgets('cancelling the start pin shows the picker', (tester) async {
+    final db = createTestDatabase();
+    await tester.runAsync(() async {
+      final ben = await DriftProfileRepository(db)
+          .create(name: 'Ben', avatar: const PresetAvatar(1), pin: '1234');
+      await DriftDeviceSettingsRepository(db).setDefaultProfileId(ben.id);
+    });
+    await pumpFullApp(tester, database: db);
+
+    await pressBack(tester);
+    await settle(tester);
+
+    expect(find.text('Enter PIN for Ben'), findsNothing);
+    expect(find.byType(ProfilePickerScreen), findsOneWidget);
   });
 }

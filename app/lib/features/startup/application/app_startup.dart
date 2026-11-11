@@ -9,8 +9,9 @@ part 'app_startup.g.dart';
 /// Opens the database and decides the initial profile.
 ///
 /// A default profile is activated directly (PROF-5) unless it is protected by
-/// a PIN. In that case the profile picker is shown with the default profile
-/// focused, so the PIN is never bypassed.
+/// a PIN. In that case the profile picker opens and asks for the PIN of the
+/// default profile right away (see [StartupPinRequest]), so the PIN is never
+/// bypassed.
 @Riverpod(keepAlive: true)
 Future<void> appStartup(Ref ref) async {
   // Listen instead of watch: startup must run exactly once. Watching the
@@ -31,7 +32,27 @@ Future<void> appStartup(Ref ref) async {
   final defaultProfile = profiles
       .where((profile) => profile.id == defaultId)
       .firstOrNull;
-  if (defaultProfile != null && !defaultProfile.hasPin) {
+  if (defaultProfile == null) return;
+  if (defaultProfile.hasPin) {
+    ref.read(startupPinRequestProvider.notifier).request(defaultProfile.id);
+  } else {
     ref.read(activeProfileIdProvider.notifier).activate(defaultProfile.id);
+  }
+}
+
+/// Profile whose PIN the picker asks for as soon as it opens after startup.
+/// Consumed once, so returning to the picker later does not ask again.
+@Riverpod(keepAlive: true)
+class StartupPinRequest extends _$StartupPinRequest {
+  @override
+  String? build() => null;
+
+  void request(String profileId) => state = profileId;
+
+  /// Returns the requested profile id and clears the request.
+  String? take() {
+    final profileId = state;
+    state = null;
+    return profileId;
   }
 }

@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Local SQLite database.
 
 - Confirmation before replacing the start profile of another profile.
+- A PIN protected start profile asks for its PIN directly on start.
 - Xtream Codes playlists per profile: add, edit and delete with connection test, account
   status and expiry; complete playlist links are split automatically; passwords in secure
   storage.

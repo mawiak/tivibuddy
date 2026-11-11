@@ -20,7 +20,7 @@ Decisions agreed with the project owner. Do not reopen them without the owner as
 | 2026-11-11 | Web support         | Best effort, browser codec and CORS limitations accepted                  |
 | 2026-11-11 | Metadata            | Key-less sources first (TVmaze, Wikidata, Cinemeta), keyed sources later  |
 | 2026-11-11 | Application ID      | `io.github.mawiak.tivibuddy` (Android package, iOS/macOS bundle ID)       |
-| 2026-11-11 | Default profile PIN | A default profile with PIN still asks for it (picker opens focused)      |
+| 2026-11-11 | Default profile PIN | A default profile with PIN asks for it directly on start, back shows picker |
 | 2026-11-11 | Bundled avatars     | Drawn from icons and colours, no image assets                             |
 | 2026-11-11 | Hosting             | GitHub `mawiak/tivibuddy`, private until the owner decides otherwise      |
 | 2026-11-11 | Settings scope M4   | Framework, language, start profile, about; feature settings grow with features |

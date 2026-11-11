@@ -6,6 +6,7 @@ import '../../../core/router/app_routes.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/tv_button.dart';
 import '../../settings/application/settings_providers.dart';
+import '../../startup/application/app_startup.dart';
 import '../application/profile_actions.dart';
 import '../application/profile_providers.dart';
 import '../domain/profile.dart';
@@ -24,6 +25,19 @@ class ProfilePickerScreen extends ConsumerStatefulWidget {
 
 class _ProfilePickerScreenState extends ConsumerState<ProfilePickerScreen> {
   bool _managing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final profileId = ref.read(startupPinRequestProvider.notifier).take();
+      final profile = (ref.read(profilesProvider).value ?? const <Profile>[])
+          .where((p) => p.id == profileId)
+          .firstOrNull;
+      if (profile != null) _open(profile);
+    });
+  }
 
   Future<void> _open(Profile profile) async {
     if (_managing) {

@@ -14,7 +14,8 @@ Requirements: PROF-1 to PROF-6, SET-1, SYNC-7.
 - **Default profile:** "Start with this profile" in the editor stores the profile as default
   for this device. If another profile is already the default, the user confirms replacing it.
   On start it is activated directly. A default profile with a PIN is not
-  bypassed: the picker opens with that profile focused.
+  bypassed: the picker opens and immediately asks for the PIN of that profile. Back closes the
+  PIN pad and leaves the picker open.
 - **PIN:** optional, four digits, entered on an on-screen pad (D-pad, touch or number keys).
   Only a salted SHA-256 hash is stored. The PIN is a convenience lock against household
   members, not a security boundary.
