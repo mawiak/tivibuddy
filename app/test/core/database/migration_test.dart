@@ -30,6 +30,10 @@ VALUES ('p1', '2026-01-01T00:00:00.000Z', '2026-01-01T00:00:00.000Z', 'Anna')
     await v1.customStatement('DROP TABLE movie_states');
     await v1.customStatement('DROP TABLE movies');
     await v1.customStatement('DROP TABLE movie_categories');
+    await v1.customStatement('DROP TABLE episode_states');
+    await v1.customStatement('DROP TABLE series_states');
+    await v1.customStatement('DROP TABLE series_items');
+    await v1.customStatement('DROP TABLE series_categories');
     await v1.customStatement('PRAGMA user_version = 1');
     await v1.close();
 

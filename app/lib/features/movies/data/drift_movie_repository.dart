@@ -58,7 +58,7 @@ class DriftMovieRepository implements MovieRepository {
   /// join the states of [profileId]. [counting] selects only a count.
   JoinedSelectStatement<HasResultSet, dynamic> _query(
     String playlistId,
-    MovieFilter filter,
+    VodFilter filter,
     String profileId, {
     Expression<int>? counting,
   }) {
@@ -71,17 +71,17 @@ class DriftMovieRepository implements MovieRepository {
     final List<OrderingTerm> order;
     final List<Join<HasResultSet, dynamic>> joins;
     switch (filter.list) {
-      case MovieList.favorites:
+      case VodList.favorites:
         joins = [_stateJoin(profileId)];
         where &= states.favorite.equals(true);
         order = [OrderingTerm.desc(states.updatedAt)];
-      case MovieList.continueWatching:
+      case VodList.continueWatching:
         joins = [_stateJoin(profileId)];
         where &=
             states.watched.equals(false) &
             states.positionSeconds.isBiggerOrEqualValue(_resumeFrom);
         order = [OrderingTerm.desc(states.lastWatchedAt)];
-      case MovieList.all || null:
+      case VodList.all || null:
         joins = [];
         order = [OrderingTerm.asc(movies.position)];
     }
@@ -108,7 +108,7 @@ class DriftMovieRepository implements MovieRepository {
   @override
   Stream<int> watchCount(
     String playlistId,
-    MovieFilter filter, {
+    VodFilter filter, {
     required String profileId,
   }) {
     final count = _db.movies.streamId.count();
@@ -123,7 +123,7 @@ class DriftMovieRepository implements MovieRepository {
   @override
   Future<List<Movie>> getMovies(
     String playlistId,
-    MovieFilter filter, {
+    VodFilter filter, {
     required String profileId,
     required int offset,
     required int limit,

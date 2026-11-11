@@ -16,9 +16,9 @@ part 'movie_providers.g.dart';
 @riverpod
 class MovieFilterSelection extends _$MovieFilterSelection {
   @override
-  MovieFilter build(String playlistId) => MovieFilter.all;
+  VodFilter build(String playlistId) => VodFilter.all;
 
-  void select(MovieFilter filter) => state = filter;
+  void select(VodFilter filter) => state = filter;
 }
 
 @riverpod
@@ -31,7 +31,7 @@ Stream<List<MovieCategory>> movieCategories(Ref ref, String playlistId) =>
 Future<PagedList<Movie>> movieList(
   Ref ref,
   String playlistId,
-  MovieFilter filter,
+  VodFilter filter,
 ) async {
   final repository = ref.watch(movieRepositoryProvider);
   final profileId = ref.watch(activeProfileIdProvider) ?? '';

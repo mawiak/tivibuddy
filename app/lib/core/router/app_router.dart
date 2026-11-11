@@ -13,6 +13,8 @@ import '../../features/playlists/presentation/playlists_screen.dart';
 import '../../features/profiles/application/profile_providers.dart';
 import '../../features/profiles/presentation/profile_edit_screen.dart';
 import '../../features/profiles/presentation/profile_picker_screen.dart';
+import '../../features/series/domain/series.dart';
+import '../../features/series/presentation/series_detail_screen.dart';
 import '../../features/startup/application/app_startup.dart';
 import '../../features/startup/presentation/startup_screen.dart';
 import '../../features/vod/presentation/vod_player_screen.dart';
@@ -83,6 +85,11 @@ GoRouter appRouter(Ref ref) {
         path: AppRoutes.movieDetail,
         builder: (context, state) =>
             MovieDetailScreen(movie: state.extra! as Movie),
+      ),
+      GoRoute(
+        path: AppRoutes.seriesDetail,
+        builder: (context, state) =>
+            SeriesDetailScreen(series: state.extra! as Series),
       ),
       GoRoute(
         path: AppRoutes.vodPlayer,

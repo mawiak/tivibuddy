@@ -1,29 +1,8 @@
 import '../../playlists/domain/catalog_access.dart';
+import '../../vod/domain/vod_filter.dart';
 import 'movie.dart';
 
-/// Lists the grid can show besides the provider categories.
-enum MovieList { all, favorites, continueWatching }
-
-/// Which movies a grid shows: a provider category or one of [MovieList].
-class MovieFilter {
-  const MovieFilter.list(MovieList this.list) : categoryId = null;
-
-  const MovieFilter.category(String this.categoryId) : list = null;
-
-  static const all = MovieFilter.list(MovieList.all);
-
-  final MovieList? list;
-  final String? categoryId;
-
-  @override
-  bool operator ==(Object other) =>
-      other is MovieFilter &&
-      other.list == list &&
-      other.categoryId == categoryId;
-
-  @override
-  int get hashCode => Object.hash(list, categoryId);
-}
+export '../../vod/domain/vod_filter.dart';
 
 /// Local copy of the movie catalog of playlists plus the movie states of
 /// profiles (DATA-3, DATA-4). The UI only reads from here.
@@ -34,14 +13,14 @@ abstract interface class MovieRepository {
   /// belong to [profileId].
   Stream<int> watchCount(
     String playlistId,
-    MovieFilter filter, {
+    VodFilter filter, {
     required String profileId,
   });
 
   /// A page of movies matching [filter] in display order.
   Future<List<Movie>> getMovies(
     String playlistId,
-    MovieFilter filter, {
+    VodFilter filter, {
     required String profileId,
     required int offset,
     required int limit,

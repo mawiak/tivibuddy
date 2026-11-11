@@ -8,6 +8,7 @@ abstract final class AppRoutes {
 
   static const livePlayer = '/live/play';
   static const movieDetail = '/movies/detail';
+  static const seriesDetail = '/series/detail';
   static const vodPlayer = '/vod/play';
   static const about = '/settings/about';
   static const playlists = '/settings/playlists';

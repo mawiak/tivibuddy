@@ -348,5 +348,65 @@
   },
   "movieWatched": "Watched",
   "vodPlayerFailed": "The movie could not be played.",
-  "vodPlayerRetryHint": "Press OK to try again or back to leave."
+  "vodPlayerRetryHint": "Press OK to try again or back to leave.",
+  "seriesNoPlaylistMessage": "Add an Xtream Codes playlist to watch series.",
+  "seriesAll": "All series",
+  "seriesRefresh": "Update series",
+  "seriesUpdating": "Updating series",
+  "seriesLoading": "Loading series",
+  "seriesLoadingCount": "{count} series loaded",
+  "@seriesLoadingCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "seriesNone": "This playlist has no series.",
+  "seriesSeason": "Season {number}",
+  "@seriesSeason": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "seriesEpisodeCode": "S{season} E{episode}",
+  "@seriesEpisodeCode": {
+    "placeholders": {
+      "season": {
+        "type": "int"
+      },
+      "episode": {
+        "type": "int"
+      }
+    }
+  },
+  "seriesPlay": "Play S{season} E{episode}",
+  "@seriesPlay": {
+    "placeholders": {
+      "season": {
+        "type": "int"
+      },
+      "episode": {
+        "type": "int"
+      }
+    }
+  },
+  "seriesResume": "Resume S{season} E{episode} at {time}",
+  "@seriesResume": {
+    "placeholders": {
+      "season": {
+        "type": "int"
+      },
+      "episode": {
+        "type": "int"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "seriesNoEpisodes": "No episodes available.",
+  "seriesDetailsFailed": "Seasons and episodes could not be loaded."
 }

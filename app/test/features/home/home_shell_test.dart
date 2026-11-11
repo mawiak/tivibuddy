@@ -42,6 +42,7 @@ void main() {
 
     await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
     await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
     await tester.sendKeyEvent(LogicalKeyboardKey.select);
     await tester.pumpAndSettle();
 
@@ -52,7 +53,7 @@ void main() {
       isNotNull,
       reason: 'select moves into the section',
     );
-    expect(find.widgetWithText(Column, 'Series'), findsWidgets);
+    expect(find.widgetWithText(Column, 'Search'), findsWidgets);
   });
 
   testWidgets('right from the menu restores the last focused content', (

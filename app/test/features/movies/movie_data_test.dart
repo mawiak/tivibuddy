@@ -140,7 +140,7 @@ void main() {
       await db.close();
     });
 
-    Future<List<String>> names(MovieFilter filter, {int limit = 5}) async => [
+    Future<List<String>> names(VodFilter filter, {int limit = 5}) async => [
       for (final movie in await repository.getMovies(
         playlistId,
         filter,
@@ -157,18 +157,18 @@ void main() {
         ('Action', 60),
         ('Drama', 60),
       ]);
-      expect(await names(MovieFilter.all, limit: 3), [
+      expect(await names(VodFilter.all, limit: 3), [
         'Movie 1',
         'Movie 2',
         'Movie 3',
       ]);
-      expect(await names(const MovieFilter.category('a'), limit: 2), [
+      expect(await names(const VodFilter.category('a'), limit: 2), [
         'Movie 2',
         'Movie 4',
       ]);
       expect(
         await repository
-            .watchCount(playlistId, MovieFilter.all, profileId: profileId)
+            .watchCount(playlistId, VodFilter.all, profileId: profileId)
             .first,
         120,
       );
@@ -192,15 +192,15 @@ void main() {
       );
 
       expect(
-        await names(const MovieFilter.list(MovieList.favorites)),
+        await names(const VodFilter.list(VodList.favorites)),
         unorderedEquals(['Movie 5', 'Movie 10']),
       );
-      expect(await names(const MovieFilter.list(MovieList.continueWatching)), [
+      expect(await names(const VodFilter.list(VodList.continueWatching)), [
         'Movie 3',
       ]);
 
       await actions.toggleFavorite(movies[4]);
-      expect(await names(const MovieFilter.list(MovieList.favorites)), [
+      expect(await names(const VodFilter.list(VodList.favorites)), [
         'Movie 10',
       ]);
     });
@@ -225,7 +225,7 @@ void main() {
         expect(state.position, Duration.zero);
         expect(state.canResume, isFalse);
         expect(
-          await names(const MovieFilter.list(MovieList.continueWatching)),
+          await names(const VodFilter.list(VodList.continueWatching)),
           isEmpty,
         );
       },
@@ -237,7 +237,7 @@ void main() {
           .toggleFavorite(source.movies.first);
       await container.read(playlistActionsProvider).delete(playlistId);
 
-      expect(await names(MovieFilter.all), isEmpty);
+      expect(await names(VodFilter.all), isEmpty);
       final rows = await db.select(db.movieStates).get();
       expect(rows.single.deleted, isTrue, reason: 'kept for sync');
     });

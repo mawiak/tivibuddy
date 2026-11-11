@@ -56,7 +56,7 @@ class _MoviesPaneState extends ConsumerState<MoviesPane> {
         ? const MovieCatalogIdle()
         : ref.watch(movieCatalogControllerProvider(playlist.id));
     final filter = playlist == null
-        ? MovieFilter.all
+        ? VodFilter.all
         : ref.watch(movieFilterSelectionProvider(playlist.id));
     final movies = playlist == null
         ? null
@@ -65,7 +65,7 @@ class _MoviesPaneState extends ConsumerState<MoviesPane> {
     // switching lists must keep categories and grid on screen.
     final allMovies = playlist == null
         ? null
-        : ref.watch(movieListProvider(playlist.id, MovieFilter.all)).value;
+        : ref.watch(movieListProvider(playlist.id, VodFilter.all)).value;
     final categories = playlist == null
         ? const <MovieCategory>[]
         : ref.watch(movieCategoriesProvider(playlist.id)).value ?? const [];
@@ -108,9 +108,9 @@ class _MoviesPaneState extends ConsumerState<MoviesPane> {
             onSelect: () => _choosePlaylist(playlists.value!),
           ),
         for (final list in const [
-          MovieFilter.list(MovieList.continueWatching),
-          MovieFilter.list(MovieList.favorites),
-          MovieFilter.all,
+          VodFilter.list(VodList.continueWatching),
+          VodFilter.list(VodList.favorites),
+          VodFilter.all,
         ])
           VodCategoryEntry.list(
             key: list,
@@ -118,7 +118,7 @@ class _MoviesPaneState extends ConsumerState<MoviesPane> {
           ),
         for (final category in categories)
           VodCategoryEntry.list(
-            key: MovieFilter.category(category.id),
+            key: VodFilter.category(category.id),
             label: category.name,
             count: category.movieCount,
           ),
@@ -132,7 +132,7 @@ class _MoviesPaneState extends ConsumerState<MoviesPane> {
       ],
       onListFocused: (key) => ref
           .read(movieFilterSelectionProvider(playlist!.id).notifier)
-          .select(key as MovieFilter),
+          .select(key as VodFilter),
       tileBuilder:
           (context, movie, index, {required autofocus, onFocusChange}) =>
               MoviePoster(
@@ -165,12 +165,12 @@ class _MoviesPaneState extends ConsumerState<MoviesPane> {
 
 String filterLabel(
   AppLocalizations l10n,
-  MovieFilter filter,
+  VodFilter filter,
   List<MovieCategory> categories,
 ) => switch (filter.list) {
-  MovieList.all => l10n.moviesAll,
-  MovieList.favorites => l10n.moviesFavorites,
-  MovieList.continueWatching => l10n.moviesContinue,
+  VodList.all => l10n.moviesAll,
+  VodList.favorites => l10n.moviesFavorites,
+  VodList.continueWatching => l10n.moviesContinue,
   null =>
     categories.where((c) => c.id == filter.categoryId).firstOrNull?.name ??
         l10n.moviesAll,

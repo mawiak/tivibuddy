@@ -54,4 +54,6 @@ VOD and general:
 
 - Search across live, movies and series (VOD-1).
 - Sorting options (added, name, rating) for VOD grids.
+- Series: automatic next episode at the end, mark episodes or seasons watched by hand,
+  context menu on posters (favorite, watched) in the grids.
 - Metadata enrichment and caching (milestone 9).

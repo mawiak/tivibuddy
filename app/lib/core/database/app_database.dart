@@ -7,6 +7,7 @@ import '../../features/movies/data/movies_tables.dart';
 import '../../features/playlists/data/playlists_table.dart';
 import '../../features/playlists/domain/playlist.dart';
 import '../../features/profiles/data/profiles_table.dart';
+import '../../features/series/data/series_tables.dart';
 import '../../features/settings/data/device_settings_table.dart';
 import '../../features/settings/data/profile_settings_table.dart';
 
@@ -28,13 +29,17 @@ part 'app_database.g.dart';
     MovieCategories,
     Movies,
     MovieStates,
+    SeriesCategories,
+    SeriesItems,
+    SeriesStates,
+    EpisodeStates,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _open());
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -56,6 +61,16 @@ class AppDatabase extends _$AppDatabase {
         await migrator.createIndex(moviesByCategory);
         await migrator.createIndex(moviesByPosition);
         await migrator.createIndex(movieStatesByMovie);
+      }
+      if (from < 7) {
+        await migrator.createTable(seriesCategories);
+        await migrator.createTable(seriesItems);
+        await migrator.createTable(seriesStates);
+        await migrator.createTable(episodeStates);
+        await migrator.createIndex(seriesByCategory);
+        await migrator.createIndex(seriesByPosition);
+        await migrator.createIndex(seriesStatesBySeries);
+        await migrator.createIndex(episodeStatesByEpisode);
       }
     },
     beforeOpen: (details) async {

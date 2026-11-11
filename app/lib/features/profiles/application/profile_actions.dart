@@ -2,6 +2,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../movies/data/movie_data_providers.dart';
 import '../../playlists/application/playlist_actions.dart';
+import '../../series/data/series_data_providers.dart';
 import '../../settings/data/settings_data_providers.dart';
 import '../data/profile_data_providers.dart';
 import '../domain/profile.dart';
@@ -141,6 +142,7 @@ class ProfileActions {
   Future<void> delete(String id) async {
     await _ref.read(playlistActionsProvider).deleteAllForProfile(id);
     await _ref.read(movieRepositoryProvider).deleteStatesForProfile(id);
+    await _ref.read(seriesRepositoryProvider).deleteStatesForProfile(id);
     await _ref.read(profileSettingsRepositoryProvider).reset(id);
     await _ref.read(profileRepositoryProvider).delete(id);
     final settings = _ref.read(deviceSettingsRepositoryProvider);

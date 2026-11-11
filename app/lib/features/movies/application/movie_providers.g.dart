@@ -15,7 +15,7 @@ final movieFilterSelectionProvider = MovieFilterSelectionFamily._();
 
 /// Movies the grid shows for a playlist. Starts with all movies.
 final class MovieFilterSelectionProvider
-    extends $NotifierProvider<MovieFilterSelection, MovieFilter> {
+    extends $NotifierProvider<MovieFilterSelection, VodFilter> {
   /// Movies the grid shows for a playlist. Starts with all movies.
   MovieFilterSelectionProvider._({
     required MovieFilterSelectionFamily super.from,
@@ -43,10 +43,10 @@ final class MovieFilterSelectionProvider
   MovieFilterSelection create() => MovieFilterSelection();
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(MovieFilter value) {
+  Override overrideWithValue(VodFilter value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<MovieFilter>(value),
+      providerOverride: $SyncValueProvider<VodFilter>(value),
     );
   }
 
@@ -62,7 +62,7 @@ final class MovieFilterSelectionProvider
 }
 
 String _$movieFilterSelectionHash() =>
-    r'9b8a67b7b4d3d30164a3b40257bb2885d20d7062';
+    r'd7db0feb579985646f05c65f0e3e6bc739248a9d';
 
 /// Movies the grid shows for a playlist. Starts with all movies.
 
@@ -70,9 +70,9 @@ final class MovieFilterSelectionFamily extends $Family
     with
         $ClassFamilyOverride<
           MovieFilterSelection,
-          MovieFilter,
-          MovieFilter,
-          MovieFilter,
+          VodFilter,
+          VodFilter,
+          VodFilter,
           String
         > {
   MovieFilterSelectionFamily._()
@@ -95,20 +95,20 @@ final class MovieFilterSelectionFamily extends $Family
 
 /// Movies the grid shows for a playlist. Starts with all movies.
 
-abstract class _$MovieFilterSelection extends $Notifier<MovieFilter> {
+abstract class _$MovieFilterSelection extends $Notifier<VodFilter> {
   late final _$args = ref.$arg as String;
   String get playlistId => _$args;
 
-  MovieFilter build(String playlistId);
+  VodFilter build(String playlistId);
   @$mustCallSuper
   @override
   WhenComplete runBuild() {
-    final ref = this.ref as $Ref<MovieFilter, MovieFilter>;
+    final ref = this.ref as $Ref<VodFilter, VodFilter>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<MovieFilter, MovieFilter>,
-              MovieFilter,
+              AnyNotifier<VodFilter, VodFilter>,
+              VodFilter,
               Object?,
               Object?
             >;
@@ -214,7 +214,7 @@ final class MovieListProvider
   /// changes and stays stable (see `liveChannelList`).
   MovieListProvider._({
     required MovieListFamily super.from,
-    required (String, MovieFilter) super.argument,
+    required (String, VodFilter) super.argument,
   }) : super(
          retry: null,
          name: r'movieListProvider',
@@ -241,7 +241,7 @@ final class MovieListProvider
 
   @override
   FutureOr<PagedList<Movie>> create(Ref ref) {
-    final argument = this.argument as (String, MovieFilter);
+    final argument = this.argument as (String, VodFilter);
     return movieList(ref, argument.$1, argument.$2);
   }
 
@@ -256,7 +256,7 @@ final class MovieListProvider
   }
 }
 
-String _$movieListHash() => r'f9cac58153abea6c13d62f57bebc08c9ec548e11';
+String _$movieListHash() => r'22dd3036464f6285e6f48d4d6a519f3dc0b0c640';
 
 /// Movies of a filter as a lazily loaded list, rebuilt when their number
 /// changes and stays stable (see `liveChannelList`).
@@ -265,7 +265,7 @@ final class MovieListFamily extends $Family
     with
         $FunctionalFamilyOverride<
           FutureOr<PagedList<Movie>>,
-          (String, MovieFilter)
+          (String, VodFilter)
         > {
   MovieListFamily._()
     : super(
@@ -279,7 +279,7 @@ final class MovieListFamily extends $Family
   /// Movies of a filter as a lazily loaded list, rebuilt when their number
   /// changes and stays stable (see `liveChannelList`).
 
-  MovieListProvider call(String playlistId, MovieFilter filter) =>
+  MovieListProvider call(String playlistId, VodFilter filter) =>
       MovieListProvider._(argument: (playlistId, filter), from: this);
 
   @override

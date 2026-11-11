@@ -12,6 +12,7 @@ import '../../movies/presentation/movies_pane.dart';
 import '../../profiles/application/profile_providers.dart';
 import '../../profiles/domain/profile.dart';
 import '../../profiles/presentation/profile_avatar_view.dart';
+import '../../series/presentation/series_pane.dart';
 import '../../settings/presentation/settings_pane.dart';
 import '../application/home_section.dart';
 import 'home_section_display.dart';
@@ -97,6 +98,7 @@ class _HomeShellState extends ConsumerState<HomeShell> {
     final content = switch (selected) {
       HomeSection.liveTv => const LiveTvPane(),
       HomeSection.movies => const MoviesPane(),
+      HomeSection.series => const SeriesPane(),
       HomeSection.settings => const SettingsPane(),
       _ => SectionPlaceholder(key: ValueKey(selected), section: selected),
     };

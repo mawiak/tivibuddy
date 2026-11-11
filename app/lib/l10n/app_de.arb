@@ -167,5 +167,18 @@
   "movieCast": "Mit: {names}",
   "movieWatched": "Gesehen",
   "vodPlayerFailed": "Der Film konnte nicht abgespielt werden.",
-  "vodPlayerRetryHint": "Drücke OK, um es erneut zu versuchen, oder Zurück zum Verlassen."
+  "vodPlayerRetryHint": "Drücke OK, um es erneut zu versuchen, oder Zurück zum Verlassen.",
+  "seriesNoPlaylistMessage": "Füge eine Xtream-Codes-Playlist hinzu, um Serien zu schauen.",
+  "seriesAll": "Alle Serien",
+  "seriesRefresh": "Serien aktualisieren",
+  "seriesUpdating": "Serien werden aktualisiert",
+  "seriesLoading": "Serien werden geladen",
+  "seriesLoadingCount": "{count} Serien geladen",
+  "seriesNone": "Diese Playlist enthält keine Serien.",
+  "seriesSeason": "Staffel {number}",
+  "seriesEpisodeCode": "S{season} E{episode}",
+  "seriesPlay": "S{season} E{episode} abspielen",
+  "seriesResume": "S{season} E{episode} fortsetzen bei {time}",
+  "seriesNoEpisodes": "Keine Episoden verfügbar.",
+  "seriesDetailsFailed": "Staffeln und Episoden konnten nicht geladen werden."
 }

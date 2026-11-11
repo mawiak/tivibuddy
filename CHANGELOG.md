@@ -40,6 +40,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Setting for how many days of guide are loaded, including switching it off.
 - Select or right on Live TV and Movies in the menu starts in the category list; the movie
   grid shows the details of the focused movie above one row of posters.
+- Series: categories with continue watching and favorites, poster grid with details, detail
+  page with seasons and episodes, play or resume the next episode, episode progress and
+  watched state per profile.
 - Movies: categories with continue watching and favorites, poster grid, detail page with
   provider metadata, player with seeking, resume position, watched state and favorites per
   profile.
