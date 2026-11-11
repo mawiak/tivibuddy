@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/tv_focusable.dart';
+import '../../profiles/domain/profile.dart';
+import '../../profiles/presentation/profile_avatar_view.dart';
 import '../application/home_section.dart';
 import 'home_section_display.dart';
 
@@ -14,6 +16,8 @@ class SideMenu extends StatefulWidget {
     required this.selected,
     required this.onSelect,
     required this.itemFocusNodes,
+    this.profile,
+    this.onProfileSelect,
     this.onFocusChange,
   });
 
@@ -23,6 +27,10 @@ class SideMenu extends StatefulWidget {
   final HomeSection selected;
   final ValueChanged<HomeSection> onSelect;
   final Map<HomeSection, FocusNode> itemFocusNodes;
+
+  /// Active profile, shown on top. Selecting it opens the profile picker.
+  final Profile? profile;
+  final VoidCallback? onProfileSelect;
   final ValueChanged<bool>? onFocusChange;
 
   @override
@@ -40,6 +48,7 @@ class _SideMenuState extends State<SideMenu> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final profile = widget.profile;
 
     return Focus(
       canRequestFocus: false,
@@ -54,9 +63,23 @@ class _SideMenuState extends State<SideMenu> {
           padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 8),
           child: Column(
             children: [
+              if (profile != null) ...[
+                _SideMenuItem(
+                  leading: ProfileAvatarView(avatar: profile.avatar, size: 24),
+                  label: profile.name,
+                  tooltip: l10n.profilesSwitch,
+                  expanded: _expanded,
+                  onSelect: widget.onProfileSelect ?? () {},
+                ),
+                const SizedBox(height: 16),
+              ],
               for (final section in HomeSection.values)
                 _SideMenuItem(
-                  icon: section.icon,
+                  leading: Icon(
+                    section.icon,
+                    size: 24,
+                    color: section == widget.selected ? AppColors.accent : null,
+                  ),
                   label: section.label(l10n),
                   selected: section == widget.selected,
                   expanded: _expanded,
@@ -73,24 +96,26 @@ class _SideMenuState extends State<SideMenu> {
 
 class _SideMenuItem extends StatelessWidget {
   const _SideMenuItem({
-    required this.icon,
+    required this.leading,
     required this.label,
-    required this.selected,
     required this.expanded,
     required this.onSelect,
+    this.selected = false,
+    this.tooltip,
     this.focusNode,
   });
 
-  final IconData icon;
+  final Widget leading;
   final String label;
   final bool selected;
   final bool expanded;
   final VoidCallback onSelect;
+  final String? tooltip;
   final FocusNode? focusNode;
 
   @override
   Widget build(BuildContext context) {
-    return TvFocusable(
+    final item = TvFocusable(
       focusNode: focusNode,
       onSelect: onSelect,
       builder: (context, focused) {
@@ -105,31 +130,36 @@ class _SideMenuItem extends StatelessWidget {
             color: focused ? AppColors.focusFill : null,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Row(
-            children: [
-              Icon(icon, color: selected ? AppColors.accent : color, size: 24),
-              // The label appears while the menu is still animating from its
-              // collapsed width, so the gap must shrink with the free space.
-              if (expanded)
-                Expanded(
-                  child: ClipRect(
-                    child: Padding(
-                      padding: const EdgeInsetsDirectional.only(start: 16),
-                      child: Text(
-                        label,
-                        maxLines: 1,
-                        overflow: TextOverflow.clip,
-                        softWrap: false,
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(color: color),
+          child: IconTheme.merge(
+            data: IconThemeData(color: color),
+            child: Row(
+              children: [
+                SizedBox(width: 24, child: Center(child: leading)),
+                // The label appears while the menu is still animating from
+                // its collapsed width, so the gap must shrink with the free
+                // space.
+                if (expanded)
+                  Expanded(
+                    child: ClipRect(
+                      child: Padding(
+                        padding: const EdgeInsetsDirectional.only(start: 16),
+                        child: Text(
+                          label,
+                          maxLines: 1,
+                          overflow: TextOverflow.clip,
+                          softWrap: false,
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(color: color),
+                        ),
                       ),
                     ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         );
       },
     );
+    return tooltip == null ? item : Semantics(hint: tooltip, child: item);
   }
 }
