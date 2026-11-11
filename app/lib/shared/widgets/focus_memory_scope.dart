@@ -46,6 +46,8 @@ class FocusMemoryScopeNode extends FocusScopeNode {
         return;
       }
     }
+    // Without anything focusable inside, focus stays where it is.
+    if (traversalDescendants.isEmpty) return;
     ReadingOrderTraversalPolicy().findFirstFocus(this)?.requestFocus();
   }
 }

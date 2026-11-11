@@ -8,7 +8,7 @@ import '../../../core/layout/screen_class.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../../shared/widgets/content_back.dart';
+import '../../../shared/widgets/content_hooks.dart';
 import '../../../shared/widgets/focus_memory_scope.dart';
 import '../../../shared/widgets/marquee_text.dart';
 import '../../../shared/widgets/tv_dialogs.dart';
@@ -50,17 +50,43 @@ class _LiveTvPaneState extends ConsumerState<LiveTvPane> {
   /// the channel continues in the preview. Closed with this section.
   ProviderSubscription<PlaybackEngine>? _preview;
 
-  ContentBackController? _back;
+  ContentHooksController? _hooks;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _back?.unregister(_onBack);
-    _back = ContentBack.maybeOf(context)?..register(_onBack);
+    _hooks?.unregister(back: _onBack, enter: _onEnter);
+    _hooks = ContentHooks.maybeOf(context)
+      ?..register(back: _onBack, enter: _onEnter);
   }
 
   /// Back from the guide opens the categories; back from the categories
   /// is left to the home screen, which focuses the menu.
+  /// Whether the last build showed the categories layout; only then the
+  /// categories can be opened.
+  bool _showsGuide = false;
+  bool _loading = false;
+  bool _enterPending = false;
+
+  /// Entering from the menu starts in the categories, focused on the
+  /// selected one, like common IPTV players.
+  bool _onEnter() {
+    if (ScreenClass.of(context).isPhone) return false;
+    if (!_showsGuide) {
+      // Still loading: the categories open as soon as they are there, and
+      // focus stays in the menu meanwhile.
+      if (!_loading) return false;
+      _enterPending = true;
+      return true;
+    }
+    if (_categoriesOpen) {
+      _categoryScope.enter();
+    } else {
+      _openCategories();
+    }
+    return true;
+  }
+
   bool _onBack() {
     final grid = _gridKey.currentState;
     if (_categoriesOpen || grid == null || !grid.hasFocus) return false;
@@ -71,7 +97,7 @@ class _LiveTvPaneState extends ConsumerState<LiveTvPane> {
 
   @override
   void dispose() {
-    _back?.unregister(_onBack);
+    _hooks?.unregister(back: _onBack, enter: _onEnter);
     _preview?.close();
     _categoryScope.dispose();
     super.dispose();
@@ -127,11 +153,14 @@ class _LiveTvPaneState extends ConsumerState<LiveTvPane> {
 
   @override
   Widget build(BuildContext context) {
+    _showsGuide = false;
+    _loading = false;
     final l10n = AppLocalizations.of(context);
     final playlists = ref.watch(activeProfilePlaylistsProvider);
     final playlist = ref.watch(livePlaylistSelectionProvider);
 
     if (!playlists.hasValue) {
+      _loading = true;
       return const Center(child: CircularProgressIndicator());
     }
     if (playlist == null) {
@@ -156,6 +185,7 @@ class _LiveTvPaneState extends ConsumerState<LiveTvPane> {
     // Nothing focusable while the list opens: a button shown only for a
     // moment would take the focus with it when it disappears.
     if (allChannels == null) {
+      _loading = true;
       return const Center(child: CircularProgressIndicator());
     }
     if (allChannels.length == 0) {
@@ -222,6 +252,13 @@ class _LiveTvPaneState extends ConsumerState<LiveTvPane> {
 
     if (isPhone) return grid;
 
+    _showsGuide = true;
+    if (_enterPending) {
+      _enterPending = false;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _onEnter();
+      });
+    }
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [

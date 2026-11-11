@@ -28,6 +28,19 @@ const _access = PlaylistAccess(
   password: 'pw',
 );
 
+/// First text inside the focused element.
+String? focusedText() {
+  final context = FocusManager.instance.primaryFocus?.context;
+  if (context == null) return null;
+  final texts = find
+      .descendant(
+        of: find.byWidget(context.widget),
+        matching: find.byType(Text),
+      )
+      .evaluate();
+  return texts.isEmpty ? null : (texts.first.widget as Text).data;
+}
+
 void main() {
   late FakeMovieCatalogSource source;
   late FakePlaybackEngine engine;
@@ -99,22 +112,11 @@ void main() {
     await tester.sendKeyEvent(LogicalKeyboardKey.select);
     await settle(tester);
     await settle(tester);
-    // ignore: avoid_print
+    await settle(tester);
+    // Select on the menu entry starts in the categories, once they loaded.
+    expect(focusedText(), 'All movies');
     await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
     await settle(tester);
-  }
-
-  /// First text inside the focused element.
-  String? focusedText() {
-    final context = FocusManager.instance.primaryFocus?.context;
-    if (context == null) return null;
-    final texts = find
-        .descendant(
-          of: find.byWidget(context.widget),
-          matching: find.byType(Text),
-        )
-        .evaluate();
-    return texts.isEmpty ? null : (texts.first.widget as Text).data;
   }
 
   Future<void> press(WidgetTester tester, LogicalKeyboardKey key) async {

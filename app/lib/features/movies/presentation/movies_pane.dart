@@ -9,7 +9,7 @@ import '../../../core/layout/screen_class.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../../shared/widgets/content_back.dart';
+import '../../../shared/widgets/content_hooks.dart';
 import '../../../shared/widgets/focus_memory_scope.dart';
 import '../../../shared/widgets/marquee_text.dart';
 import '../../../shared/widgets/tv_dialogs.dart';
@@ -47,18 +47,19 @@ class _MoviesPaneState extends ConsumerState<MoviesPane> {
     allowAutofocus: () => !_categoriesOpen,
   );
   final _categoryScope = FocusMemoryScopeNode(debugLabel: 'movieCategories');
-  ContentBackController? _back;
+  ContentHooksController? _hooks;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _back?.unregister(_onBack);
-    _back = ContentBack.maybeOf(context)?..register(_onBack);
+    _hooks?.unregister(back: _onBack, enter: _onEnter);
+    _hooks = ContentHooks.maybeOf(context)
+      ?..register(back: _onBack, enter: _onEnter);
   }
 
   @override
   void dispose() {
-    _back?.unregister(_onBack);
+    _hooks?.unregister(back: _onBack, enter: _onEnter);
     _gridScope.dispose();
     _categoryScope.dispose();
     super.dispose();
@@ -66,6 +67,31 @@ class _MoviesPaneState extends ConsumerState<MoviesPane> {
 
   /// Back from the grid opens the categories; back from the categories is
   /// left to the home screen, which focuses the menu.
+  /// Whether the last build showed the categories layout; only then the
+  /// categories can be opened.
+  bool _showsGrid = false;
+  bool _loading = false;
+  bool _enterPending = false;
+
+  /// Entering from the menu starts in the categories, focused on the
+  /// selected one, like common IPTV players.
+  bool _onEnter() {
+    if (ScreenClass.of(context).isPhone) return false;
+    if (!_showsGrid) {
+      // Still loading: the categories open as soon as they are there, and
+      // focus stays in the menu meanwhile.
+      if (!_loading) return false;
+      _enterPending = true;
+      return true;
+    }
+    if (_categoriesOpen) {
+      _categoryScope.enter();
+    } else {
+      _openCategories();
+    }
+    return true;
+  }
+
   bool _onBack() {
     if (_categoriesOpen || !_gridScope.hasFocus) return false;
     if (ScreenClass.of(context).isPhone) return false;
@@ -101,12 +127,15 @@ class _MoviesPaneState extends ConsumerState<MoviesPane> {
 
   @override
   Widget build(BuildContext context) {
+    _showsGrid = false;
+    _loading = false;
     final l10n = AppLocalizations.of(context);
     final playlists = ref.watch(activeProfilePlaylistsProvider);
     // The playlist choice is shared with live TV.
     final playlist = ref.watch(livePlaylistSelectionProvider);
 
     if (!playlists.hasValue) {
+      _loading = true;
       return const Center(child: CircularProgressIndicator());
     }
     if (playlist == null) {
@@ -126,6 +155,7 @@ class _MoviesPaneState extends ConsumerState<MoviesPane> {
     // Nothing focusable while the list opens: a button shown only for a
     // moment would take the focus with it when it disappears.
     if (allMovies == null) {
+      _loading = true;
       return const Center(child: CircularProgressIndicator());
     }
     if (allMovies.length == 0) {
@@ -163,6 +193,13 @@ class _MoviesPaneState extends ConsumerState<MoviesPane> {
     );
     if (isPhone) return grid;
 
+    _showsGrid = true;
+    if (_enterPending) {
+      _enterPending = false;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _onEnter();
+      });
+    }
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [

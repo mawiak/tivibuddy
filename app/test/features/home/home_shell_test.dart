@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tivibuddy/features/home/presentation/home_shell.dart';
+import 'package:tivibuddy/features/home/presentation/section_placeholder.dart';
 import 'package:tivibuddy/features/home/presentation/side_menu.dart';
 import 'package:tivibuddy/shared/widgets/tv_list_tile.dart';
 
@@ -44,8 +45,13 @@ void main() {
     await tester.sendKeyEvent(LogicalKeyboardKey.select);
     await tester.pumpAndSettle();
 
-    expect(focusedLabel(), 'menu.series');
     expect(find.text('Coming soon'), findsOneWidget);
+    expect(
+      FocusManager.instance.primaryFocus?.context
+          ?.findAncestorWidgetOfExactType<SectionPlaceholder>(),
+      isNotNull,
+      reason: 'select moves into the section',
+    );
     expect(find.widgetWithText(Column, 'Series'), findsWidgets);
   });
 
@@ -72,7 +78,7 @@ void main() {
     expect(focusedLabel(), contentFocus);
   });
 
-  testWidgets('right from the menu into a new section focuses its first item', (
+  testWidgets('select on a menu entry focuses the first item of its section', (
     tester,
   ) async {
     await pumpTestApp(tester, const HomeShell());
@@ -80,12 +86,9 @@ void main() {
     for (var i = 0; i < 4; i++) {
       await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
     }
+    // Select on a menu entry moves into the section, like right.
     await tester.sendKeyEvent(LogicalKeyboardKey.select);
     await settle(tester);
-    expect(focusedLabel(), 'menu.settings', reason: 'menu keeps focus');
-
-    await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
-    await tester.pump();
 
     final focused = FocusManager.instance.primaryFocus!.context!.widget;
     expect(

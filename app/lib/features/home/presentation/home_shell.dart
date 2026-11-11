@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/layout/screen_class.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../../shared/widgets/content_back.dart';
+import '../../../shared/widgets/content_hooks.dart';
 import '../../../shared/widgets/focus_memory_scope.dart';
 import '../../live_tv/presentation/live_tv_pane.dart';
 import '../../movies/presentation/movies_pane.dart';
@@ -22,7 +22,7 @@ import 'side_menu.dart';
 ///
 /// Back key behaviour on TV follows the common IPTV player pattern: back from
 /// the content moves focus to the menu unless the content handles it (see
-/// [ContentBack]), back from the menu leaves the app.
+/// [ContentHooks]), back from the menu leaves the app.
 class HomeShell extends ConsumerStatefulWidget {
   const HomeShell({super.key});
 
@@ -36,7 +36,7 @@ class _HomeShellState extends ConsumerState<HomeShell> {
       section: FocusNode(debugLabel: 'menu.${section.name}'),
   };
   bool _menuHasFocus = false;
-  final _contentBack = ContentBackController();
+  final _contentHooks = ContentHooksController();
 
   /// Remembers the last focused element of the content, so returning from
   /// the menu restores it instead of jumping to the geometrically closest
@@ -61,6 +61,22 @@ class _HomeShellState extends ConsumerState<HomeShell> {
     ref.read(selectedHomeSectionProvider.notifier).select(section);
   }
 
+  /// Select on a menu entry opens its section and moves into it, like right.
+  void _open(HomeSection section) {
+    _select(section);
+    setState(() => _enterAfterBuild = true);
+  }
+
+  /// Set by [_open]: the new section registers its hooks while it builds,
+  /// so focus moves into it after the next build.
+  bool _enterAfterBuild = false;
+
+  /// Moves focus from the menu into the content: where the section wants
+  /// it, otherwise to its last focused element.
+  void _enterContent() {
+    if (!_contentHooks.enter()) _contentScope.enter();
+  }
+
   void _focusMenu() {
     final selected = ref.read(selectedHomeSectionProvider);
     _menuFocusNodes[selected]?.requestFocus();
@@ -71,6 +87,12 @@ class _HomeShellState extends ConsumerState<HomeShell> {
   @override
   Widget build(BuildContext context) {
     final selected = ref.watch(selectedHomeSectionProvider);
+    if (_enterAfterBuild) {
+      _enterAfterBuild = false;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _enterContent();
+      });
+    }
     final profile = ref.watch(activeProfileProvider);
     final content = switch (selected) {
       HomeSection.liveTv => const LiveTvPane(),
@@ -92,26 +114,26 @@ class _HomeShellState extends ConsumerState<HomeShell> {
     return PopScope(
       canPop: _menuHasFocus,
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop && !_contentBack.handle()) _focusMenu();
+        if (!didPop && !_contentHooks.back()) _focusMenu();
       },
       child: Scaffold(
         body: Row(
           children: [
             SideMenu(
               selected: selected,
-              onSelect: _select,
+              onSelect: _open,
               itemFocusNodes: _menuFocusNodes,
               profile: profile,
               onProfileSelect: _switchProfile,
               onFocusChange: (hasFocus) =>
                   setState(() => _menuHasFocus = hasFocus),
-              onExitRight: _contentScope.enter,
+              onExitRight: _enterContent,
             ),
             Expanded(
               child: LeaveLeft(
                 onLeftEdge: _focusMenu,
-                child: ContentBack(
-                  controller: _contentBack,
+                child: ContentHooks(
+                  controller: _contentHooks,
                   child: FocusScope(
                     node: _contentScope,
                     child: FocusTraversalGroup(child: content),
