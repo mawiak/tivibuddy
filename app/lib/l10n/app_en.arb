@@ -1,0 +1,21 @@
+{
+  "@@locale": "en",
+  "appTitle": "TiviBuddy",
+  "navLiveTv": "Live TV",
+  "navMovies": "Movies",
+  "navSeries": "Series",
+  "navSearch": "Search",
+  "navSettings": "Settings",
+  "comingSoon": "Coming soon",
+  "plannedFeatures": "Planned features",
+  "featureLiveChannels": "Channel list by category with now and next programme information",
+  "featureLiveGuide": "TV guide with a fluid electronic programme grid for thousands of channels",
+  "featureLiveCatchup": "Catch-up and timeshift where your provider supports it",
+  "featureMoviesBrowse": "Browse movies by category with posters and fast search",
+  "featureMoviesResume": "Resume playback exactly where you stopped watching",
+  "featureMoviesMetadata": "Ratings and details from additional metadata sources",
+  "featureSeriesEpisodes": "Seasons and episodes with watched state and progress",
+  "featureSeriesContinue": "Continue watching with the next episode",
+  "featureSearchGlobal": "Search across live channels, movies and series at once",
+  "featureSettingsProfiles": "Manage profiles, playlists, player and sync settings"
+}
