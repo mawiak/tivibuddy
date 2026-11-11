@@ -175,12 +175,27 @@ void main() {
     expect(activeTexts(), contains('Show A2'));
   });
 
-  testWidgets('left opens the categories, then the menu', (tester) async {
+  testWidgets('left goes to the channels, the categories, then the menu', (
+    tester,
+  ) async {
     await openLiveTv(tester);
+
+    await press(tester, LogicalKeyboardKey.arrowLeft);
+    expect(activeTexts(), ['Channel 1'], reason: 'channel column focused');
+    await press(tester, LogicalKeyboardKey.arrowDown);
+    expect(activeTexts(), ['Channel 2']);
+    await press(tester, LogicalKeyboardKey.arrowRight);
+    expect(activeTexts(), containsAll(['Channel 2', 'Show A2']));
+    await press(tester, LogicalKeyboardKey.arrowLeft);
 
     await press(tester, LogicalKeyboardKey.arrowLeft);
     expect(find.text('Sport'), findsOneWidget);
     expect(activeTexts(), contains('All channels'));
+    expect(
+      find.text('Channel 2'),
+      findsWidgets,
+      reason: 'the categories push the guide aside instead of covering it',
+    );
 
     await press(tester, LogicalKeyboardKey.arrowLeft);
     expect(focusedLabel(), 'menu.liveTv');
@@ -191,6 +206,7 @@ void main() {
     tester,
   ) async {
     await openLiveTv(tester);
+    await press(tester, LogicalKeyboardKey.arrowLeft);
     await press(tester, LogicalKeyboardKey.arrowLeft);
 
     await press(tester, LogicalKeyboardKey.arrowDown);

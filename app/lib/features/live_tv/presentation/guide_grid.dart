@@ -19,7 +19,7 @@ import 'channel_widgets.dart';
 
 /// Height of a channel row in the guide. Fixed, so the list jumps to any
 /// channel without measuring (UI-3).
-const guideRowHeight = 44.0;
+const guideRowHeight = 56.0;
 
 /// Length of the time slots the grid moves in where no programme is known.
 const _slot = Duration(minutes: 30);
@@ -41,8 +41,9 @@ EpgEntry? _programmeAt(List<EpgEntry>? programmes, DateTime time) => programmes
 /// Instead of one focus node per programme, the grid is a single focus node
 /// that tracks the focused channel and a time within the focused programme.
 /// That keeps thousands of programmes cheap and lets up and down keep the
-/// time position like common IPTV guides. Left at the earliest programme is
-/// not handled, so the caller decides where focus goes.
+/// time position like common IPTV guides. Left from the earliest programme
+/// focuses the channel column; left from there is not handled, so the
+/// caller decides where focus goes.
 class GuideGrid extends ConsumerStatefulWidget {
   const GuideGrid({
     super.key,
@@ -93,6 +94,9 @@ class GuideGridState extends ConsumerState<GuideGrid> {
   double _visibleMinutes = 120;
   bool _focused = false;
 
+  /// The channel column has focus instead of a programme.
+  bool _onChannels = false;
+
   @override
   void initState() {
     super.initState();
@@ -116,6 +120,7 @@ class GuideGridState extends ConsumerState<GuideGrid> {
   void showRow(int row) {
     setState(() {
       _row = row.clamp(0, math.max(0, widget.channels.length - 1));
+      _onChannels = false;
       _now = DateTime.now().toUtc();
       _anchor = _now;
       _viewStart = _floorSlot(_now);
@@ -168,10 +173,20 @@ class GuideGridState extends ConsumerState<GuideGrid> {
     if (key == LogicalKeyboardKey.pageDown) return _moveRow(page);
     if (key == LogicalKeyboardKey.pageUp) return _moveRow(-page);
     if (key == LogicalKeyboardKey.arrowRight) {
-      _moveRight();
+      if (_onChannels) {
+        setState(() => _onChannels = false);
+      } else {
+        _moveRight();
+      }
       return KeyEventResult.handled;
     }
-    if (key == LogicalKeyboardKey.arrowLeft) return _moveLeft();
+    if (key == LogicalKeyboardKey.arrowLeft) {
+      if (_onChannels) return KeyEventResult.ignored;
+      if (_moveLeft() == KeyEventResult.ignored) {
+        setState(() => _onChannels = true);
+      }
+      return KeyEventResult.handled;
+    }
     if (key == LogicalKeyboardKey.select ||
         key == LogicalKeyboardKey.enter ||
         key == LogicalKeyboardKey.numpadEnter ||
@@ -298,7 +313,7 @@ class GuideGridState extends ConsumerState<GuideGrid> {
               playlistId: widget.playlistId,
               channel: focusedChannel,
               chunkStart: chunkStart,
-              at: _anchor,
+              at: _onChannels ? _now : _anchor,
               now: _now,
               preview: widget.preview,
               subtitle: widget.subtitle,
@@ -344,7 +359,10 @@ class GuideGridState extends ConsumerState<GuideGrid> {
                               channelWidth: channelWidth,
                               now: _now,
                               playing: index == widget.playingIndex,
-                              focusedAt: _focused && index == _row
+                              channelFocused:
+                                  _focused && index == _row && _onChannels,
+                              focusedAt:
+                                  _focused && index == _row && !_onChannels
                                   ? _anchor
                                   : null,
                             ),
@@ -513,7 +531,7 @@ class _GuideDetails extends ConsumerWidget {
     // Fixed height, so the grid does not jump between programmes with and
     // without description; text that does not fit is cut off.
     return SizedBox(
-      height: preview == null ? 120 : 176,
+      height: preview == null ? 140 : 176,
       child: ClipRect(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
@@ -651,6 +669,7 @@ class _GuideRow extends ConsumerWidget {
     required this.channelWidth,
     required this.now,
     required this.playing,
+    required this.channelFocused,
     required this.focusedAt,
   });
 
@@ -665,6 +684,7 @@ class _GuideRow extends ConsumerWidget {
   final double channelWidth;
   final DateTime now;
   final bool playing;
+  final bool channelFocused;
 
   /// Time of the focused programme when this row has focus.
   final DateTime? focusedAt;
@@ -691,7 +711,13 @@ class _GuideRow extends ConsumerWidget {
       color: playing ? AppColors.accent : null,
     );
 
-    Widget cell(DateTime start, DateTime end, String title, bool focused) {
+    Widget cell(
+      DateTime start,
+      DateTime end,
+      String title,
+      bool focused, {
+      bool showTime = true,
+    }) {
       final left = math.max(0.0, _x(start));
       final right = math.min(width, _x(end));
       return Positioned(
@@ -702,10 +728,19 @@ class _GuideRow extends ConsumerWidget {
         child: _Cell(
           focused: focused,
           live: !start.isAfter(now) && end.isAfter(now),
-          child: MarqueeText(
-            title,
-            active: focused,
-            style: textTheme.bodyMedium,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              MarqueeText(title, active: focused, style: textTheme.bodyMedium),
+              if (showTime)
+                Text(
+                  formatTime(context, start),
+                  style: textTheme.bodySmall,
+                  maxLines: 1,
+                  overflow: TextOverflow.clip,
+                ),
+            ],
           ),
         ),
       );
@@ -727,52 +762,68 @@ class _GuideRow extends ConsumerWidget {
           identical(programme, focusedProgramme),
         ),
       if (visible.isEmpty)
-        cell(viewStart, viewEnd, l10n.guideNoInformation, focusedAt != null)
+        cell(
+          viewStart,
+          viewEnd,
+          l10n.guideNoInformation,
+          focusedAt != null,
+          showTime: false,
+        )
       else if (focusedAt != null && focusedProgramme == null)
         cell(
           _floorSlot(focusedAt),
           _floorSlot(focusedAt).add(_slot),
           l10n.guideNoInformation,
           true,
+          showTime: false,
         ),
     ];
 
     return Row(
       children: [
-        SizedBox(
-          width: channelWidth,
-          child: Padding(
-            padding: const EdgeInsets.only(left: 12, right: 8),
-            child: Row(
-              children: [
-                SizedBox(
-                  width: 36,
-                  child: Text(
-                    channel == null ? '' : '${channel.number}',
-                    style: textTheme.bodySmall?.copyWith(
-                      color: playing ? AppColors.accent : null,
-                    ),
+        Container(
+          width: channelWidth - 8,
+          margin: const EdgeInsets.fromLTRB(4, 2, 4, 2),
+          padding: const EdgeInsets.only(left: 8, right: 6),
+          decoration: BoxDecoration(
+            color: channelFocused ? AppColors.focusFill : null,
+            borderRadius: BorderRadius.circular(4),
+            border: Border.all(
+              color: channelFocused
+                  ? AppColors.focusBorder
+                  : Colors.transparent,
+              width: 2,
+            ),
+          ),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 36,
+                child: Text(
+                  channel == null ? '' : '${channel.number}',
+                  style: textTheme.bodySmall?.copyWith(
+                    color: playing ? AppColors.accent : null,
                   ),
                 ),
-                ChannelLogo(url: channel?.logoUrl, size: 28),
-                if (channelWidth > 120) ...[
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: MarqueeText(
-                      channel?.name ?? '',
-                      active: focusedAt != null,
-                      style: nameStyle,
-                    ),
+              ),
+              ChannelLogo(url: channel?.logoUrl, size: 32),
+              if (channelWidth > 120) ...[
+                const SizedBox(width: 8),
+                Expanded(
+                  child: MarqueeText(
+                    channel?.name ?? '',
+                    active: focusedAt != null || channelFocused,
+                    style: nameStyle,
                   ),
-                  if (playing)
-                    const Icon(
-                      Icons.play_arrow,
-                      size: 18,
-                      color: AppColors.accent,
-                    ),
-                ],
+                ),
+                if (playing)
+                  const Icon(
+                    Icons.play_arrow,
+                    size: 18,
+                    color: AppColors.accent,
+                  ),
               ],
-            ),
+            ],
           ),
         ),
         Expanded(

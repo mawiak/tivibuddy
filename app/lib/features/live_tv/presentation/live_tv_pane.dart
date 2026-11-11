@@ -22,9 +22,10 @@ import 'channel_widgets.dart';
 import 'guide_grid.dart';
 import 'live_player_screen.dart';
 
-/// Live TV section of the home screen (LIVE-1, LIVE-2): the guide with a
-/// preview of the channel played last. Left from the guide opens the
-/// categories over it, left again the side menu.
+/// Live TV section of the home screen (LIVE-1, LIVE-2): the guide, with a
+/// preview of the channel played last. Left from the guide reaches its
+/// channel column, then the categories, which push the guide to the right,
+/// then the side menu.
 class LiveTvPane extends ConsumerStatefulWidget {
   const LiveTvPane({super.key});
 
@@ -155,10 +156,10 @@ class _LiveTvPaneState extends ConsumerState<LiveTvPane> {
             autofocus: !_categoriesOpen,
             playingIndex: playingHere ? playing.position.index : null,
             subtitle: '${playlist.name}  ·  $categoryName',
-            preview: isPhone
+            preview: isPhone || _preview == null
                 ? null
                 : _Preview(
-                    engine: _preview?.read(),
+                    engine: _preview!.read(),
                     onSelect: playing == null
                         ? null
                         : () => _play(
@@ -175,16 +176,11 @@ class _LiveTvPaneState extends ConsumerState<LiveTvPane> {
 
     if (isPhone) return grid;
 
-    return Stack(
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Positioned.fill(
-          child: LeaveLeft(onLeftEdge: _openCategories, child: grid),
-        ),
         if (_categoriesOpen)
-          Positioned(
-            left: 0,
-            top: 0,
-            bottom: 0,
+          SizedBox(
             width: 260,
             child: Focus(
               canRequestFocus: false,
@@ -213,38 +209,26 @@ class _LiveTvPaneState extends ConsumerState<LiveTvPane> {
               ),
             ),
           ),
+        Expanded(
+          child: LeaveLeft(onLeftEdge: _openCategories, child: grid),
+        ),
       ],
     );
   }
 }
 
-/// Video of the channel played last, or an empty frame before anything
-/// played.
+/// Video of the channel played last.
 class _Preview extends StatelessWidget {
   const _Preview({required this.engine, required this.onSelect});
 
-  final PlaybackEngine? engine;
+  final PlaybackEngine engine;
   final VoidCallback? onSelect;
 
   @override
-  Widget build(BuildContext context) {
-    final engine = this.engine;
-    return GestureDetector(
-      onTap: onSelect,
-      child: engine == null
-          ? const ColoredBox(
-              color: AppColors.surface,
-              child: Center(
-                child: Icon(
-                  Icons.live_tv,
-                  size: 40,
-                  color: AppColors.textSecondary,
-                ),
-              ),
-            )
-          : PlaybackSurface(engine: engine),
-    );
-  }
+  Widget build(BuildContext context) => GestureDetector(
+    onTap: onSelect,
+    child: PlaybackSurface(engine: engine),
+  );
 }
 
 /// Category selection on phones, where there is no room for the list.
