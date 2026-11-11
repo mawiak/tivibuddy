@@ -9,6 +9,7 @@
 - Features
   - [Profiles](features/profiles.md)
   - [Playlists](features/playlists.md)
+  - [Settings](features/settings.md)
 - [Release process](release-process.md)
 
 AI agent guidelines and the full requirement list are in [`../ai/`](../ai/README.md).

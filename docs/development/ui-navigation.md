@@ -38,5 +38,9 @@ The back key does not arrive as a key event. It is handled with `PopScope`.
 ## Side menu
 
 The side menu is collapsed to icons while the content has focus and expands with labels when
-it gets focus, following common IPTV player conventions. Each section is its own
-`FocusTraversalGroup`, so left and right move between menu and content.
+it gets focus, following common IPTV player conventions.
+
+The content area is its own focus scope. Right from the menu restores the last focused element
+of the content, or its first element after a section change, instead of the geometrically
+closest one. While the menu has focus, sections cannot take focus with `autofocus`, so
+switching sections keeps the focus in the menu.

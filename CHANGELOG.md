@@ -23,9 +23,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Xtream Codes playlists per profile: add, edit and delete with connection test, account
   status and expiry; complete playlist links are split automatically; passwords in secure
   storage.
-- Settings section with entries for playlists and profiles.
+- Settings with profile, device and general sections: app language per profile (all
+  available translations), start profile, reset of profile and device settings.
+- About page with version, license, disclaimer and open source licenses.
 
 ### Fixed
 
 - White frame shown on Android before the first Flutter frame.
 - Saving an edited profile did not return to the profile picker.
+- Moving right from the side menu focused the element at the same height instead of the last
+  focused or first element of the content.

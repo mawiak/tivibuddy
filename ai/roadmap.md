@@ -9,7 +9,7 @@ Implementation order agreed with the project owner. Status values: `planned`, `i
 | 1  | App scaffold, workspace, theme, TV focus, i18n, adb deploy script      | done        |
 | 2  | User profiles (CRUD), profile picker, avatars, PIN, default profile    | done        |
 | 3  | Xtream Codes playlists (CRUD) per profile, connection test             | done        |
-| 4  | Settings (device and profile)                                          | planned     |
+| 4  | Settings (device and profile)                                          | done        |
 | 5  | VOD movies: categories, list, detail, playback, resume, favorites      | planned     |
 | 6  | VOD series: seasons, episodes, progress, watched state                 | planned     |
 | 7  | Metadata enrichment from key-less sources                              | planned     |
