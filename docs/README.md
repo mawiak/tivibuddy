@@ -8,6 +8,7 @@
   - [Translations](development/i18n.md)
 - Features
   - [Profiles](features/profiles.md)
+  - [Playlists](features/playlists.md)
 - [Release process](release-process.md)
 
 AI agent guidelines and the full requirement list are in [`../ai/`](../ai/README.md).

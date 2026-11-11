@@ -22,7 +22,8 @@ Requirements: PROF-1 to PROF-6, SET-1, SYNC-7.
   desktops a custom image can be chosen; it is cropped to a 256 px square PNG and stored in the
   database. TV devices do not offer the file option.
 - **Delete:** soft delete (`deleted` flag) so the deletion can be synchronized later. Deleting
-  the default or active profile clears those references.
+  the default or active profile clears those references. The playlists of the profile and
+  their passwords are deleted as well.
 
 ## Code
 
