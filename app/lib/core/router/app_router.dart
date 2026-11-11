@@ -5,6 +5,9 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../features/about/presentation/about_screen.dart';
 import '../../features/home/presentation/home_shell.dart';
 import '../../features/live_tv/presentation/live_player_screen.dart';
+import '../../features/movies/domain/movie.dart';
+import '../../features/movies/presentation/movie_detail_screen.dart';
+import '../../features/movies/presentation/vod_player_screen.dart';
 import '../../features/playlists/presentation/playlist_edit_screen.dart';
 import '../../features/playlists/presentation/playlists_screen.dart';
 import '../../features/profiles/application/profile_providers.dart';
@@ -74,6 +77,16 @@ GoRouter appRouter(Ref ref) {
         path: AppRoutes.livePlayer,
         builder: (context, state) =>
             LivePlayerScreen(args: state.extra! as LivePlayerArgs),
+      ),
+      GoRoute(
+        path: AppRoutes.movieDetail,
+        builder: (context, state) =>
+            MovieDetailScreen(movie: state.extra! as Movie),
+      ),
+      GoRoute(
+        path: AppRoutes.vodPlayer,
+        builder: (context, state) =>
+            VodPlayerScreen(args: state.extra! as VodPlayerArgs),
       ),
       GoRoute(
         path: AppRoutes.about,

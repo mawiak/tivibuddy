@@ -126,7 +126,7 @@ class _LivePlayerScreenState extends ConsumerState<LivePlayerScreen> {
     if (!retry &&
         ref.read(nowPlayingProvider)?.channel == channel &&
         status != PlaybackStatus.idle &&
-        status != PlaybackStatus.failed) {
+        !_engine.state.stopped) {
       _playingChannel = channel;
       return;
     }
@@ -174,7 +174,8 @@ class _LivePlayerScreenState extends ConsumerState<LivePlayerScreen> {
         key == LogicalKeyboardKey.enter ||
         key == LogicalKeyboardKey.gameButtonA) {
       final channel = _channel;
-      if (_playback.status == PlaybackStatus.failed && channel != null) {
+      // A live stream that ends was closed by the server: an error, too.
+      if (_playback.stopped && channel != null) {
         _play(channel, retry: true);
       } else {
         _toggleList(true);
@@ -227,8 +228,7 @@ class _LivePlayerScreenState extends ConsumerState<LivePlayerScreen> {
                       child: CircularProgressIndicator(strokeWidth: 3),
                     ),
                   ),
-                if (_playback.status == PlaybackStatus.failed &&
-                    _playingChannel == channel)
+                if (_playback.stopped && _playingChannel == channel)
                   const _PlaybackError(),
                 if (channel != null)
                   Positioned(

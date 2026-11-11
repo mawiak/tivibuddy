@@ -1,4 +1,4 @@
-enum PlaybackStatus { idle, opening, buffering, playing, paused, failed }
+enum PlaybackStatus { idle, opening, buffering, playing, paused, ended, failed }
 
 class PlaybackState {
   const PlaybackState({
@@ -18,6 +18,10 @@ class PlaybackState {
 
   /// Length of the media; null or zero for live streams.
   final Duration? duration;
+
+  /// Playback stopped by itself: an error, or the end of the media.
+  bool get stopped =>
+      status == PlaybackStatus.failed || status == PlaybackStatus.ended;
 
   bool get isBusy =>
       status == PlaybackStatus.opening || status == PlaybackStatus.buffering;

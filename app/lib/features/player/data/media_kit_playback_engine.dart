@@ -52,7 +52,7 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
         }
       }),
       player.stream.playing.listen((playing) {
-        if (_state.status == PlaybackStatus.failed) return;
+        if (_state.stopped) return;
         if (playing && !player.state.buffering) {
           _emit(_state.copyWith(status: PlaybackStatus.playing));
         } else if (!playing && _state.status == PlaybackStatus.playing) {
@@ -76,14 +76,9 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
         }
       }),
       player.stream.completed.listen((completed) {
-        // A live stream that "completes" was closed by the server.
+        // For live streams this means the server closed the stream.
         if (completed) {
-          _emit(
-            const PlaybackState(
-              status: PlaybackStatus.failed,
-              error: 'Stream ended',
-            ),
-          );
+          _emit(_state.copyWith(status: PlaybackStatus.ended));
         }
       }),
     ]);

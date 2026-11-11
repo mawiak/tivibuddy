@@ -8,6 +8,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/content_back.dart';
 import '../../../shared/widgets/focus_memory_scope.dart';
 import '../../live_tv/presentation/live_tv_pane.dart';
+import '../../movies/presentation/movies_pane.dart';
 import '../../profiles/application/profile_providers.dart';
 import '../../profiles/domain/profile.dart';
 import '../../profiles/presentation/profile_avatar_view.dart';
@@ -73,6 +74,7 @@ class _HomeShellState extends ConsumerState<HomeShell> {
     final profile = ref.watch(activeProfileProvider);
     final content = switch (selected) {
       HomeSection.liveTv => const LiveTvPane(),
+      HomeSection.movies => const MoviesPane(),
       HomeSection.settings => const SettingsPane(),
       _ => SectionPlaceholder(key: ValueKey(selected), section: selected),
     };

@@ -11,7 +11,6 @@ import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/content_back.dart';
 import '../../../shared/widgets/focus_memory_scope.dart';
 import '../../../shared/widgets/marquee_text.dart';
-import '../../../shared/widgets/tv_button.dart';
 import '../../../shared/widgets/tv_dialogs.dart';
 import '../../../shared/widgets/tv_focusable.dart';
 import '../../player/data/player_providers.dart';
@@ -19,9 +18,9 @@ import '../../player/domain/playback_engine.dart';
 import '../../player/presentation/playback_surface.dart';
 import '../../playlists/application/playlist_actions.dart';
 import '../../playlists/domain/playlist.dart';
+import '../../playlists/presentation/catalog_views.dart';
 import '../application/live_catalog_controller.dart';
 import '../application/live_tv_providers.dart';
-import 'channel_widgets.dart';
 import 'guide_grid.dart';
 import 'live_player_screen.dart';
 
@@ -135,7 +134,9 @@ class _LiveTvPaneState extends ConsumerState<LiveTvPane> {
     if (!playlists.hasValue) {
       return const Center(child: CircularProgressIndicator());
     }
-    if (playlist == null) return const _NoPlaylist();
+    if (playlist == null) {
+      return NoPlaylistView(message: l10n.liveNoPlaylistMessage);
+    }
 
     _ensureCatalog(playlist.id);
     final status = ref.watch(liveCatalogControllerProvider(playlist.id));
@@ -151,7 +152,24 @@ class _LiveTvPaneState extends ConsumerState<LiveTvPane> {
       return const Center(child: CircularProgressIndicator());
     }
     if (channels != null && channels.length == 0 && categoryId == null) {
-      return _CatalogState(playlistId: playlist.id, status: status);
+      return CatalogStateView(
+        loadedText: switch (status) {
+          LiveCatalogLoading(:final channelsLoaded) => l10n.liveLoadingCount(
+            channelsLoaded,
+          ),
+          _ => null,
+        },
+        failure: switch (status) {
+          LiveCatalogFailed(:final reason) => reason,
+          _ => null,
+        },
+        loadingTitle: l10n.liveLoading,
+        emptyText: l10n.liveNoChannels,
+        refreshLabel: l10n.liveRefresh,
+        onRetry: () => ref
+            .read(liveCatalogControllerProvider(playlist.id).notifier)
+            .refresh(),
+      );
     }
 
     if (_gridOf != (playlist.id, categoryId)) {
@@ -304,107 +322,6 @@ class _CategoryButton extends ConsumerWidget {
             const Icon(Icons.arrow_drop_down, size: 20),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _NoPlaylist extends StatelessWidget {
-  const _NoPlaylist();
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final textTheme = Theme.of(context).textTheme;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(
-              Icons.playlist_add,
-              size: 56,
-              color: AppColors.textSecondary,
-            ),
-            const SizedBox(height: 16),
-            Text(l10n.liveNoPlaylistTitle, style: textTheme.headlineSmall),
-            const SizedBox(height: 8),
-            Text(
-              l10n.liveNoPlaylistMessage,
-              style: textTheme.bodyMedium,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            TvButton(
-              label: l10n.playlistAdd,
-              icon: Icons.add,
-              style: TvButtonStyle.primary,
-              autofocus: true,
-              onPressed: () => context.push(AppRoutes.newPlaylist),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Shown while no catalog exists yet: loading progress, error or empty.
-class _CatalogState extends ConsumerWidget {
-  const _CatalogState({required this.playlistId, required this.status});
-
-  final String playlistId;
-  final LiveCatalogStatus status;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
-    final textTheme = Theme.of(context).textTheme;
-    void retry() =>
-        ref.read(liveCatalogControllerProvider(playlistId).notifier).refresh();
-
-    final List<Widget> content = switch (status) {
-      LiveCatalogLoading(:final channelsLoaded) => [
-        const CircularProgressIndicator(),
-        const SizedBox(height: 20),
-        Text(l10n.liveLoading, style: textTheme.titleMedium),
-        const SizedBox(height: 4),
-        Text(l10n.liveLoadingCount(channelsLoaded), style: textTheme.bodySmall),
-      ],
-      LiveCatalogFailed(:final reason) => [
-        const Icon(Icons.error_outline, size: 48, color: AppColors.danger),
-        const SizedBox(height: 16),
-        Text(
-          describeCatalogFailure(l10n, reason),
-          style: textTheme.titleMedium,
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 24),
-        TvButton(
-          label: l10n.liveRetry,
-          icon: Icons.refresh,
-          style: TvButtonStyle.primary,
-          autofocus: true,
-          onPressed: retry,
-        ),
-      ],
-      LiveCatalogIdle() => [
-        Text(l10n.liveNoChannels, style: textTheme.titleMedium),
-        const SizedBox(height: 24),
-        TvButton(
-          label: l10n.liveRefresh,
-          icon: Icons.refresh,
-          autofocus: true,
-          onPressed: retry,
-        ),
-      ],
-    };
-
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(mainAxisSize: MainAxisSize.min, children: content),
       ),
     );
   }

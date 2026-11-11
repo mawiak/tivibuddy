@@ -9,7 +9,8 @@ import 'package:flutter/widgets.dart';
 /// first row of a new list. [allowAutofocus] prevents that from taking focus
 /// away from a neighbouring area the user is currently navigating in. The
 /// suppressed element is kept as the entry point for the next [enter], so
-/// screens decide with `autofocus` where focus lands.
+/// screens decide with `autofocus` where focus lands. Nested memory scopes
+/// also respect the [allowAutofocus] of the scopes around them.
 class FocusMemoryScopeNode extends FocusScopeNode {
   FocusMemoryScopeNode({super.debugLabel, this.allowAutofocus});
 
@@ -18,11 +19,20 @@ class FocusMemoryScopeNode extends FocusScopeNode {
 
   @override
   void autofocus(FocusNode node) {
-    if (allowAutofocus?.call() ?? true) {
-      super.autofocus(node);
-    } else {
-      _deferredAutofocus = node;
+    // Enclosing memory scopes guard their whole area, so nested scopes
+    // respect their rules, too. Each refusing scope keeps the element as its
+    // entry point.
+    var allowed = true;
+    for (final scope in [
+      this,
+      ...ancestors.whereType<FocusMemoryScopeNode>(),
+    ]) {
+      if (!(scope.allowAutofocus?.call() ?? true)) {
+        scope._deferredAutofocus = node;
+        allowed = false;
+      }
     }
+    if (allowed) super.autofocus(node);
   }
 
   /// Focuses the last focused element, else the element that asked for

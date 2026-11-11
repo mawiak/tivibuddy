@@ -5,7 +5,6 @@ import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/marquee_text.dart';
 import '../../../shared/widgets/tv_focusable.dart';
 import '../domain/live_channel.dart';
-import '../domain/live_tv_repository.dart';
 
 /// Height of a channel row. Fixed, so lists can use `itemExtent` and jump to
 /// any index without measuring (UI-3).
@@ -117,16 +116,6 @@ String formatTime(BuildContext context, DateTime time) =>
       TimeOfDay.fromDateTime(time.toLocal()),
       alwaysUse24HourFormat: MediaQuery.alwaysUse24HourFormatOf(context),
     );
-
-String describeCatalogFailure(
-  AppLocalizations l10n,
-  CatalogLoadFailure reason,
-) => switch (reason) {
-  CatalogLoadFailure.unauthorized => l10n.liveLoadUnauthorized,
-  CatalogLoadFailure.unreachable => l10n.liveLoadUnreachable,
-  CatalogLoadFailure.invalidResponse => l10n.liveLoadInvalid,
-  CatalogLoadFailure.missingPassword => l10n.liveLoadMissingPassword,
-};
 
 /// Now and next programme of [nowNext], used in the info panel and the OSD.
 class NowNextView extends StatelessWidget {

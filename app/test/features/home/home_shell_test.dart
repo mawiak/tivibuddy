@@ -40,12 +40,13 @@ void main() {
     await pressBack(tester);
 
     await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
     await tester.sendKeyEvent(LogicalKeyboardKey.select);
     await tester.pumpAndSettle();
 
-    expect(focusedLabel(), 'menu.movies');
+    expect(focusedLabel(), 'menu.series');
     expect(find.text('Coming soon'), findsOneWidget);
-    expect(find.widgetWithText(Column, 'Movies'), findsWidgets);
+    expect(find.widgetWithText(Column, 'Series'), findsWidgets);
   });
 
   testWidgets('right from the menu restores the last focused content', (

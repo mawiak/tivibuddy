@@ -298,5 +298,55 @@
         "type": "int"
       }
     }
-  }
+  },
+  "moviesNoPlaylistMessage": "Add an Xtream Codes playlist to watch movies.",
+  "moviesContinue": "Continue watching",
+  "moviesFavorites": "Favorites",
+  "moviesAll": "All movies",
+  "moviesRefresh": "Update movies",
+  "moviesUpdating": "Updating movies",
+  "moviesLoading": "Loading movies",
+  "moviesLoadingCount": "{count} movies loaded",
+  "@moviesLoadingCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "moviesNone": "This playlist has no movies.",
+  "moviesEmptyList": "Nothing here yet.",
+  "moviePlay": "Play",
+  "movieResume": "Resume at {time}",
+  "@movieResume": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "movieStartOver": "Start over",
+  "movieFavoriteAdd": "Add to favorites",
+  "movieFavoriteRemove": "Remove from favorites",
+  "movieMarkWatched": "Mark as watched",
+  "movieMarkUnwatched": "Mark as not watched",
+  "movieDirector": "Director: {names}",
+  "@movieDirector": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "movieCast": "Cast: {names}",
+  "@movieCast": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "movieWatched": "Watched",
+  "vodPlayerFailed": "The movie could not be played.",
+  "vodPlayerRetryHint": "Press OK to try again or back to leave."
 }
