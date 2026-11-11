@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+# Builds TiviBuddy and installs it on a Fire TV / Android TV device over adb.
+#
+# Usage: tool/deploy_firetv.sh <device-ip[:port]> [--debug|--profile|--release] [--no-build]
+#
+# The device ABI is detected automatically, so the same command works for
+# 32-bit devices (Fire TV Stick Lite) and 64-bit devices (Fire TV Stick 4K Max).
+
+set -euo pipefail
+
+readonly APP_ID="io.github.mawiak.tivibuddy"
+readonly REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+readonly APP_DIR="${REPO_ROOT}/app"
+
+usage() {
+  sed -n '2,7p' "$0" | sed 's/^# \{0,1\}//'
+  exit 1
+}
+
+[[ $# -ge 1 ]] || usage
+
+device="$1"
+shift
+[[ "${device}" == *:* ]] || device="${device}:5555"
+
+mode="release"
+build=true
+for arg in "$@"; do
+  case "${arg}" in
+    --debug) mode="debug" ;;
+    --profile) mode="profile" ;;
+    --release) mode="release" ;;
+    --no-build) build=false ;;
+    *) usage ;;
+  esac
+done
+
+echo "Connecting to ${device}"
+adb connect "${device}" >/dev/null
+adb -s "${device}" wait-for-device
+
+abi="$(adb -s "${device}" shell getprop ro.product.cpu.abi | tr -d '\r')"
+case "${abi}" in
+  arm64-v8a | armeabi-v7a | x86_64) ;;
+  *) echo "Unsupported device ABI: ${abi}" >&2; exit 1 ;;
+esac
+echo "Device ABI: ${abi}"
+
+if [[ "${build}" == true ]]; then
+  echo "Building ${mode} APKs"
+  (cd "${APP_DIR}" && flutter build apk "--${mode}" --split-per-abi)
+fi
+
+apk="${APP_DIR}/build/app/outputs/flutter-apk/app-${abi}-${mode}.apk"
+[[ -f "${apk}" ]] || { echo "APK not found: ${apk}" >&2; exit 1; }
+
+echo "Installing $(basename "${apk}") ($(du -h "${apk}" | cut -f1))"
+adb -s "${device}" install -r "${apk}"
+
+echo "Starting ${APP_ID}"
+adb -s "${device}" shell am start -n "${APP_ID}/.MainActivity" >/dev/null
+echo "Done"
