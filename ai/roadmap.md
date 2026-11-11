@@ -10,11 +10,11 @@ Implementation order agreed with the project owner. Status values: `planned`, `i
 | 2  | User profiles (CRUD), profile picker, avatars, PIN, default profile    | done        |
 | 3  | Xtream Codes playlists (CRUD) per profile, connection test             | done        |
 | 4  | Settings (device and profile)                                          | done        |
-| 5  | VOD movies: categories, list, detail, playback, resume, favorites      | planned     |
-| 6  | VOD series: seasons, episodes, progress, watched state                 | planned     |
-| 7  | Metadata enrichment from key-less sources                              | planned     |
-| 8  | Live TV: channels, categories, zapping, now/next                       | planned     |
-| 9  | EPG grid                                                               | planned     |
+| 5  | Live TV: catalog, categories, channels, player, zapping, now/next      | in progress |
+| 6  | EPG grid (TV guide) with XMLTV loading                                 | planned     |
+| 7  | VOD movies: categories, grid, detail, playback, resume, favorites      | planned     |
+| 8  | VOD series: seasons, episodes, progress, watched state                 | planned     |
+| 9  | Metadata enrichment from key-less sources                              | planned     |
 | 10 | Sync server (Dart, PostgreSQL, Docker) and client sync                 | planned     |
 | 11 | CI and release builds for all platforms                                | planned     |
 | 12 | M3U playlists, external XMLTV, catch-up, keyed metadata sources        | planned     |

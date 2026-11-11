@@ -27,6 +27,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Settings with profile, device and general sections: app language per profile (all
   available translations), start profile, reset of profile and device settings.
 - About page with version, license, disclaimer and open source licenses.
+- Live TV: categories, channel list with logos, details with now and next programme, full
+  screen player with zapping, info bar and channel list overlay.
+- Background loading of large channel catalogs with a streaming JSON parser.
+- Video playback with libmpv/FFmpeg and hardware decoding.
 
 ### Fixed
 

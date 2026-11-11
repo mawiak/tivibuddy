@@ -25,3 +25,4 @@ Decisions agreed with the project owner. Do not reopen them without the owner as
 | 2026-11-11 | Hosting             | GitHub `mawiak/tivibuddy`, private until the owner decides otherwise      |
 | 2026-11-11 | Settings scope M4   | Framework, language, start profile, about; feature settings grow with features |
 | 2026-11-11 | App language        | Per profile (system default), options read from ARB files                 |
+| 2026-11-11 | Order after settings | Live TV and EPG before VOD (core use case, player and data risk first) |

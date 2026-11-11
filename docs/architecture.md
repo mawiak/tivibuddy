@@ -57,9 +57,13 @@ the profile list or the active profile change:
 ## Data flow for large provider data
 
 1. The Xtream client downloads responses as byte streams.
-2. A background isolate parses them with a streaming parser (JSON, XMLTV).
-3. Parsed records are written to SQLite in batched transactions.
-4. The UI watches paged, indexed SQL queries. It never holds the full catalogue in memory.
+2. A background isolate parses them with a streaming parser (`JsonArraySplitter` for JSON,
+   XMLTV follows with the EPG milestone).
+3. Parsed records are written to SQLite in batches.
+4. The UI reads paged, indexed SQL queries through `PagedList`. It never holds the full
+   catalogue in memory.
+
+See [Live TV](features/live-tv.md) for the concrete implementation.
 
 ## Sources
 
