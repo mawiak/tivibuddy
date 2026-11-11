@@ -16,7 +16,10 @@ class TvTextField extends StatefulWidget {
     required this.controller,
     required this.label,
     this.errorText,
+    this.helperText,
     this.maxLength,
+    this.obscureText = false,
+    this.keyboardType,
     this.autofocus = false,
     this.onChanged,
     this.onSubmitted,
@@ -25,7 +28,10 @@ class TvTextField extends StatefulWidget {
   final TextEditingController controller;
   final String label;
   final String? errorText;
+  final String? helperText;
   final int? maxLength;
+  final bool obscureText;
+  final TextInputType? keyboardType;
   final bool autofocus;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
@@ -101,6 +107,10 @@ class _TvTextFieldState extends State<TvTextField> {
             controller: widget.controller,
             focusNode: _inputFocus,
             maxLength: widget.maxLength,
+            obscureText: widget.obscureText,
+            keyboardType: widget.keyboardType,
+            autocorrect: !widget.obscureText && widget.keyboardType == null,
+            enableSuggestions: !widget.obscureText,
             textInputAction: TextInputAction.done,
             onChanged: widget.onChanged,
             onSubmitted: (value) {
@@ -111,6 +121,8 @@ class _TvTextFieldState extends State<TvTextField> {
             decoration: InputDecoration(
               labelText: widget.label,
               errorText: widget.errorText,
+              helperText: widget.helperText,
+              helperMaxLines: 2,
               counterText: '',
               filled: true,
               fillColor: highlighted ? AppColors.focusFill : AppColors.surface,

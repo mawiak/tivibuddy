@@ -93,5 +93,101 @@
       }
     }
   },
-  "profileReplaceDefaultConfirm": "Replace"
+  "profileReplaceDefaultConfirm": "Replace",
+  "settingsPlaylists": "Playlists",
+  "settingsPlaylistsSubtitle": "{count, plural, =0{No playlist yet} =1{1 playlist} other{{count} playlists}}",
+  "@settingsPlaylistsSubtitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsProfiles": "Profiles",
+  "settingsProfilesSubtitle": "Switch, add or edit profiles",
+  "playlistsTitle": "Playlists of {profile}",
+  "@playlistsTitle": {
+    "placeholders": {
+      "profile": {
+        "type": "String"
+      }
+    }
+  },
+  "playlistsEmpty": "Add your Xtream Codes account to watch live TV, movies and series.",
+  "playlistAdd": "Add playlist",
+  "playlistCreateTitle": "Add playlist",
+  "playlistEditTitle": "Edit playlist",
+  "playlistName": "Name",
+  "playlistServer": "Server URL",
+  "playlistServerHint": "For example http://example.com:8080. A complete playlist link is split automatically.",
+  "playlistUsername": "Username",
+  "playlistPassword": "Password",
+  "playlistLinkDetected": "Server, username and password were taken from the link.",
+  "playlistErrorNameEmpty": "Please enter a name.",
+  "playlistErrorNameTooLong": "The name can have at most {max} characters.",
+  "@playlistErrorNameTooLong": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "playlistErrorServer": "Please enter a valid http or https address.",
+  "playlistErrorUsername": "Please enter the username.",
+  "playlistErrorPassword": "Please enter the password.",
+  "playlistTestConnection": "Test connection",
+  "playlistTesting": "Testing connection",
+  "playlistTestOk": "Connection successful",
+  "playlistTestUnauthorized": "The server rejected the username or password.",
+  "playlistTestUnreachable": "The server could not be reached.",
+  "playlistTestTimeout": "The server did not answer in time.",
+  "playlistTestInvalid": "The server did not answer like an Xtream Codes server.",
+  "playlistSaveAnywayTitle": "Save without working connection?",
+  "playlistSaveAnywayMessage": "{reason} You can save the playlist anyway and fix it later.",
+  "@playlistSaveAnywayMessage": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "playlistSaveAnyway": "Save anyway",
+  "playlistAccountStatus": "Status: {status}",
+  "@playlistAccountStatus": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "playlistAccountExpires": "Expires: {date}",
+  "@playlistAccountExpires": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "playlistAccountUnlimited": "Expires: never",
+  "playlistAccountConnections": "Connections: {active} of {max}",
+  "@playlistAccountConnections": {
+    "placeholders": {
+      "active": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "playlistAccountUnknown": "Not checked yet",
+  "playlistDeleteTitle": "Delete playlist?",
+  "playlistDeleteMessage": "The playlist {name} will be removed from this profile.",
+  "@playlistDeleteMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }
