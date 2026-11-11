@@ -38,5 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Saving an edited profile did not return to the profile picker.
 - Changing any profile could switch back to the start profile while another profile was in
   use.
+- Left from the live TV channel list did not reach the categories, and left from the
+  content did not reach the side menu.
 - Moving right from the side menu focused the element at the same height instead of the last
   focused or first element of the content.

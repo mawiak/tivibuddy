@@ -54,3 +54,40 @@ class ExitRight extends StatelessWidget {
     );
   }
 }
+
+/// Lets left leave a focus scope. Directional traversal never crosses scope
+/// boundaries, so without this a list in its own scope would trap focus.
+///
+/// Tries normal traversal first. When nothing is to the left inside the
+/// scope, calls [onLeftEdge], or lets an enclosing [LeaveLeft] handle the
+/// key when [onLeftEdge] is null.
+class LeaveLeft extends StatelessWidget {
+  const LeaveLeft({super.key, required this.child, this.onLeftEdge});
+
+  final Widget child;
+  final VoidCallback? onLeftEdge;
+
+  @override
+  Widget build(BuildContext context) {
+    return Focus(
+      canRequestFocus: false,
+      skipTraversal: true,
+      onKeyEvent: (node, event) {
+        if (event is! KeyDownEvent ||
+            event.logicalKey != LogicalKeyboardKey.arrowLeft) {
+          return KeyEventResult.ignored;
+        }
+        final focused = FocusManager.instance.primaryFocus;
+        if (focused != null &&
+            focused.focusInDirection(TraversalDirection.left)) {
+          return KeyEventResult.handled;
+        }
+        final onLeftEdge = this.onLeftEdge;
+        if (onLeftEdge == null) return KeyEventResult.ignored;
+        onLeftEdge();
+        return KeyEventResult.handled;
+      },
+      child: child,
+    );
+  }
+}

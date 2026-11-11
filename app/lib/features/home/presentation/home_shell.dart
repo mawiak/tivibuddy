@@ -103,9 +103,12 @@ class _HomeShellState extends ConsumerState<HomeShell> {
               onExitRight: _contentScope.enter,
             ),
             Expanded(
-              child: FocusScope(
-                node: _contentScope,
-                child: FocusTraversalGroup(child: content),
+              child: LeaveLeft(
+                onLeftEdge: _focusMenu,
+                child: FocusScope(
+                  node: _contentScope,
+                  child: FocusTraversalGroup(child: content),
+                ),
               ),
             ),
           ],

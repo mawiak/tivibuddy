@@ -95,4 +95,14 @@ void main() {
       findsOneWidget,
     );
   });
+
+  testWidgets('left from the content reaches the menu', (tester) async {
+    await pumpTestApp(tester, const HomeShell());
+    expect(focusedLabel(), isNot(startsWith('menu.')));
+
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+    await tester.pump();
+
+    expect(focusedLabel(), 'menu.liveTv');
+  });
 }

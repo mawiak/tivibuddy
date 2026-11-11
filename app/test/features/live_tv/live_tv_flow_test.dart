@@ -136,6 +136,34 @@ void main() {
     expect(find.text('Channel 11'), findsOneWidget);
   });
 
+  testWidgets('left moves from channels to categories and on to the menu', (
+    tester,
+  ) async {
+    await openLiveTv(tester);
+    expect(focusedLabel(), isNot(startsWith('menu.')));
+
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+    await tester.pump();
+    final focused = FocusManager.instance.primaryFocus!.context!;
+    expect(
+      focused.findAncestorWidgetOfExactType<ChannelRow>(),
+      isNull,
+      reason: 'focus left the channel list',
+    );
+    expect(
+      find.descendant(
+        of: find.byWidget(focused.widget),
+        matching: find.text('All channels'),
+      ),
+      findsOneWidget,
+      reason: 'the selected category has focus',
+    );
+
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+    await tester.pump();
+    expect(focusedLabel(), startsWith('menu.'));
+  });
+
   testWidgets('categories keep focus and right enters the first channel', (
     tester,
   ) async {

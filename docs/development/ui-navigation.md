@@ -45,3 +45,7 @@ of the content, or its first element after a section change, instead of the geom
 closest one. While the menu has focus, sections cannot take focus with `autofocus`, so
 switching sections keeps the focus in the menu. The same building block connects the
 categories and the channel list of live TV; use it for every list-detail layout.
+
+Directional traversal never leaves a focus scope. Wrap every scope in `LeaveLeft` (same file):
+it tries the normal move first and, at the left edge, hands focus to the area on the left
+(channel list to categories, any content to the side menu).

@@ -49,11 +49,16 @@ class _LiveTvPaneState extends ConsumerState<LiveTvPane> {
     allowAutofocus: () => !_categoriesFocused,
   );
 
+  /// Categories remember the last focused one, which is also the selected
+  /// one, so left from the channels returns to it.
+  final _categoryScope = FocusMemoryScopeNode(debugLabel: 'liveCategories');
+
   @override
   void dispose() {
     _infoDelay?.cancel();
     _infoPosition.dispose();
     _channelScope.dispose();
+    _categoryScope.dispose();
     super.dispose();
   }
 
@@ -131,21 +136,31 @@ class _LiveTvPaneState extends ConsumerState<LiveTvPane> {
             onFocusChange: (focused) => _categoriesFocused = focused,
             child: ExitRight(
               onRight: _channelScope.enter,
-              child: FocusTraversalGroup(
-                child: _CategoryColumn(
-                  playlist: playlist,
-                  playlists: playlists.value!,
-                  selectedCategoryId: categoryId,
-                  status: status,
+              // Left from the categories reaches the menu through the
+              // LeaveLeft of the home screen.
+              child: LeaveLeft(
+                child: FocusScope(
+                  node: _categoryScope,
+                  child: FocusTraversalGroup(
+                    child: _CategoryColumn(
+                      playlist: playlist,
+                      playlists: playlists.value!,
+                      selectedCategoryId: categoryId,
+                      status: status,
+                    ),
+                  ),
                 ),
               ),
             ),
           ),
         ),
         Expanded(
-          child: FocusScope(
-            node: _channelScope,
-            child: FocusTraversalGroup(child: channelList),
+          child: LeaveLeft(
+            onLeftEdge: _categoryScope.enter,
+            child: FocusScope(
+              node: _channelScope,
+              child: FocusTraversalGroup(child: channelList),
+            ),
           ),
         ),
         SizedBox(

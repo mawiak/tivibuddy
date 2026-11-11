@@ -11,7 +11,8 @@ Requirements: LIVE-1, DATA-1 to DATA-3, RES-1 to RES-3, PLAY-1 to PLAY-3, UI-1 t
   first entry, "Update channels" the last. With more than one playlist, the first entry
   selects the playlist.
 - **Right from the categories** focuses the last focused channel of the list, or its first
-  channel after a category change.
+  channel after a category change. **Left from the channels** returns to the selected
+  category, left from the categories opens the side menu.
 - **Player:** full screen.
 
   | Key                          | Action                                          |
