@@ -578,6 +578,920 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
   }
 }
 
+class $PlaylistsTable extends Playlists
+    with TableInfo<$PlaylistsTable, PlaylistRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PlaylistsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deletedMeta = const VerificationMeta(
+    'deleted',
+  );
+  @override
+  late final GeneratedColumn<bool> deleted = GeneratedColumn<bool>(
+    'deleted',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("deleted" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _profileIdMeta = const VerificationMeta(
+    'profileId',
+  );
+  @override
+  late final GeneratedColumn<String> profileId = GeneratedColumn<String>(
+    'profile_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES profiles (id)',
+    ),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<PlaylistType, String> type =
+      GeneratedColumn<String>(
+        'type',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<PlaylistType>($PlaylistsTable.$convertertype);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _serverUrlMeta = const VerificationMeta(
+    'serverUrl',
+  );
+  @override
+  late final GeneratedColumn<String> serverUrl = GeneratedColumn<String>(
+    'server_url',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _usernameMeta = const VerificationMeta(
+    'username',
+  );
+  @override
+  late final GeneratedColumn<String> username = GeneratedColumn<String>(
+    'username',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sortOrderMeta = const VerificationMeta(
+    'sortOrder',
+  );
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+    'sort_order',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _accountStatusMeta = const VerificationMeta(
+    'accountStatus',
+  );
+  @override
+  late final GeneratedColumn<String> accountStatus = GeneratedColumn<String>(
+    'account_status',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _accountCheckedAtMeta = const VerificationMeta(
+    'accountCheckedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> accountCheckedAt =
+      GeneratedColumn<DateTime>(
+        'account_checked_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _accountExpiresAtMeta = const VerificationMeta(
+    'accountExpiresAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> accountExpiresAt =
+      GeneratedColumn<DateTime>(
+        'account_expires_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _accountMaxConnectionsMeta =
+      const VerificationMeta('accountMaxConnections');
+  @override
+  late final GeneratedColumn<int> accountMaxConnections = GeneratedColumn<int>(
+    'account_max_connections',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _accountActiveConnectionsMeta =
+      const VerificationMeta('accountActiveConnections');
+  @override
+  late final GeneratedColumn<int> accountActiveConnections =
+      GeneratedColumn<int>(
+        'account_active_connections',
+        aliasedName,
+        true,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+      );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    createdAt,
+    updatedAt,
+    deleted,
+    profileId,
+    type,
+    name,
+    serverUrl,
+    username,
+    sortOrder,
+    accountStatus,
+    accountCheckedAt,
+    accountExpiresAt,
+    accountMaxConnections,
+    accountActiveConnections,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'playlists';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PlaylistRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted')) {
+      context.handle(
+        _deletedMeta,
+        deleted.isAcceptableOrUnknown(data['deleted']!, _deletedMeta),
+      );
+    }
+    if (data.containsKey('profile_id')) {
+      context.handle(
+        _profileIdMeta,
+        profileId.isAcceptableOrUnknown(data['profile_id']!, _profileIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_profileIdMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('server_url')) {
+      context.handle(
+        _serverUrlMeta,
+        serverUrl.isAcceptableOrUnknown(data['server_url']!, _serverUrlMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_serverUrlMeta);
+    }
+    if (data.containsKey('username')) {
+      context.handle(
+        _usernameMeta,
+        username.isAcceptableOrUnknown(data['username']!, _usernameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_usernameMeta);
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(
+        _sortOrderMeta,
+        sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta),
+      );
+    }
+    if (data.containsKey('account_status')) {
+      context.handle(
+        _accountStatusMeta,
+        accountStatus.isAcceptableOrUnknown(
+          data['account_status']!,
+          _accountStatusMeta,
+        ),
+      );
+    }
+    if (data.containsKey('account_checked_at')) {
+      context.handle(
+        _accountCheckedAtMeta,
+        accountCheckedAt.isAcceptableOrUnknown(
+          data['account_checked_at']!,
+          _accountCheckedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('account_expires_at')) {
+      context.handle(
+        _accountExpiresAtMeta,
+        accountExpiresAt.isAcceptableOrUnknown(
+          data['account_expires_at']!,
+          _accountExpiresAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('account_max_connections')) {
+      context.handle(
+        _accountMaxConnectionsMeta,
+        accountMaxConnections.isAcceptableOrUnknown(
+          data['account_max_connections']!,
+          _accountMaxConnectionsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('account_active_connections')) {
+      context.handle(
+        _accountActiveConnectionsMeta,
+        accountActiveConnections.isAcceptableOrUnknown(
+          data['account_active_connections']!,
+          _accountActiveConnectionsMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  PlaylistRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PlaylistRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deleted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}deleted'],
+      )!,
+      profileId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}profile_id'],
+      )!,
+      type: $PlaylistsTable.$convertertype.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}type'],
+        )!,
+      ),
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      serverUrl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}server_url'],
+      )!,
+      username: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}username'],
+      )!,
+      sortOrder: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sort_order'],
+      )!,
+      accountStatus: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}account_status'],
+      ),
+      accountCheckedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}account_checked_at'],
+      ),
+      accountExpiresAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}account_expires_at'],
+      ),
+      accountMaxConnections: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}account_max_connections'],
+      ),
+      accountActiveConnections: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}account_active_connections'],
+      ),
+    );
+  }
+
+  @override
+  $PlaylistsTable createAlias(String alias) {
+    return $PlaylistsTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<PlaylistType, String, String> $convertertype =
+      const EnumNameConverter<PlaylistType>(PlaylistType.values);
+}
+
+class PlaylistRow extends DataClass implements Insertable<PlaylistRow> {
+  final String id;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final bool deleted;
+  final String profileId;
+  final PlaylistType type;
+  final String name;
+  final String serverUrl;
+  final String username;
+  final int sortOrder;
+  final String? accountStatus;
+  final DateTime? accountCheckedAt;
+  final DateTime? accountExpiresAt;
+  final int? accountMaxConnections;
+  final int? accountActiveConnections;
+  const PlaylistRow({
+    required this.id,
+    required this.createdAt,
+    required this.updatedAt,
+    required this.deleted,
+    required this.profileId,
+    required this.type,
+    required this.name,
+    required this.serverUrl,
+    required this.username,
+    required this.sortOrder,
+    this.accountStatus,
+    this.accountCheckedAt,
+    this.accountExpiresAt,
+    this.accountMaxConnections,
+    this.accountActiveConnections,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    map['deleted'] = Variable<bool>(deleted);
+    map['profile_id'] = Variable<String>(profileId);
+    {
+      map['type'] = Variable<String>(
+        $PlaylistsTable.$convertertype.toSql(type),
+      );
+    }
+    map['name'] = Variable<String>(name);
+    map['server_url'] = Variable<String>(serverUrl);
+    map['username'] = Variable<String>(username);
+    map['sort_order'] = Variable<int>(sortOrder);
+    if (!nullToAbsent || accountStatus != null) {
+      map['account_status'] = Variable<String>(accountStatus);
+    }
+    if (!nullToAbsent || accountCheckedAt != null) {
+      map['account_checked_at'] = Variable<DateTime>(accountCheckedAt);
+    }
+    if (!nullToAbsent || accountExpiresAt != null) {
+      map['account_expires_at'] = Variable<DateTime>(accountExpiresAt);
+    }
+    if (!nullToAbsent || accountMaxConnections != null) {
+      map['account_max_connections'] = Variable<int>(accountMaxConnections);
+    }
+    if (!nullToAbsent || accountActiveConnections != null) {
+      map['account_active_connections'] = Variable<int>(
+        accountActiveConnections,
+      );
+    }
+    return map;
+  }
+
+  PlaylistsCompanion toCompanion(bool nullToAbsent) {
+    return PlaylistsCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deleted: Value(deleted),
+      profileId: Value(profileId),
+      type: Value(type),
+      name: Value(name),
+      serverUrl: Value(serverUrl),
+      username: Value(username),
+      sortOrder: Value(sortOrder),
+      accountStatus: accountStatus == null && nullToAbsent
+          ? const Value.absent()
+          : Value(accountStatus),
+      accountCheckedAt: accountCheckedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(accountCheckedAt),
+      accountExpiresAt: accountExpiresAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(accountExpiresAt),
+      accountMaxConnections: accountMaxConnections == null && nullToAbsent
+          ? const Value.absent()
+          : Value(accountMaxConnections),
+      accountActiveConnections: accountActiveConnections == null && nullToAbsent
+          ? const Value.absent()
+          : Value(accountActiveConnections),
+    );
+  }
+
+  factory PlaylistRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PlaylistRow(
+      id: serializer.fromJson<String>(json['id']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deleted: serializer.fromJson<bool>(json['deleted']),
+      profileId: serializer.fromJson<String>(json['profileId']),
+      type: $PlaylistsTable.$convertertype.fromJson(
+        serializer.fromJson<String>(json['type']),
+      ),
+      name: serializer.fromJson<String>(json['name']),
+      serverUrl: serializer.fromJson<String>(json['serverUrl']),
+      username: serializer.fromJson<String>(json['username']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+      accountStatus: serializer.fromJson<String?>(json['accountStatus']),
+      accountCheckedAt: serializer.fromJson<DateTime?>(
+        json['accountCheckedAt'],
+      ),
+      accountExpiresAt: serializer.fromJson<DateTime?>(
+        json['accountExpiresAt'],
+      ),
+      accountMaxConnections: serializer.fromJson<int?>(
+        json['accountMaxConnections'],
+      ),
+      accountActiveConnections: serializer.fromJson<int?>(
+        json['accountActiveConnections'],
+      ),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deleted': serializer.toJson<bool>(deleted),
+      'profileId': serializer.toJson<String>(profileId),
+      'type': serializer.toJson<String>(
+        $PlaylistsTable.$convertertype.toJson(type),
+      ),
+      'name': serializer.toJson<String>(name),
+      'serverUrl': serializer.toJson<String>(serverUrl),
+      'username': serializer.toJson<String>(username),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+      'accountStatus': serializer.toJson<String?>(accountStatus),
+      'accountCheckedAt': serializer.toJson<DateTime?>(accountCheckedAt),
+      'accountExpiresAt': serializer.toJson<DateTime?>(accountExpiresAt),
+      'accountMaxConnections': serializer.toJson<int?>(accountMaxConnections),
+      'accountActiveConnections': serializer.toJson<int?>(
+        accountActiveConnections,
+      ),
+    };
+  }
+
+  PlaylistRow copyWith({
+    String? id,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    bool? deleted,
+    String? profileId,
+    PlaylistType? type,
+    String? name,
+    String? serverUrl,
+    String? username,
+    int? sortOrder,
+    Value<String?> accountStatus = const Value.absent(),
+    Value<DateTime?> accountCheckedAt = const Value.absent(),
+    Value<DateTime?> accountExpiresAt = const Value.absent(),
+    Value<int?> accountMaxConnections = const Value.absent(),
+    Value<int?> accountActiveConnections = const Value.absent(),
+  }) => PlaylistRow(
+    id: id ?? this.id,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deleted: deleted ?? this.deleted,
+    profileId: profileId ?? this.profileId,
+    type: type ?? this.type,
+    name: name ?? this.name,
+    serverUrl: serverUrl ?? this.serverUrl,
+    username: username ?? this.username,
+    sortOrder: sortOrder ?? this.sortOrder,
+    accountStatus: accountStatus.present
+        ? accountStatus.value
+        : this.accountStatus,
+    accountCheckedAt: accountCheckedAt.present
+        ? accountCheckedAt.value
+        : this.accountCheckedAt,
+    accountExpiresAt: accountExpiresAt.present
+        ? accountExpiresAt.value
+        : this.accountExpiresAt,
+    accountMaxConnections: accountMaxConnections.present
+        ? accountMaxConnections.value
+        : this.accountMaxConnections,
+    accountActiveConnections: accountActiveConnections.present
+        ? accountActiveConnections.value
+        : this.accountActiveConnections,
+  );
+  PlaylistRow copyWithCompanion(PlaylistsCompanion data) {
+    return PlaylistRow(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deleted: data.deleted.present ? data.deleted.value : this.deleted,
+      profileId: data.profileId.present ? data.profileId.value : this.profileId,
+      type: data.type.present ? data.type.value : this.type,
+      name: data.name.present ? data.name.value : this.name,
+      serverUrl: data.serverUrl.present ? data.serverUrl.value : this.serverUrl,
+      username: data.username.present ? data.username.value : this.username,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+      accountStatus: data.accountStatus.present
+          ? data.accountStatus.value
+          : this.accountStatus,
+      accountCheckedAt: data.accountCheckedAt.present
+          ? data.accountCheckedAt.value
+          : this.accountCheckedAt,
+      accountExpiresAt: data.accountExpiresAt.present
+          ? data.accountExpiresAt.value
+          : this.accountExpiresAt,
+      accountMaxConnections: data.accountMaxConnections.present
+          ? data.accountMaxConnections.value
+          : this.accountMaxConnections,
+      accountActiveConnections: data.accountActiveConnections.present
+          ? data.accountActiveConnections.value
+          : this.accountActiveConnections,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PlaylistRow(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deleted: $deleted, ')
+          ..write('profileId: $profileId, ')
+          ..write('type: $type, ')
+          ..write('name: $name, ')
+          ..write('serverUrl: $serverUrl, ')
+          ..write('username: $username, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('accountStatus: $accountStatus, ')
+          ..write('accountCheckedAt: $accountCheckedAt, ')
+          ..write('accountExpiresAt: $accountExpiresAt, ')
+          ..write('accountMaxConnections: $accountMaxConnections, ')
+          ..write('accountActiveConnections: $accountActiveConnections')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    createdAt,
+    updatedAt,
+    deleted,
+    profileId,
+    type,
+    name,
+    serverUrl,
+    username,
+    sortOrder,
+    accountStatus,
+    accountCheckedAt,
+    accountExpiresAt,
+    accountMaxConnections,
+    accountActiveConnections,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PlaylistRow &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deleted == this.deleted &&
+          other.profileId == this.profileId &&
+          other.type == this.type &&
+          other.name == this.name &&
+          other.serverUrl == this.serverUrl &&
+          other.username == this.username &&
+          other.sortOrder == this.sortOrder &&
+          other.accountStatus == this.accountStatus &&
+          other.accountCheckedAt == this.accountCheckedAt &&
+          other.accountExpiresAt == this.accountExpiresAt &&
+          other.accountMaxConnections == this.accountMaxConnections &&
+          other.accountActiveConnections == this.accountActiveConnections);
+}
+
+class PlaylistsCompanion extends UpdateCompanion<PlaylistRow> {
+  final Value<String> id;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<bool> deleted;
+  final Value<String> profileId;
+  final Value<PlaylistType> type;
+  final Value<String> name;
+  final Value<String> serverUrl;
+  final Value<String> username;
+  final Value<int> sortOrder;
+  final Value<String?> accountStatus;
+  final Value<DateTime?> accountCheckedAt;
+  final Value<DateTime?> accountExpiresAt;
+  final Value<int?> accountMaxConnections;
+  final Value<int?> accountActiveConnections;
+  final Value<int> rowid;
+  const PlaylistsCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deleted = const Value.absent(),
+    this.profileId = const Value.absent(),
+    this.type = const Value.absent(),
+    this.name = const Value.absent(),
+    this.serverUrl = const Value.absent(),
+    this.username = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.accountStatus = const Value.absent(),
+    this.accountCheckedAt = const Value.absent(),
+    this.accountExpiresAt = const Value.absent(),
+    this.accountMaxConnections = const Value.absent(),
+    this.accountActiveConnections = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  PlaylistsCompanion.insert({
+    required String id,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.deleted = const Value.absent(),
+    required String profileId,
+    required PlaylistType type,
+    required String name,
+    required String serverUrl,
+    required String username,
+    this.sortOrder = const Value.absent(),
+    this.accountStatus = const Value.absent(),
+    this.accountCheckedAt = const Value.absent(),
+    this.accountExpiresAt = const Value.absent(),
+    this.accountMaxConnections = const Value.absent(),
+    this.accountActiveConnections = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt),
+       profileId = Value(profileId),
+       type = Value(type),
+       name = Value(name),
+       serverUrl = Value(serverUrl),
+       username = Value(username);
+  static Insertable<PlaylistRow> custom({
+    Expression<String>? id,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<bool>? deleted,
+    Expression<String>? profileId,
+    Expression<String>? type,
+    Expression<String>? name,
+    Expression<String>? serverUrl,
+    Expression<String>? username,
+    Expression<int>? sortOrder,
+    Expression<String>? accountStatus,
+    Expression<DateTime>? accountCheckedAt,
+    Expression<DateTime>? accountExpiresAt,
+    Expression<int>? accountMaxConnections,
+    Expression<int>? accountActiveConnections,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deleted != null) 'deleted': deleted,
+      if (profileId != null) 'profile_id': profileId,
+      if (type != null) 'type': type,
+      if (name != null) 'name': name,
+      if (serverUrl != null) 'server_url': serverUrl,
+      if (username != null) 'username': username,
+      if (sortOrder != null) 'sort_order': sortOrder,
+      if (accountStatus != null) 'account_status': accountStatus,
+      if (accountCheckedAt != null) 'account_checked_at': accountCheckedAt,
+      if (accountExpiresAt != null) 'account_expires_at': accountExpiresAt,
+      if (accountMaxConnections != null)
+        'account_max_connections': accountMaxConnections,
+      if (accountActiveConnections != null)
+        'account_active_connections': accountActiveConnections,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  PlaylistsCompanion copyWith({
+    Value<String>? id,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<bool>? deleted,
+    Value<String>? profileId,
+    Value<PlaylistType>? type,
+    Value<String>? name,
+    Value<String>? serverUrl,
+    Value<String>? username,
+    Value<int>? sortOrder,
+    Value<String?>? accountStatus,
+    Value<DateTime?>? accountCheckedAt,
+    Value<DateTime?>? accountExpiresAt,
+    Value<int?>? accountMaxConnections,
+    Value<int?>? accountActiveConnections,
+    Value<int>? rowid,
+  }) {
+    return PlaylistsCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deleted: deleted ?? this.deleted,
+      profileId: profileId ?? this.profileId,
+      type: type ?? this.type,
+      name: name ?? this.name,
+      serverUrl: serverUrl ?? this.serverUrl,
+      username: username ?? this.username,
+      sortOrder: sortOrder ?? this.sortOrder,
+      accountStatus: accountStatus ?? this.accountStatus,
+      accountCheckedAt: accountCheckedAt ?? this.accountCheckedAt,
+      accountExpiresAt: accountExpiresAt ?? this.accountExpiresAt,
+      accountMaxConnections:
+          accountMaxConnections ?? this.accountMaxConnections,
+      accountActiveConnections:
+          accountActiveConnections ?? this.accountActiveConnections,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deleted.present) {
+      map['deleted'] = Variable<bool>(deleted.value);
+    }
+    if (profileId.present) {
+      map['profile_id'] = Variable<String>(profileId.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(
+        $PlaylistsTable.$convertertype.toSql(type.value),
+      );
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (serverUrl.present) {
+      map['server_url'] = Variable<String>(serverUrl.value);
+    }
+    if (username.present) {
+      map['username'] = Variable<String>(username.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    if (accountStatus.present) {
+      map['account_status'] = Variable<String>(accountStatus.value);
+    }
+    if (accountCheckedAt.present) {
+      map['account_checked_at'] = Variable<DateTime>(accountCheckedAt.value);
+    }
+    if (accountExpiresAt.present) {
+      map['account_expires_at'] = Variable<DateTime>(accountExpiresAt.value);
+    }
+    if (accountMaxConnections.present) {
+      map['account_max_connections'] = Variable<int>(
+        accountMaxConnections.value,
+      );
+    }
+    if (accountActiveConnections.present) {
+      map['account_active_connections'] = Variable<int>(
+        accountActiveConnections.value,
+      );
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PlaylistsCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deleted: $deleted, ')
+          ..write('profileId: $profileId, ')
+          ..write('type: $type, ')
+          ..write('name: $name, ')
+          ..write('serverUrl: $serverUrl, ')
+          ..write('username: $username, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('accountStatus: $accountStatus, ')
+          ..write('accountCheckedAt: $accountCheckedAt, ')
+          ..write('accountExpiresAt: $accountExpiresAt, ')
+          ..write('accountMaxConnections: $accountMaxConnections, ')
+          ..write('accountActiveConnections: $accountActiveConnections, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $DeviceSettingEntriesTable extends DeviceSettingEntries
     with TableInfo<$DeviceSettingEntriesTable, DeviceSettingRow> {
   @override
@@ -791,6 +1705,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $ProfilesTable profiles = $ProfilesTable(this);
+  late final $PlaylistsTable playlists = $PlaylistsTable(this);
   late final $DeviceSettingEntriesTable deviceSettingEntries =
       $DeviceSettingEntriesTable(this);
   @override
@@ -799,6 +1714,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     profiles,
+    playlists,
     deviceSettingEntries,
   ];
   @override
@@ -830,6 +1746,29 @@ typedef $$ProfilesTableUpdateCompanionBuilder = ProfilesCompanion Function({
   Value<int> sortOrder,
   Value<int> rowid,
 });
+
+final class $$ProfilesTableReferences
+    extends BaseReferences<_$AppDatabase, $ProfilesTable, ProfileRow> {
+  $$ProfilesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$PlaylistsTable, List<PlaylistRow>>
+  _playlistsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.playlists,
+    aliasName: 'profiles__id__playlists__profile_id',
+  );
+
+  $$PlaylistsTableProcessedTableManager get playlistsRefs {
+    final manager = $$PlaylistsTableTableManager(
+      $_db,
+      $_db.playlists,
+    ).filter((f) => f.profileId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_playlistsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
 
 class $$ProfilesTableFilterComposer
     extends Composer<_$AppDatabase, $ProfilesTable> {
@@ -884,6 +1823,31 @@ class $$ProfilesTableFilterComposer
     column: $table.sortOrder,
     builder: (column) => ColumnFilters(column),
   );
+
+  Expression<bool> playlistsRefs(
+    Expression<bool> Function($$PlaylistsTableFilterComposer f) f,
+  ) {
+    final $$PlaylistsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.playlists,
+      getReferencedColumn: (t) => t.profileId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PlaylistsTableFilterComposer(
+            $db: $db,
+            $table: $db.playlists,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$ProfilesTableOrderingComposer
@@ -980,6 +1944,31 @@ class $$ProfilesTableAnnotationComposer
 
   GeneratedColumn<int> get sortOrder =>
       $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  Expression<T> playlistsRefs<T extends Object>(
+    Expression<T> Function($$PlaylistsTableAnnotationComposer a) f,
+  ) {
+    final $$PlaylistsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.playlists,
+      getReferencedColumn: (t) => t.profileId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PlaylistsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.playlists,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$ProfilesTableTableManager
@@ -993,12 +1982,9 @@ class $$ProfilesTableTableManager
           $$ProfilesTableAnnotationComposer,
           $$ProfilesTableCreateCompanionBuilder,
           $$ProfilesTableUpdateCompanionBuilder,
-          (
-            ProfileRow,
-            BaseReferences<_$AppDatabase, $ProfilesTable, ProfileRow>,
-          ),
+          (ProfileRow, $$ProfilesTableReferences),
           ProfileRow,
-          PrefetchHooks Function()
+          PrefetchHooks Function({bool playlistsRefs})
         > {
   $$ProfilesTableTableManager(_$AppDatabase db, $ProfilesTable table)
     : super(
@@ -1063,15 +2049,40 @@ class $$ProfilesTableTableManager
               .map(
                 (e) => (
                   e.readTable<$ProfilesTable, ProfileRow>(table),
-                  BaseReferences<_$AppDatabase, $ProfilesTable, ProfileRow>(
-                    db,
-                    table,
-                    e,
-                  ),
+                  $$ProfilesTableReferences(db, table, e),
                 ),
               )
               .toList(),
-          prefetchHooksCallback: null,
+          prefetchHooksCallback: ({playlistsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (playlistsRefs) db.playlists],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (playlistsRefs)
+                    await $_getPrefetchedDataByColumns<
+                      ProfileRow,
+                      $ProfilesTable,
+                      PlaylistRow,
+                      $PlaylistsTable
+                    >(
+                      currentTable: table,
+                      referencedTable: $$ProfilesTableReferences
+                          ._playlistsRefsTable(db),
+                      managerFromTypedResult: (p0) => $$ProfilesTableReferences(
+                        db,
+                        table,
+                        p0,
+                      ).playlistsRefs,
+                      currentColumn: 'id',
+                      referencedColumn: 'profile_id',
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
         ),
       );
 }
@@ -1086,9 +2097,523 @@ typedef $$ProfilesTableProcessedTableManager =
       $$ProfilesTableAnnotationComposer,
       $$ProfilesTableCreateCompanionBuilder,
       $$ProfilesTableUpdateCompanionBuilder,
-      (ProfileRow, BaseReferences<_$AppDatabase, $ProfilesTable, ProfileRow>),
+      (ProfileRow, $$ProfilesTableReferences),
       ProfileRow,
-      PrefetchHooks Function()
+      PrefetchHooks Function({bool playlistsRefs})
+    >;
+typedef $$PlaylistsTableCreateCompanionBuilder = PlaylistsCompanion Function({
+  required String id,
+  required DateTime createdAt,
+  required DateTime updatedAt,
+  Value<bool> deleted,
+  required String profileId,
+  required PlaylistType type,
+  required String name,
+  required String serverUrl,
+  required String username,
+  Value<int> sortOrder,
+  Value<String?> accountStatus,
+  Value<DateTime?> accountCheckedAt,
+  Value<DateTime?> accountExpiresAt,
+  Value<int?> accountMaxConnections,
+  Value<int?> accountActiveConnections,
+  Value<int> rowid,
+});
+typedef $$PlaylistsTableUpdateCompanionBuilder = PlaylistsCompanion Function({
+  Value<String> id,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+  Value<bool> deleted,
+  Value<String> profileId,
+  Value<PlaylistType> type,
+  Value<String> name,
+  Value<String> serverUrl,
+  Value<String> username,
+  Value<int> sortOrder,
+  Value<String?> accountStatus,
+  Value<DateTime?> accountCheckedAt,
+  Value<DateTime?> accountExpiresAt,
+  Value<int?> accountMaxConnections,
+  Value<int?> accountActiveConnections,
+  Value<int> rowid,
+});
+
+final class $$PlaylistsTableReferences
+    extends BaseReferences<_$AppDatabase, $PlaylistsTable, PlaylistRow> {
+  $$PlaylistsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $ProfilesTable _profileIdTable(_$AppDatabase db) =>
+      db.profiles.createAlias('playlists__profile_id__profiles__id');
+
+  $$ProfilesTableProcessedTableManager get profileId {
+    final $_column = $_itemColumn<String>('profile_id')!;
+
+    final manager = $$ProfilesTableTableManager(
+      $_db,
+      $_db.profiles,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_profileIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$PlaylistsTableFilterComposer
+    extends Composer<_$AppDatabase, $PlaylistsTable> {
+  $$PlaylistsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get deleted => $composableBuilder(
+    column: $table.deleted,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<PlaylistType, PlaylistType, String> get type =>
+      $composableBuilder(
+        column: $table.type,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get serverUrl => $composableBuilder(
+    column: $table.serverUrl,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get username => $composableBuilder(
+    column: $table.username,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get accountStatus => $composableBuilder(
+    column: $table.accountStatus,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get accountCheckedAt => $composableBuilder(
+    column: $table.accountCheckedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get accountExpiresAt => $composableBuilder(
+    column: $table.accountExpiresAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get accountMaxConnections => $composableBuilder(
+    column: $table.accountMaxConnections,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get accountActiveConnections => $composableBuilder(
+    column: $table.accountActiveConnections,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$ProfilesTableFilterComposer get profileId {
+    final $$ProfilesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.profileId,
+      referencedTable: $db.profiles,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ProfilesTableFilterComposer(
+            $db: $db,
+            $table: $db.profiles,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PlaylistsTableOrderingComposer
+    extends Composer<_$AppDatabase, $PlaylistsTable> {
+  $$PlaylistsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get deleted => $composableBuilder(
+    column: $table.deleted,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get serverUrl => $composableBuilder(
+    column: $table.serverUrl,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get username => $composableBuilder(
+    column: $table.username,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get accountStatus => $composableBuilder(
+    column: $table.accountStatus,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get accountCheckedAt => $composableBuilder(
+    column: $table.accountCheckedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get accountExpiresAt => $composableBuilder(
+    column: $table.accountExpiresAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get accountMaxConnections => $composableBuilder(
+    column: $table.accountMaxConnections,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get accountActiveConnections => $composableBuilder(
+    column: $table.accountActiveConnections,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$ProfilesTableOrderingComposer get profileId {
+    final $$ProfilesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.profileId,
+      referencedTable: $db.profiles,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ProfilesTableOrderingComposer(
+            $db: $db,
+            $table: $db.profiles,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PlaylistsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PlaylistsTable> {
+  $$PlaylistsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<bool> get deleted =>
+      $composableBuilder(column: $table.deleted, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<PlaylistType, String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get serverUrl =>
+      $composableBuilder(column: $table.serverUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get username =>
+      $composableBuilder(column: $table.username, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  GeneratedColumn<String> get accountStatus => $composableBuilder(
+    column: $table.accountStatus,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get accountCheckedAt => $composableBuilder(
+    column: $table.accountCheckedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get accountExpiresAt => $composableBuilder(
+    column: $table.accountExpiresAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get accountMaxConnections => $composableBuilder(
+    column: $table.accountMaxConnections,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get accountActiveConnections => $composableBuilder(
+    column: $table.accountActiveConnections,
+    builder: (column) => column,
+  );
+
+  $$ProfilesTableAnnotationComposer get profileId {
+    final $$ProfilesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.profileId,
+      referencedTable: $db.profiles,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ProfilesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.profiles,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PlaylistsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $PlaylistsTable,
+          PlaylistRow,
+          $$PlaylistsTableFilterComposer,
+          $$PlaylistsTableOrderingComposer,
+          $$PlaylistsTableAnnotationComposer,
+          $$PlaylistsTableCreateCompanionBuilder,
+          $$PlaylistsTableUpdateCompanionBuilder,
+          (PlaylistRow, $$PlaylistsTableReferences),
+          PlaylistRow,
+          PrefetchHooks Function({bool profileId})
+        > {
+  $$PlaylistsTableTableManager(_$AppDatabase db, $PlaylistsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PlaylistsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PlaylistsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PlaylistsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<bool> deleted = const Value.absent(),
+                Value<String> profileId = const Value.absent(),
+                Value<PlaylistType> type = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String> serverUrl = const Value.absent(),
+                Value<String> username = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+                Value<String?> accountStatus = const Value.absent(),
+                Value<DateTime?> accountCheckedAt = const Value.absent(),
+                Value<DateTime?> accountExpiresAt = const Value.absent(),
+                Value<int?> accountMaxConnections = const Value.absent(),
+                Value<int?> accountActiveConnections = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => PlaylistsCompanion(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deleted: deleted,
+                profileId: profileId,
+                type: type,
+                name: name,
+                serverUrl: serverUrl,
+                username: username,
+                sortOrder: sortOrder,
+                accountStatus: accountStatus,
+                accountCheckedAt: accountCheckedAt,
+                accountExpiresAt: accountExpiresAt,
+                accountMaxConnections: accountMaxConnections,
+                accountActiveConnections: accountActiveConnections,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<bool> deleted = const Value.absent(),
+                required String profileId,
+                required PlaylistType type,
+                required String name,
+                required String serverUrl,
+                required String username,
+                Value<int> sortOrder = const Value.absent(),
+                Value<String?> accountStatus = const Value.absent(),
+                Value<DateTime?> accountCheckedAt = const Value.absent(),
+                Value<DateTime?> accountExpiresAt = const Value.absent(),
+                Value<int?> accountMaxConnections = const Value.absent(),
+                Value<int?> accountActiveConnections = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => PlaylistsCompanion.insert(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deleted: deleted,
+                profileId: profileId,
+                type: type,
+                name: name,
+                serverUrl: serverUrl,
+                username: username,
+                sortOrder: sortOrder,
+                accountStatus: accountStatus,
+                accountCheckedAt: accountCheckedAt,
+                accountExpiresAt: accountExpiresAt,
+                accountMaxConnections: accountMaxConnections,
+                accountActiveConnections: accountActiveConnections,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$PlaylistsTable, PlaylistRow>(table),
+                  $$PlaylistsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({profileId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (profileId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.profileId,
+                        referencedTable: $$PlaylistsTableReferences
+                            ._profileIdTable(db),
+                        referencedColumn: $$PlaylistsTableReferences
+                            ._profileIdTable(db)
+                            .id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$PlaylistsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $PlaylistsTable,
+      PlaylistRow,
+      $$PlaylistsTableFilterComposer,
+      $$PlaylistsTableOrderingComposer,
+      $$PlaylistsTableAnnotationComposer,
+      $$PlaylistsTableCreateCompanionBuilder,
+      $$PlaylistsTableUpdateCompanionBuilder,
+      (PlaylistRow, $$PlaylistsTableReferences),
+      PlaylistRow,
+      PrefetchHooks Function({bool profileId})
     >;
 typedef $$DeviceSettingEntriesTableCreateCompanionBuilder =
     DeviceSettingEntriesCompanion Function({
@@ -1266,6 +2791,8 @@ class $AppDatabaseManager {
   $AppDatabaseManager(this._db);
   $$ProfilesTableTableManager get profiles =>
       $$ProfilesTableTableManager(_db, _db.profiles);
+  $$PlaylistsTableTableManager get playlists =>
+      $$PlaylistsTableTableManager(_db, _db.playlists);
   $$DeviceSettingEntriesTableTableManager get deviceSettingEntries =>
       $$DeviceSettingEntriesTableTableManager(_db, _db.deviceSettingEntries);
 }
