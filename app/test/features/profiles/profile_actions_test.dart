@@ -58,6 +58,15 @@ void main() {
     expect(await defaultId(), isNull);
   });
 
+  test('form names a different default profile', () async {
+    final anna = await save(startAutomatically: true);
+    final ben = await save(name: 'Ben');
+
+    expect((await actions.loadForm(ben.id)).otherDefaultProfileName, 'Anna');
+    expect((await actions.loadForm(null)).otherDefaultProfileName, 'Anna');
+    expect((await actions.loadForm(anna.id)).otherDefaultProfileName, isNull);
+  });
+
   test('another profile taking over the default replaces it', () async {
     await save(startAutomatically: true);
     final ben = await save(name: 'Ben', startAutomatically: true);

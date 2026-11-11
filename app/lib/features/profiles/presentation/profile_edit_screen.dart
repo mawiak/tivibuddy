@@ -36,6 +36,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
   PinChange _pinChange = const PinUnchanged();
   bool _startAutomatically = false;
   bool _isFirstProfile = false;
+  String? _otherDefaultName;
   ProfileNameError? _nameError;
   bool _saving = false;
 
@@ -59,6 +60,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
           _hadPin = data.hasPin;
           _startAutomatically = data.startAutomatically;
           _isFirstProfile = data.isFirstProfile;
+          _otherDefaultName = data.otherDefaultProfileName;
         });
       }).ignore();
   }
@@ -96,6 +98,21 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
     if (!setNew || !mounted) return;
     final pin = await showNewPinDialogs(context);
     if (pin != null) setState(() => _pinChange = PinSet(pin));
+  }
+
+  Future<void> _setStartAutomatically(bool value) async {
+    final other = _otherDefaultName;
+    if (value && other != null) {
+      final l10n = AppLocalizations.of(context);
+      final confirmed = await showTvConfirmDialog(
+        context,
+        title: l10n.profileReplaceDefaultTitle,
+        message: l10n.profileReplaceDefaultMessage(other),
+        confirmLabel: l10n.profileReplaceDefaultConfirm,
+      );
+      if (!confirmed) return;
+    }
+    if (mounted) setState(() => _startAutomatically = value);
   }
 
   Future<void> _save() async {
@@ -237,7 +254,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
             subtitle: l10n.profileStartAutomaticallyHint,
             leading: Icons.play_circle_outline,
             value: _startAutomatically,
-            onChanged: (value) => setState(() => _startAutomatically = value),
+            onChanged: _setStartAutomatically,
           ),
           const SizedBox(height: 24),
           Wrap(

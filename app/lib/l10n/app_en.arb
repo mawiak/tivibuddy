@@ -83,5 +83,15 @@
         "type": "String"
       }
     }
-  }
+  },
+  "profileReplaceDefaultTitle": "Replace start profile?",
+  "profileReplaceDefaultMessage": "{name} is currently started automatically. Do you want to start with this profile instead?",
+  "@profileReplaceDefaultMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "profileReplaceDefaultConfirm": "Replace"
 }

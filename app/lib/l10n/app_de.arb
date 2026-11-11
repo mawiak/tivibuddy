@@ -55,5 +55,8 @@
   "profileStartAutomatically": "Mit diesem Profil starten",
   "profileStartAutomaticallyHint": "Die Profilauswahl beim App-Start überspringen. Profile mit PIN fragen trotzdem danach.",
   "profileDeleteTitle": "Profil löschen?",
-  "profileDeleteMessage": "Das Profil {name} wird mit allen Playlists, Favoriten und dem Wiedergabeverlauf entfernt."
+  "profileDeleteMessage": "Das Profil {name} wird mit allen Playlists, Favoriten und dem Wiedergabeverlauf entfernt.",
+  "profileReplaceDefaultTitle": "Startprofil ersetzen?",
+  "profileReplaceDefaultMessage": "Aktuell startet automatisch {name}. Möchtest du stattdessen mit diesem Profil starten?",
+  "profileReplaceDefaultConfirm": "Ersetzen"
 }

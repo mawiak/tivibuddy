@@ -19,6 +19,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   optional PIN; profile picker with manage mode; optional default profile on start.
 - Local SQLite database.
 
+- Confirmation before replacing the start profile of another profile.
+
 ### Fixed
 
 - White frame shown on Android before the first Flutter frame.
+- Saving an edited profile did not return to the profile picker.

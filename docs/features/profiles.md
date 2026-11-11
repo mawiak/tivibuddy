@@ -12,7 +12,8 @@ Requirements: PROF-1 to PROF-6, SET-1, SYNC-7.
 - **Manage mode:** the "Manage profiles" button switches the picker into edit mode. Selecting a
   profile opens its editor.
 - **Default profile:** "Start with this profile" in the editor stores the profile as default
-  for this device. On start it is activated directly. A default profile with a PIN is not
+  for this device. If another profile is already the default, the user confirms replacing it.
+  On start it is activated directly. A default profile with a PIN is not
   bypassed: the picker opens with that profile focused.
 - **PIN:** optional, four digits, entered on an on-screen pad (D-pad, touch or number keys).
   Only a salted SHA-256 hash is stored. The PIN is a convenience lock against household

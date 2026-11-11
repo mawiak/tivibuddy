@@ -32,6 +32,7 @@ class ProfileFormData {
     required this.hasPin,
     required this.startAutomatically,
     required this.isFirstProfile,
+    this.otherDefaultProfileName,
   });
 
   final String name;
@@ -39,6 +40,10 @@ class ProfileFormData {
   final bool hasPin;
   final bool startAutomatically;
   final bool isFirstProfile;
+
+  /// Name of the current default profile when it is a different profile.
+  /// Enabling "start automatically" replaces it, which the user confirms.
+  final String? otherDefaultProfileName;
 }
 
 /// Use cases around profiles. Widgets call these instead of repositories.
@@ -58,14 +63,20 @@ class ProfileActions {
         .read(deviceSettingsRepositoryProvider)
         .getDefaultProfileId();
 
+    final existing = await profiles.getAll();
+    final otherDefaultName = existing
+        .where((profile) => profile.id == defaultId && profile.id != id)
+        .firstOrNull
+        ?.name;
+
     if (id == null) {
-      final existing = await profiles.getAll();
       return ProfileFormData(
         name: '',
         avatar: PresetAvatar(existing.length),
         hasPin: false,
         startAutomatically: false,
         isFirstProfile: existing.isEmpty,
+        otherDefaultProfileName: otherDefaultName,
       );
     }
 
@@ -77,6 +88,7 @@ class ProfileActions {
       hasPin: profile.hasPin,
       startAutomatically: defaultId == id,
       isFirstProfile: false,
+      otherDefaultProfileName: otherDefaultName,
     );
   }
 
