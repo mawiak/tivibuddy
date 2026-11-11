@@ -26,6 +26,10 @@ VALUES ('p1', '2026-01-01T00:00:00.000Z', '2026-01-01T00:00:00.000Z', 'Anna')
     await v1.customStatement('DROP TABLE live_channels');
     await v1.customStatement('DROP TABLE live_categories');
     await v1.customStatement('DROP TABLE catalog_states');
+    await v1.customStatement('DROP TABLE epg_programmes');
+    await v1.customStatement('DROP TABLE movie_states');
+    await v1.customStatement('DROP TABLE movies');
+    await v1.customStatement('DROP TABLE movie_categories');
     await v1.customStatement('PRAGMA user_version = 1');
     await v1.close();
 
@@ -38,6 +42,8 @@ VALUES ('p1', '2026-01-01T00:00:00.000Z', '2026-01-01T00:00:00.000Z', 'Anna')
       isEmpty,
     );
     expect(await upgraded.select(upgraded.liveChannels).get(), isEmpty);
+    expect(await upgraded.select(upgraded.movies).get(), isEmpty);
+    expect(await upgraded.select(upgraded.movieStates).get(), isEmpty);
     final profiles = await upgraded.select(upgraded.profiles).get();
     expect(profiles.single.name, 'Anna');
   });

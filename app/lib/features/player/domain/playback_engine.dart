@@ -6,6 +6,7 @@ class PlaybackState {
     this.error,
     this.videoWidth,
     this.videoHeight,
+    this.duration,
   });
 
   static const idle = PlaybackState();
@@ -15,6 +16,9 @@ class PlaybackState {
   final int? videoWidth;
   final int? videoHeight;
 
+  /// Length of the media; null or zero for live streams.
+  final Duration? duration;
+
   bool get isBusy =>
       status == PlaybackStatus.opening || status == PlaybackStatus.buffering;
 
@@ -23,11 +27,13 @@ class PlaybackState {
     String? error,
     int? videoWidth,
     int? videoHeight,
+    Duration? duration,
   }) => PlaybackState(
     status: status ?? this.status,
     error: error,
     videoWidth: videoWidth ?? this.videoWidth,
     videoHeight: videoHeight ?? this.videoHeight,
+    duration: duration ?? this.duration,
   );
 }
 
@@ -39,7 +45,15 @@ abstract interface class PlaybackEngine {
 
   PlaybackState get state;
 
-  Future<void> open(String url);
+  /// Plays [url], for media with a known length from [start] on.
+  Future<void> open(String url, {Duration? start});
+
+  /// Playback position, updated while playing.
+  Stream<Duration> get positions;
+
+  Duration get position;
+
+  Future<void> seek(Duration position);
 
   Future<void> togglePause();
 

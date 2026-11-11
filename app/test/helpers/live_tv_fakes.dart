@@ -100,11 +100,32 @@ class FakePlaybackEngine implements PlaybackEngine {
   @override
   PlaybackState get state => _state;
 
+  /// Start positions passed to [open], in the same order as [opened].
+  final starts = <Duration?>[];
+  final _positions = StreamController<Duration>.broadcast();
+  Duration _position = Duration.zero;
+
+  void emitPosition(Duration position) {
+    _position = position;
+    _positions.add(position);
+  }
+
   @override
-  Future<void> open(String url) async {
+  Future<void> open(String url, {Duration? start}) async {
     opened.add(url);
+    starts.add(start);
+    _position = start ?? Duration.zero;
     emit(const PlaybackState(status: PlaybackStatus.playing));
   }
+
+  @override
+  Stream<Duration> get positions => _positions.stream;
+
+  @override
+  Duration get position => _position;
+
+  @override
+  Future<void> seek(Duration position) async => emitPosition(position);
 
   @override
   Future<void> togglePause() async {}
@@ -116,5 +137,6 @@ class FakePlaybackEngine implements PlaybackEngine {
   Future<void> dispose() async {
     disposed = true;
     await _states.close();
+    await _positions.close();
   }
 }

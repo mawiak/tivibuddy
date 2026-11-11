@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../live_tv/data/live_tv_data_providers.dart';
+import '../../movies/data/movie_data_providers.dart';
 import '../../profiles/application/profile_providers.dart';
 import '../data/playlist_data_providers.dart';
 import '../domain/connection_test.dart';
@@ -132,6 +133,7 @@ class PlaylistActions {
 
   Future<void> _deleteCache(String playlistId) async {
     await _ref.read(epgRepositoryProvider).deleteForPlaylist(playlistId);
+    await _ref.read(movieRepositoryProvider).deleteForPlaylist(playlistId);
     await _ref.read(liveTvRepositoryProvider).deleteForPlaylist(playlistId);
   }
 }

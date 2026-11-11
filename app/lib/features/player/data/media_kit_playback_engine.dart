@@ -59,6 +59,9 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
           _emit(_state.copyWith(status: PlaybackStatus.paused));
         }
       }),
+      player.stream.duration.listen(
+        (duration) => _emit(_state.copyWith(duration: duration)),
+      ),
       player.stream.width.listen(
         (width) => _emit(_state.copyWith(videoWidth: width)),
       ),
@@ -122,10 +125,27 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
   }
 
   @override
-  Future<void> open(String url) async {
+  Future<void> open(String url, {Duration? start}) async {
     _emit(const PlaybackState(status: PlaybackStatus.opening));
+    final platform = player.platform;
+    if (platform is NativePlayer) {
+      // mpv starts the next file at this position; `none` resets it.
+      await platform.setProperty(
+        'start',
+        start == null || start <= Duration.zero ? 'none' : '${start.inSeconds}',
+      );
+    }
     await player.open(Media(url));
   }
+
+  @override
+  Stream<Duration> get positions => player.stream.position;
+
+  @override
+  Duration get position => player.state.position;
+
+  @override
+  Future<void> seek(Duration position) => player.seek(position);
 
   @override
   Future<void> togglePause() => player.playOrPause();

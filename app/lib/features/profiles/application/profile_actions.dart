@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../movies/data/movie_data_providers.dart';
 import '../../playlists/application/playlist_actions.dart';
 import '../../settings/data/settings_data_providers.dart';
 import '../data/profile_data_providers.dart';
@@ -136,9 +137,10 @@ class ProfileActions {
   }
 
   /// Deletes the profile together with its settings, playlists and their
-  /// passwords.
+  /// passwords, and its watch progress.
   Future<void> delete(String id) async {
     await _ref.read(playlistActionsProvider).deleteAllForProfile(id);
+    await _ref.read(movieRepositoryProvider).deleteStatesForProfile(id);
     await _ref.read(profileSettingsRepositoryProvider).reset(id);
     await _ref.read(profileRepositoryProvider).delete(id);
     final settings = _ref.read(deviceSettingsRepositoryProvider);
