@@ -31,5 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - White frame shown on Android before the first Flutter frame.
 - Saving an edited profile did not return to the profile picker.
+- Changing any profile could switch back to the start profile while another profile was in
+  use.
 - Moving right from the side menu focused the element at the same height instead of the last
   focused or first element of the content.

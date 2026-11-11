@@ -106,6 +106,19 @@ void main() {
       expect(container.read(activeProfileIdProvider), anna.id);
     });
 
+    test('runs once and does not switch profiles on later changes', () async {
+      final anna = await save(startAutomatically: true);
+      final ben = await save(name: 'Ben');
+      await runStartup();
+
+      actions.activate(ben.id);
+      await save(id: anna.id, name: 'Anne', startAutomatically: true);
+      await container.read(profilesProvider.future);
+      await Future<void>.delayed(Duration.zero);
+
+      expect(container.read(activeProfileIdProvider), ben.id);
+    });
+
     test('does not bypass the pin of a default profile', () async {
       await save(startAutomatically: true, pin: const PinSet('1234'));
       await runStartup();
