@@ -12,23 +12,35 @@ import 'app_routes.dart';
 
 part 'app_router.g.dart';
 
+typedef RedirectInputs = ({
+  bool startupDone,
+  bool hasProfiles,
+  bool hasActiveProfile,
+});
+
+/// Only the facts the redirect depends on. Refreshing the router on every
+/// profile change (for example a rename) would race with screens popping
+/// themselves and restore the popped route.
+@Riverpod(keepAlive: true)
+RedirectInputs redirectInputs(Ref ref) => (
+  startupDone: ref.watch(appStartupProvider).hasValue,
+  hasProfiles: ref.watch(profilesProvider).value?.isNotEmpty ?? false,
+  hasActiveProfile: ref.watch(activeProfileProvider) != null,
+);
+
 @Riverpod(keepAlive: true)
 GoRouter appRouter(Ref ref) {
-  // Re-evaluates the redirect whenever startup or profile state changes.
   final refresh = ValueNotifier(0);
-  ref
-    ..listen(appStartupProvider, (_, _) => refresh.value++)
-    ..listen(profilesProvider, (_, _) => refresh.value++)
-    ..listen(activeProfileIdProvider, (_, _) => refresh.value++);
+  ref.listen(redirectInputsProvider, (previous, next) {
+    if (previous != next) refresh.value++;
+  });
 
   final router = GoRouter(
     initialLocation: AppRoutes.startup,
     refreshListenable: refresh,
     redirect: (context, state) => resolveRedirect(
-      location: state.matchedLocation,
-      startupDone: ref.read(appStartupProvider).hasValue,
-      profileCount: ref.read(profilesProvider).value?.length ?? 0,
-      hasActiveProfile: ref.read(activeProfileProvider) != null,
+      state.matchedLocation,
+      ref.read(redirectInputsProvider),
     ),
     routes: [
       GoRoute(
@@ -67,17 +79,13 @@ GoRouter appRouter(Ref ref) {
 /// Navigation rules for app start and profile state. Returns the location to
 /// redirect to, or null to stay.
 @visibleForTesting
-String? resolveRedirect({
-  required String location,
-  required bool startupDone,
-  required int profileCount,
-  required bool hasActiveProfile,
-}) {
+String? resolveRedirect(String location, RedirectInputs inputs) {
+  final (:startupDone, :hasProfiles, :hasActiveProfile) = inputs;
   if (!startupDone) {
     return location == AppRoutes.startup ? null : AppRoutes.startup;
   }
   // First start: the user has to create a profile (PROF-2).
-  if (profileCount == 0) {
+  if (!hasProfiles) {
     return location == AppRoutes.newProfile ? null : AppRoutes.newProfile;
   }
   final inProfiles = location.startsWith(AppRoutes.profiles);

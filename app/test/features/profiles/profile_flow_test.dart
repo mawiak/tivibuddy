@@ -8,6 +8,7 @@ import 'package:tivibuddy/features/profiles/domain/profile.dart';
 import 'package:tivibuddy/features/profiles/presentation/profile_avatar_view.dart';
 import 'package:tivibuddy/features/profiles/presentation/profile_edit_screen.dart';
 import 'package:tivibuddy/features/profiles/presentation/profile_picker_screen.dart';
+import 'package:tivibuddy/features/settings/data/drift_device_settings_repository.dart';
 import 'package:tivibuddy/shared/widgets/tv_text_field.dart';
 
 import '../../helpers/test_app.dart';
@@ -105,6 +106,66 @@ void main() {
     await pressBack(tester);
     await settle(tester);
     expect(find.byType(HomeShell), findsOneWidget);
+  });
+
+  testWidgets('saving an edited profile returns to the picker', (tester) async {
+    final db = createTestDatabase();
+    await tester.runAsync(
+      () =>
+          DriftProfileRepository(db)
+              .create(name: 'Anna', avatar: const PresetAvatar(0)),
+    );
+    await pumpFullApp(tester, database: db);
+
+    await tester.tap(find.text('Manage profiles'));
+    await tester.pump();
+    await tester.tap(find.text('Anna'));
+    await settle(tester);
+    await tester.tap(find.byType(TvTextField));
+    await tester.pump();
+    await tester.enterText(find.byType(TextField), 'Anne');
+    await tester.tap(find.text('Save'));
+    await settle(tester);
+
+    expect(find.byType(ProfileEditScreen), findsNothing);
+    expect(find.byType(ProfilePickerScreen), findsOneWidget);
+    expect(find.text('Anne'), findsOneWidget);
+  });
+
+  testWidgets('replacing the start profile asks for confirmation', (
+    tester,
+  ) async {
+    final db = createTestDatabase();
+    await tester.runAsync(() async {
+      final profiles = DriftProfileRepository(db);
+      final anna = await profiles.create(
+        name: 'Anna',
+        avatar: const PresetAvatar(0),
+        pin: '1234',
+      );
+      await profiles.create(name: 'Ben', avatar: const PresetAvatar(1));
+      await DriftDeviceSettingsRepository(db).setDefaultProfileId(anna.id);
+    });
+    await pumpFullApp(tester, database: db);
+
+    await tester.tap(find.text('Manage profiles'));
+    await tester.pump();
+    await tester.tap(find.text('Ben'));
+    await settle(tester);
+    await tester.tap(find.text('Start with this profile'));
+    await settle(tester);
+
+    expect(find.text('Replace start profile?'), findsOneWidget);
+    expect(find.textContaining('Anna is currently started'), findsOneWidget);
+    await tester.tap(find.text('Cancel').last);
+    await settle(tester);
+    expect(tester.widget<Switch>(find.byType(Switch)).value, isFalse);
+
+    await tester.tap(find.text('Start with this profile'));
+    await settle(tester);
+    await tester.tap(find.text('Replace'));
+    await settle(tester);
+    expect(tester.widget<Switch>(find.byType(Switch)).value, isTrue);
   });
 
   testWidgets('manage mode edits and deletes a profile', (tester) async {

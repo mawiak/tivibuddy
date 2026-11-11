@@ -7,12 +7,11 @@ String? redirect(
   bool startupDone = true,
   int profiles = 1,
   bool active = false,
-}) => resolveRedirect(
-  location: location,
+}) => resolveRedirect(location, (
   startupDone: startupDone,
-  profileCount: profiles,
+  hasProfiles: profiles > 0,
   hasActiveProfile: active,
-);
+));
 
 void main() {
   test('stays on the startup screen until startup is done', () {
