@@ -50,3 +50,26 @@ class CatalogStates extends Table {
   @override
   Set<Column<Object>> get primaryKey => {playlistId, kind};
 }
+
+/// Programmes of the provider guide. Times are stored as seconds since the
+/// epoch: guides have hundreds of thousands of rows, and integers keep the
+/// table and its range queries small.
+@DataClassName('EpgProgrammeRow')
+class EpgProgrammes extends Table {
+  TextColumn get playlistId => text().references(Playlists, #id)();
+  TextColumn get channelKey => text()();
+  IntColumn get startsAt => integer()();
+  IntColumn get endsAt => integer()();
+  TextColumn get title => text()();
+  TextColumn get description => text().nullable()();
+
+  /// Start time (milliseconds) of the load that last delivered this
+  /// programme.
+  IntColumn get seenInLoad => integer()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {playlistId, channelKey, startsAt};
+
+  @override
+  bool get withoutRowId => true;
+}

@@ -23,13 +23,14 @@ part 'app_database.g.dart';
     LiveCategories,
     LiveChannels,
     CatalogStates,
+    EpgProgrammes,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _open());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -43,6 +44,7 @@ class AppDatabase extends _$AppDatabase {
         await migrator.createIndex(liveChannelsByCategory);
         await migrator.createIndex(liveChannelsByNumber);
       }
+      if (from < 5) await migrator.createTable(epgProgrammes);
     },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');

@@ -324,7 +324,7 @@ final class LiveChannelListProvider
   }
 }
 
-String _$liveChannelListHash() => r'8e6eaac05c5b1dc61afa8e244173542e0945f7d4';
+String _$liveChannelListHash() => r'd4c54ef3be8f5f1d48b4bbf758ec8a0aeb588705';
 
 /// Channels of a category (or all channels) as a lazily loaded list. A new
 /// list is created when the number of channels changes, for example while
@@ -440,20 +440,23 @@ final class PlaylistAccessFamily extends $Family
   String toString() => r'playlistAccessProvider';
 }
 
-/// Current and next programme of a channel. Cached for a few minutes and
-/// refreshed when the current programme ends.
+/// Current and next programme of a channel, from the loaded guide or, for
+/// channels without guide data, from the provider. Cached for a few minutes
+/// and refreshed when the current programme ends.
 
 @ProviderFor(nowNext)
 final nowNextProvider = NowNextFamily._();
 
-/// Current and next programme of a channel. Cached for a few minutes and
-/// refreshed when the current programme ends.
+/// Current and next programme of a channel, from the loaded guide or, for
+/// channels without guide data, from the provider. Cached for a few minutes
+/// and refreshed when the current programme ends.
 
 final class NowNextProvider
     extends $FunctionalProvider<AsyncValue<NowNext>, NowNext, FutureOr<NowNext>>
     with $FutureModifier<NowNext>, $FutureProvider<NowNext> {
-  /// Current and next programme of a channel. Cached for a few minutes and
-  /// refreshed when the current programme ends.
+  /// Current and next programme of a channel, from the loaded guide or, for
+  /// channels without guide data, from the provider. Cached for a few minutes
+  /// and refreshed when the current programme ends.
   NowNextProvider._({
     required NowNextFamily super.from,
     required LiveChannel super.argument,
@@ -497,10 +500,11 @@ final class NowNextProvider
   }
 }
 
-String _$nowNextHash() => r'0454a75f1f36a3d63462effdddf9169458989592';
+String _$nowNextHash() => r'496771641567ee8223c80fa933456d6ee8565573';
 
-/// Current and next programme of a channel. Cached for a few minutes and
-/// refreshed when the current programme ends.
+/// Current and next programme of a channel, from the loaded guide or, for
+/// channels without guide data, from the provider. Cached for a few minutes
+/// and refreshed when the current programme ends.
 
 final class NowNextFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<NowNext>, LiveChannel> {
@@ -513,8 +517,9 @@ final class NowNextFamily extends $Family
         isAutoDispose: true,
       );
 
-  /// Current and next programme of a channel. Cached for a few minutes and
-  /// refreshed when the current programme ends.
+  /// Current and next programme of a channel, from the loaded guide or, for
+  /// channels without guide data, from the provider. Cached for a few minutes
+  /// and refreshed when the current programme ends.
 
   NowNextProvider call(LiveChannel channel) =>
       NowNextProvider._(argument: channel, from: this);

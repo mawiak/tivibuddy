@@ -112,11 +112,11 @@ class PlaylistActions {
     return (await repository.findById(savedId))!;
   }
 
-  /// Deletes the playlist, its password and its cached catalog.
+  /// Deletes the playlist, its password and its cached catalog and guide.
   Future<void> delete(String id) async {
     await _ref.read(playlistRepositoryProvider).delete(id);
     await _ref.read(credentialStoreProvider).deletePassword(id);
-    await _ref.read(liveTvRepositoryProvider).deleteForPlaylist(id);
+    await _deleteCache(id);
   }
 
   Future<void> deleteAllForProfile(String profileId) async {
@@ -124,10 +124,14 @@ class PlaylistActions {
         .read(playlistRepositoryProvider)
         .deleteAllForProfile(profileId);
     final credentials = _ref.read(credentialStoreProvider);
-    final liveTv = _ref.read(liveTvRepositoryProvider);
     for (final id in ids) {
       await credentials.deletePassword(id);
-      await liveTv.deleteForPlaylist(id);
+      await _deleteCache(id);
     }
+  }
+
+  Future<void> _deleteCache(String playlistId) async {
+    await _ref.read(epgRepositoryProvider).deleteForPlaylist(playlistId);
+    await _ref.read(liveTvRepositoryProvider).deleteForPlaylist(playlistId);
   }
 }

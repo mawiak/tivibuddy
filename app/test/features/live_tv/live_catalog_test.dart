@@ -1,7 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tivibuddy/core/database/app_database.dart';
+import 'package:tivibuddy/features/live_tv/application/epg_controller.dart';
 import 'package:tivibuddy/features/live_tv/application/live_catalog_controller.dart';
+import 'package:tivibuddy/features/live_tv/application/live_tv_providers.dart';
 import 'package:tivibuddy/features/live_tv/data/live_tv_data_providers.dart';
 import 'package:tivibuddy/features/live_tv/domain/live_channel.dart';
 import 'package:tivibuddy/features/live_tv/domain/live_tv_repository.dart';
@@ -10,6 +12,7 @@ import 'package:tivibuddy/features/playlists/data/playlist_data_providers.dart';
 import 'package:tivibuddy/features/playlists/domain/playlist.dart';
 import 'package:tivibuddy/features/profiles/application/profile_actions.dart';
 import 'package:tivibuddy/features/profiles/domain/profile.dart';
+import 'package:tivibuddy/features/settings/application/settings_actions.dart';
 
 import '../../helpers/fake_credential_store.dart';
 import '../../helpers/live_tv_fakes.dart';
@@ -144,5 +147,126 @@ void main() {
 
     expect(await repository.watchChannelCount(playlistId).first, 0);
     expect(await repository.getLoadedAt(playlistId), isNull);
+  });
+
+  group('guide', () {
+    final now = DateTime.now().toUtc();
+    EpgProgramme programme(String key, int hoursFromNow, String title) =>
+        EpgProgramme(
+          channelKey: key,
+          title: title,
+          start: now.add(Duration(hours: hoursFromNow)),
+          end: now.add(Duration(hours: hoursFromNow + 1)),
+        );
+
+    setUp(() {
+      source
+        ..channels = [
+          testChannel(playlistId, 1, epgChannelId: 'ard.de'),
+          testChannel(playlistId, 2, epgChannelId: 'zdf.de'),
+          testChannel(playlistId, 3),
+        ]
+        ..programmes = [
+          programme('ard.de', 0, 'ARD now'),
+          programme('ard.de', 1, 'ARD next'),
+          programme('zdf.de', 0, 'ZDF now'),
+          programme('other', 0, 'Unknown channel'),
+          programme('ard.de', 24 * 10, 'Too far ahead'),
+        ];
+    });
+
+    test('a catalog load also loads the guide of its channels', () async {
+      await controller().refresh();
+      final epg = container.read(epgRepositoryProvider);
+
+      expect(source.guideLoads, 1);
+      expect(await epg.getLoadedAt(playlistId), isNotNull);
+      final ard = await epg.getProgrammes(
+        playlistId,
+        'ard.de',
+        from: now.subtract(const Duration(hours: 1)),
+        to: now.add(const Duration(days: 30)),
+      );
+      expect(ard.map((p) => p.title), ['ARD now', 'ARD next']);
+      expect(
+        await epg.getProgrammes(
+          playlistId,
+          'other',
+          from: now,
+          to: now.add(const Duration(days: 1)),
+        ),
+        isEmpty,
+      );
+    });
+
+    test('range queries return overlapping programmes only', () async {
+      await controller().refresh();
+      final epg = container.read(epgRepositoryProvider);
+
+      final later = await epg.getProgrammes(
+        playlistId,
+        'ard.de',
+        from: now.add(const Duration(minutes: 90)),
+        to: now.add(const Duration(hours: 3)),
+      );
+      expect(later.map((p) => p.title), ['ARD next']);
+    });
+
+    test('a new load replaces the guide and deleting removes it', () async {
+      await controller().refresh();
+      source.programmes = [programme('ard.de', 0, 'ARD changed')];
+      await container
+          .read(epgControllerProvider(playlistId).notifier)
+          .refresh();
+      final epg = container.read(epgRepositoryProvider);
+      Future<List<String>> titles() async => [
+        for (final p in await epg.getProgrammes(
+          playlistId,
+          'ard.de',
+          from: now,
+          to: now.add(const Duration(days: 1)),
+        ))
+          p.title,
+      ];
+
+      expect(await titles(), ['ARD changed']);
+      await container.read(playlistActionsProvider).delete(playlistId);
+      expect(await titles(), isEmpty);
+    });
+
+    test('switching the guide off skips loading and frees it', () async {
+      await controller().refresh();
+      await container.read(settingsActionsProvider).setGuideDays(0);
+      final epg = container.read(epgRepositoryProvider);
+      expect(await epg.getLoadedAt(playlistId), isNull);
+
+      await container
+          .read(epgControllerProvider(playlistId).notifier)
+          .ensureFresh();
+      expect(source.guideLoads, 1);
+      expect(
+        await epg.getProgrammes(
+          playlistId,
+          'ard.de',
+          from: now,
+          to: now.add(const Duration(days: 1)),
+        ),
+        isEmpty,
+      );
+    });
+
+    test('now and next come from the loaded guide', () async {
+      await controller().refresh();
+      final channel = testChannel(playlistId, 1, epgChannelId: 'ard.de');
+      final subscription = container.listen(
+        nowNextProvider(channel),
+        (_, _) {},
+      );
+      addTearDown(subscription.close);
+
+      final result = await container.read(nowNextProvider(channel).future);
+      expect(result.now?.title, 'ARD now');
+      expect(result.next?.title, 'ARD next');
+    });
   });
 }

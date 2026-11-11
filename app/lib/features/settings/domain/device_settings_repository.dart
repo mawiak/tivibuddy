@@ -8,6 +8,14 @@ abstract interface class DeviceSettingsRepository {
 
   Future<void> setDefaultProfileId(String? profileId);
 
+  /// Days of programme guide loaded ahead, 0 when the guide is not loaded,
+  /// null for the default.
+  Stream<int?> watchGuideDays();
+
+  Future<int?> getGuideDays();
+
+  Future<void> setGuideDays(int? days);
+
   /// Restores the defaults of all device settings.
   Future<void> reset();
 }

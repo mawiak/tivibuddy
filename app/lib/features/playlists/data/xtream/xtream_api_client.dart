@@ -78,6 +78,12 @@ class XtreamApiClient {
     queryParameters: {'username': username, 'password': password, ...extra},
   );
 
+  /// Full programme guide of the account as XMLTV.
+  static Uri xmltvUri(String serverUrl, String username, String password) =>
+      Uri.parse(
+        '$serverUrl/xmltv.php',
+      ).replace(queryParameters: {'username': username, 'password': password});
+
   /// Throws the matching exception for responses that are not usable.
   static void checkStatus(int statusCode) {
     if (statusCode == 401 || statusCode == 403) {

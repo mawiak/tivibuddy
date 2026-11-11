@@ -78,12 +78,7 @@ NowNext parseShortEpg(Object? body, {required DateTime now}) {
     );
   }
   entries.sort((a, b) => a.start.compareTo(b.start));
-
-  final current = entries
-      .where((e) => !e.start.isAfter(now) && e.end.isAfter(now))
-      .firstOrNull;
-  final following = entries.where((e) => e.start.isAfter(now)).firstOrNull;
-  return NowNext(now: current, next: following);
+  return NowNext.at(entries, now);
 }
 
 String? _decodeBase64(Object? value) {

@@ -78,8 +78,36 @@ class EpgEntry {
 class NowNext {
   const NowNext({this.now, this.next});
 
+  /// Picks the programme running at [now] and the one after it from
+  /// [entries] ordered by start.
+  factory NowNext.at(List<EpgEntry> entries, DateTime now) => NowNext(
+    now: entries
+        .where((e) => !e.start.isAfter(now) && e.end.isAfter(now))
+        .firstOrNull,
+    next: entries.where((e) => e.start.isAfter(now)).firstOrNull,
+  );
+
   static const empty = NowNext();
 
   final EpgEntry? now;
   final EpgEntry? next;
+}
+
+/// A programme of the provider guide (XMLTV) as stored locally. Kept free of
+/// Flutter types, so batches can be sent between isolates.
+final class EpgProgramme {
+  const EpgProgramme({
+    required this.channelKey,
+    required this.title,
+    required this.start,
+    required this.end,
+    this.description,
+  });
+
+  /// [LiveChannel.epgChannelId] of the channels showing this programme.
+  final String channelKey;
+  final String title;
+  final String? description;
+  final DateTime start;
+  final DateTime end;
 }

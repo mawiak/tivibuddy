@@ -107,8 +107,23 @@ Future<PlaylistAccess> playlistAccess(Ref ref, String playlistId) async {
   );
 }
 
-/// Current and next programme of a channel. Cached for a few minutes and
-/// refreshed when the current programme ends.
+/// Reads the access data of a playlist from a controller. Listening keeps
+/// the auto-disposed provider alive while it loads.
+Future<PlaylistAccess> readPlaylistAccess(Ref ref, String playlistId) async {
+  final subscription = ref.listen(
+    playlistAccessProvider(playlistId),
+    (_, _) {},
+  );
+  try {
+    return await ref.read(playlistAccessProvider(playlistId).future);
+  } finally {
+    subscription.close();
+  }
+}
+
+/// Current and next programme of a channel, from the loaded guide or, for
+/// channels without guide data, from the provider. Cached for a few minutes
+/// and refreshed when the current programme ends.
 @riverpod
 Future<NowNext> nowNext(Ref ref, LiveChannel channel) async {
   final link = ref.keepAlive();
@@ -116,10 +131,21 @@ Future<NowNext> nowNext(Ref ref, LiveChannel channel) async {
   ref.onDispose(expiry.cancel);
 
   final source = _sourceFor(ref);
-  final access = await ref.watch(
-    playlistAccessProvider(channel.playlistId).future,
-  );
-  final result = await source.fetchNowNext(access, channel);
+  final epg = ref.watch(epgRepositoryProvider);
+  final access = ref.watch(playlistAccessProvider(channel.playlistId).future);
+  final now = DateTime.now().toUtc();
+  final key = channel.epgChannelId;
+  final guide = key == null
+      ? const <EpgEntry>[]
+      : await epg.getProgrammes(
+          channel.playlistId,
+          key,
+          from: now,
+          to: now.add(const Duration(hours: 12)),
+        );
+  final result = guide.isNotEmpty
+      ? NowNext.at(guide, now)
+      : await source.fetchNowNext(await access, channel);
 
   final endsAt = result.now?.end;
   if (endsAt != null) {

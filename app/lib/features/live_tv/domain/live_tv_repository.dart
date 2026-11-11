@@ -17,6 +17,10 @@ abstract interface class LiveTvRepository {
     required int limit,
   });
 
+  /// Guide ids of all channels of [playlistId], used to keep only the
+  /// programmes of known channels when the guide is loaded.
+  Future<Set<String>> getEpgChannelIds(String playlistId);
+
   /// When the catalog of [playlistId] was last loaded completely.
   Stream<DateTime?> watchLoadedAt(String playlistId);
 
@@ -67,6 +71,16 @@ abstract interface class LiveCatalogSource {
   Stream<List<LiveChannel>> fetchChannels(PlaylistAccess access);
 
   Future<NowNext> fetchNowNext(PlaylistAccess access, LiveChannel channel);
+
+  /// Programmes of the full guide in batches, parsed off the UI isolate
+  /// (DATA-1). Only programmes of [channelKeys] that overlap the range from
+  /// [from] to [to] are delivered.
+  Stream<List<EpgProgramme>> fetchProgrammes(
+    PlaylistAccess access, {
+    required Set<String> channelKeys,
+    required DateTime from,
+    required DateTime to,
+  });
 
   String streamUrl(PlaylistAccess access, LiveChannel channel);
 }

@@ -3344,6 +3344,483 @@ class CatalogStatesCompanion extends UpdateCompanion<CatalogStateRow> {
   }
 }
 
+class $EpgProgrammesTable extends EpgProgrammes
+    with TableInfo<$EpgProgrammesTable, EpgProgrammeRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $EpgProgrammesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _playlistIdMeta = const VerificationMeta(
+    'playlistId',
+  );
+  @override
+  late final GeneratedColumn<String> playlistId = GeneratedColumn<String>(
+    'playlist_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES playlists (id)',
+    ),
+  );
+  static const VerificationMeta _channelKeyMeta = const VerificationMeta(
+    'channelKey',
+  );
+  @override
+  late final GeneratedColumn<String> channelKey = GeneratedColumn<String>(
+    'channel_key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _startsAtMeta = const VerificationMeta(
+    'startsAt',
+  );
+  @override
+  late final GeneratedColumn<int> startsAt = GeneratedColumn<int>(
+    'starts_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _endsAtMeta = const VerificationMeta('endsAt');
+  @override
+  late final GeneratedColumn<int> endsAt = GeneratedColumn<int>(
+    'ends_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _descriptionMeta = const VerificationMeta(
+    'description',
+  );
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+    'description',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _seenInLoadMeta = const VerificationMeta(
+    'seenInLoad',
+  );
+  @override
+  late final GeneratedColumn<int> seenInLoad = GeneratedColumn<int>(
+    'seen_in_load',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    playlistId,
+    channelKey,
+    startsAt,
+    endsAt,
+    title,
+    description,
+    seenInLoad,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'epg_programmes';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<EpgProgrammeRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('playlist_id')) {
+      context.handle(
+        _playlistIdMeta,
+        playlistId.isAcceptableOrUnknown(data['playlist_id']!, _playlistIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_playlistIdMeta);
+    }
+    if (data.containsKey('channel_key')) {
+      context.handle(
+        _channelKeyMeta,
+        channelKey.isAcceptableOrUnknown(data['channel_key']!, _channelKeyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_channelKeyMeta);
+    }
+    if (data.containsKey('starts_at')) {
+      context.handle(
+        _startsAtMeta,
+        startsAt.isAcceptableOrUnknown(data['starts_at']!, _startsAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_startsAtMeta);
+    }
+    if (data.containsKey('ends_at')) {
+      context.handle(
+        _endsAtMeta,
+        endsAt.isAcceptableOrUnknown(data['ends_at']!, _endsAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_endsAtMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+        _descriptionMeta,
+        description.isAcceptableOrUnknown(
+          data['description']!,
+          _descriptionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('seen_in_load')) {
+      context.handle(
+        _seenInLoadMeta,
+        seenInLoad.isAcceptableOrUnknown(
+          data['seen_in_load']!,
+          _seenInLoadMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_seenInLoadMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {playlistId, channelKey, startsAt};
+  @override
+  EpgProgrammeRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return EpgProgrammeRow(
+      playlistId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}playlist_id'],
+      )!,
+      channelKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}channel_key'],
+      )!,
+      startsAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}starts_at'],
+      )!,
+      endsAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}ends_at'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      description: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}description'],
+      ),
+      seenInLoad: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}seen_in_load'],
+      )!,
+    );
+  }
+
+  @override
+  $EpgProgrammesTable createAlias(String alias) {
+    return $EpgProgrammesTable(attachedDatabase, alias);
+  }
+
+  @override
+  bool get withoutRowId => true;
+}
+
+class EpgProgrammeRow extends DataClass implements Insertable<EpgProgrammeRow> {
+  final String playlistId;
+  final String channelKey;
+  final int startsAt;
+  final int endsAt;
+  final String title;
+  final String? description;
+
+  /// Start time (seconds) of the load that last delivered this programme.
+  final int seenInLoad;
+  const EpgProgrammeRow({
+    required this.playlistId,
+    required this.channelKey,
+    required this.startsAt,
+    required this.endsAt,
+    required this.title,
+    this.description,
+    required this.seenInLoad,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['playlist_id'] = Variable<String>(playlistId);
+    map['channel_key'] = Variable<String>(channelKey);
+    map['starts_at'] = Variable<int>(startsAt);
+    map['ends_at'] = Variable<int>(endsAt);
+    map['title'] = Variable<String>(title);
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    map['seen_in_load'] = Variable<int>(seenInLoad);
+    return map;
+  }
+
+  EpgProgrammesCompanion toCompanion(bool nullToAbsent) {
+    return EpgProgrammesCompanion(
+      playlistId: Value(playlistId),
+      channelKey: Value(channelKey),
+      startsAt: Value(startsAt),
+      endsAt: Value(endsAt),
+      title: Value(title),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      seenInLoad: Value(seenInLoad),
+    );
+  }
+
+  factory EpgProgrammeRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return EpgProgrammeRow(
+      playlistId: serializer.fromJson<String>(json['playlistId']),
+      channelKey: serializer.fromJson<String>(json['channelKey']),
+      startsAt: serializer.fromJson<int>(json['startsAt']),
+      endsAt: serializer.fromJson<int>(json['endsAt']),
+      title: serializer.fromJson<String>(json['title']),
+      description: serializer.fromJson<String?>(json['description']),
+      seenInLoad: serializer.fromJson<int>(json['seenInLoad']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'playlistId': serializer.toJson<String>(playlistId),
+      'channelKey': serializer.toJson<String>(channelKey),
+      'startsAt': serializer.toJson<int>(startsAt),
+      'endsAt': serializer.toJson<int>(endsAt),
+      'title': serializer.toJson<String>(title),
+      'description': serializer.toJson<String?>(description),
+      'seenInLoad': serializer.toJson<int>(seenInLoad),
+    };
+  }
+
+  EpgProgrammeRow copyWith({
+    String? playlistId,
+    String? channelKey,
+    int? startsAt,
+    int? endsAt,
+    String? title,
+    Value<String?> description = const Value.absent(),
+    int? seenInLoad,
+  }) => EpgProgrammeRow(
+    playlistId: playlistId ?? this.playlistId,
+    channelKey: channelKey ?? this.channelKey,
+    startsAt: startsAt ?? this.startsAt,
+    endsAt: endsAt ?? this.endsAt,
+    title: title ?? this.title,
+    description: description.present ? description.value : this.description,
+    seenInLoad: seenInLoad ?? this.seenInLoad,
+  );
+  EpgProgrammeRow copyWithCompanion(EpgProgrammesCompanion data) {
+    return EpgProgrammeRow(
+      playlistId: data.playlistId.present
+          ? data.playlistId.value
+          : this.playlistId,
+      channelKey: data.channelKey.present
+          ? data.channelKey.value
+          : this.channelKey,
+      startsAt: data.startsAt.present ? data.startsAt.value : this.startsAt,
+      endsAt: data.endsAt.present ? data.endsAt.value : this.endsAt,
+      title: data.title.present ? data.title.value : this.title,
+      description: data.description.present
+          ? data.description.value
+          : this.description,
+      seenInLoad: data.seenInLoad.present
+          ? data.seenInLoad.value
+          : this.seenInLoad,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('EpgProgrammeRow(')
+          ..write('playlistId: $playlistId, ')
+          ..write('channelKey: $channelKey, ')
+          ..write('startsAt: $startsAt, ')
+          ..write('endsAt: $endsAt, ')
+          ..write('title: $title, ')
+          ..write('description: $description, ')
+          ..write('seenInLoad: $seenInLoad')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    playlistId,
+    channelKey,
+    startsAt,
+    endsAt,
+    title,
+    description,
+    seenInLoad,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is EpgProgrammeRow &&
+          other.playlistId == this.playlistId &&
+          other.channelKey == this.channelKey &&
+          other.startsAt == this.startsAt &&
+          other.endsAt == this.endsAt &&
+          other.title == this.title &&
+          other.description == this.description &&
+          other.seenInLoad == this.seenInLoad);
+}
+
+class EpgProgrammesCompanion extends UpdateCompanion<EpgProgrammeRow> {
+  final Value<String> playlistId;
+  final Value<String> channelKey;
+  final Value<int> startsAt;
+  final Value<int> endsAt;
+  final Value<String> title;
+  final Value<String?> description;
+  final Value<int> seenInLoad;
+  const EpgProgrammesCompanion({
+    this.playlistId = const Value.absent(),
+    this.channelKey = const Value.absent(),
+    this.startsAt = const Value.absent(),
+    this.endsAt = const Value.absent(),
+    this.title = const Value.absent(),
+    this.description = const Value.absent(),
+    this.seenInLoad = const Value.absent(),
+  });
+  EpgProgrammesCompanion.insert({
+    required String playlistId,
+    required String channelKey,
+    required int startsAt,
+    required int endsAt,
+    required String title,
+    this.description = const Value.absent(),
+    required int seenInLoad,
+  }) : playlistId = Value(playlistId),
+       channelKey = Value(channelKey),
+       startsAt = Value(startsAt),
+       endsAt = Value(endsAt),
+       title = Value(title),
+       seenInLoad = Value(seenInLoad);
+  static Insertable<EpgProgrammeRow> custom({
+    Expression<String>? playlistId,
+    Expression<String>? channelKey,
+    Expression<int>? startsAt,
+    Expression<int>? endsAt,
+    Expression<String>? title,
+    Expression<String>? description,
+    Expression<int>? seenInLoad,
+  }) {
+    return RawValuesInsertable({
+      if (playlistId != null) 'playlist_id': playlistId,
+      if (channelKey != null) 'channel_key': channelKey,
+      if (startsAt != null) 'starts_at': startsAt,
+      if (endsAt != null) 'ends_at': endsAt,
+      if (title != null) 'title': title,
+      if (description != null) 'description': description,
+      if (seenInLoad != null) 'seen_in_load': seenInLoad,
+    });
+  }
+
+  EpgProgrammesCompanion copyWith({
+    Value<String>? playlistId,
+    Value<String>? channelKey,
+    Value<int>? startsAt,
+    Value<int>? endsAt,
+    Value<String>? title,
+    Value<String?>? description,
+    Value<int>? seenInLoad,
+  }) {
+    return EpgProgrammesCompanion(
+      playlistId: playlistId ?? this.playlistId,
+      channelKey: channelKey ?? this.channelKey,
+      startsAt: startsAt ?? this.startsAt,
+      endsAt: endsAt ?? this.endsAt,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      seenInLoad: seenInLoad ?? this.seenInLoad,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (playlistId.present) {
+      map['playlist_id'] = Variable<String>(playlistId.value);
+    }
+    if (channelKey.present) {
+      map['channel_key'] = Variable<String>(channelKey.value);
+    }
+    if (startsAt.present) {
+      map['starts_at'] = Variable<int>(startsAt.value);
+    }
+    if (endsAt.present) {
+      map['ends_at'] = Variable<int>(endsAt.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (seenInLoad.present) {
+      map['seen_in_load'] = Variable<int>(seenInLoad.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('EpgProgrammesCompanion(')
+          ..write('playlistId: $playlistId, ')
+          ..write('channelKey: $channelKey, ')
+          ..write('startsAt: $startsAt, ')
+          ..write('endsAt: $endsAt, ')
+          ..write('title: $title, ')
+          ..write('description: $description, ')
+          ..write('seenInLoad: $seenInLoad')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -3356,6 +3833,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $LiveCategoriesTable liveCategories = $LiveCategoriesTable(this);
   late final $LiveChannelsTable liveChannels = $LiveChannelsTable(this);
   late final $CatalogStatesTable catalogStates = $CatalogStatesTable(this);
+  late final $EpgProgrammesTable epgProgrammes = $EpgProgrammesTable(this);
   late final Index liveChannelsByCategory = Index(
     'live_channels_by_category',
     'CREATE INDEX live_channels_by_category ON live_channels (playlist_id, category_id, number)',
@@ -3376,6 +3854,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     liveCategories,
     liveChannels,
     catalogStates,
+    epgProgrammes,
     liveChannelsByCategory,
     liveChannelsByNumber,
   ];
@@ -3982,6 +4461,24 @@ final class $$PlaylistsTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
+
+  static MultiTypedResultKey<$EpgProgrammesTable, List<EpgProgrammeRow>>
+  _epgProgrammesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.epgProgrammes,
+    aliasName: 'playlists__id__epg_programmes__playlist_id',
+  );
+
+  $$EpgProgrammesTableProcessedTableManager get epgProgrammesRefs {
+    final manager = $$EpgProgrammesTableTableManager(
+      $_db,
+      $_db.epgProgrammes,
+    ).filter((f) => f.playlistId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_epgProgrammesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$PlaylistsTableFilterComposer
@@ -4153,6 +4650,31 @@ class $$PlaylistsTableFilterComposer
           }) => $$CatalogStatesTableFilterComposer(
             $db: $db,
             $table: $db.catalogStates,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> epgProgrammesRefs(
+    Expression<bool> Function($$EpgProgrammesTableFilterComposer f) f,
+  ) {
+    final $$EpgProgrammesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.epgProgrammes,
+      getReferencedColumn: (t) => t.playlistId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EpgProgrammesTableFilterComposer(
+            $db: $db,
+            $table: $db.epgProgrammes,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -4424,6 +4946,31 @@ class $$PlaylistsTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> epgProgrammesRefs<T extends Object>(
+    Expression<T> Function($$EpgProgrammesTableAnnotationComposer a) f,
+  ) {
+    final $$EpgProgrammesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.epgProgrammes,
+      getReferencedColumn: (t) => t.playlistId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EpgProgrammesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.epgProgrammes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$PlaylistsTableTableManager
@@ -4444,6 +4991,7 @@ class $$PlaylistsTableTableManager
             bool liveCategoriesRefs,
             bool liveChannelsRefs,
             bool catalogStatesRefs,
+            bool epgProgrammesRefs,
           })
         > {
   $$PlaylistsTableTableManager(_$AppDatabase db, $PlaylistsTable table)
@@ -4543,6 +5091,7 @@ class $$PlaylistsTableTableManager
                 liveCategoriesRefs = false,
                 liveChannelsRefs = false,
                 catalogStatesRefs = false,
+                epgProgrammesRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
@@ -4550,6 +5099,7 @@ class $$PlaylistsTableTableManager
                     if (liveCategoriesRefs) db.liveCategories,
                     if (liveChannelsRefs) db.liveChannels,
                     if (catalogStatesRefs) db.catalogStates,
+                    if (epgProgrammesRefs) db.epgProgrammes,
                   ],
                   addJoins:
                       <
@@ -4643,6 +5193,26 @@ class $$PlaylistsTableTableManager
                           referencedColumn: 'playlist_id',
                           typedResults: items,
                         ),
+                      if (epgProgrammesRefs)
+                        await $_getPrefetchedDataByColumns<
+                          PlaylistRow,
+                          $PlaylistsTable,
+                          EpgProgrammeRow,
+                          $EpgProgrammesTable
+                        >(
+                          currentTable: table,
+                          referencedTable: $$PlaylistsTableReferences
+                              ._epgProgrammesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$PlaylistsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).epgProgrammesRefs,
+                          currentColumn: 'id',
+                          referencedColumn: 'playlist_id',
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -4668,6 +5238,7 @@ typedef $$PlaylistsTableProcessedTableManager =
         bool liveCategoriesRefs,
         bool liveChannelsRefs,
         bool catalogStatesRefs,
+        bool epgProgrammesRefs,
       })
     >;
 typedef $$ProfileSettingEntriesTableCreateCompanionBuilder =
@@ -6201,6 +6772,364 @@ typedef $$CatalogStatesTableProcessedTableManager =
       CatalogStateRow,
       PrefetchHooks Function({bool playlistId})
     >;
+typedef $$EpgProgrammesTableCreateCompanionBuilder =
+    EpgProgrammesCompanion Function({
+      required String playlistId,
+      required String channelKey,
+      required int startsAt,
+      required int endsAt,
+      required String title,
+      Value<String?> description,
+      required int seenInLoad,
+    });
+typedef $$EpgProgrammesTableUpdateCompanionBuilder =
+    EpgProgrammesCompanion Function({
+      Value<String> playlistId,
+      Value<String> channelKey,
+      Value<int> startsAt,
+      Value<int> endsAt,
+      Value<String> title,
+      Value<String?> description,
+      Value<int> seenInLoad,
+    });
+
+final class $$EpgProgrammesTableReferences
+    extends
+        BaseReferences<_$AppDatabase, $EpgProgrammesTable, EpgProgrammeRow> {
+  $$EpgProgrammesTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $PlaylistsTable _playlistIdTable(_$AppDatabase db) =>
+      db.playlists.createAlias('epg_programmes__playlist_id__playlists__id');
+
+  $$PlaylistsTableProcessedTableManager get playlistId {
+    final $_column = $_itemColumn<String>('playlist_id')!;
+
+    final manager = $$PlaylistsTableTableManager(
+      $_db,
+      $_db.playlists,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_playlistIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$EpgProgrammesTableFilterComposer
+    extends Composer<_$AppDatabase, $EpgProgrammesTable> {
+  $$EpgProgrammesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get channelKey => $composableBuilder(
+    column: $table.channelKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get startsAt => $composableBuilder(
+    column: $table.startsAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get endsAt => $composableBuilder(
+    column: $table.endsAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get seenInLoad => $composableBuilder(
+    column: $table.seenInLoad,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$PlaylistsTableFilterComposer get playlistId {
+    final $$PlaylistsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.playlistId,
+      referencedTable: $db.playlists,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PlaylistsTableFilterComposer(
+            $db: $db,
+            $table: $db.playlists,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$EpgProgrammesTableOrderingComposer
+    extends Composer<_$AppDatabase, $EpgProgrammesTable> {
+  $$EpgProgrammesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get channelKey => $composableBuilder(
+    column: $table.channelKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get startsAt => $composableBuilder(
+    column: $table.startsAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get endsAt => $composableBuilder(
+    column: $table.endsAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get seenInLoad => $composableBuilder(
+    column: $table.seenInLoad,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$PlaylistsTableOrderingComposer get playlistId {
+    final $$PlaylistsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.playlistId,
+      referencedTable: $db.playlists,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PlaylistsTableOrderingComposer(
+            $db: $db,
+            $table: $db.playlists,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$EpgProgrammesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $EpgProgrammesTable> {
+  $$EpgProgrammesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get channelKey => $composableBuilder(
+    column: $table.channelKey,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get startsAt =>
+      $composableBuilder(column: $table.startsAt, builder: (column) => column);
+
+  GeneratedColumn<int> get endsAt =>
+      $composableBuilder(column: $table.endsAt, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get seenInLoad => $composableBuilder(
+    column: $table.seenInLoad,
+    builder: (column) => column,
+  );
+
+  $$PlaylistsTableAnnotationComposer get playlistId {
+    final $$PlaylistsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.playlistId,
+      referencedTable: $db.playlists,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PlaylistsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.playlists,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$EpgProgrammesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $EpgProgrammesTable,
+          EpgProgrammeRow,
+          $$EpgProgrammesTableFilterComposer,
+          $$EpgProgrammesTableOrderingComposer,
+          $$EpgProgrammesTableAnnotationComposer,
+          $$EpgProgrammesTableCreateCompanionBuilder,
+          $$EpgProgrammesTableUpdateCompanionBuilder,
+          (EpgProgrammeRow, $$EpgProgrammesTableReferences),
+          EpgProgrammeRow,
+          PrefetchHooks Function({bool playlistId})
+        > {
+  $$EpgProgrammesTableTableManager(_$AppDatabase db, $EpgProgrammesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$EpgProgrammesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$EpgProgrammesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$EpgProgrammesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> playlistId = const Value.absent(),
+                Value<String> channelKey = const Value.absent(),
+                Value<int> startsAt = const Value.absent(),
+                Value<int> endsAt = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String?> description = const Value.absent(),
+                Value<int> seenInLoad = const Value.absent(),
+              }) => EpgProgrammesCompanion(
+                playlistId: playlistId,
+                channelKey: channelKey,
+                startsAt: startsAt,
+                endsAt: endsAt,
+                title: title,
+                description: description,
+                seenInLoad: seenInLoad,
+              ),
+          createCompanionCallback:
+              ({
+                required String playlistId,
+                required String channelKey,
+                required int startsAt,
+                required int endsAt,
+                required String title,
+                Value<String?> description = const Value.absent(),
+                required int seenInLoad,
+              }) => EpgProgrammesCompanion.insert(
+                playlistId: playlistId,
+                channelKey: channelKey,
+                startsAt: startsAt,
+                endsAt: endsAt,
+                title: title,
+                description: description,
+                seenInLoad: seenInLoad,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$EpgProgrammesTable, EpgProgrammeRow>(table),
+                  $$EpgProgrammesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({playlistId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (playlistId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.playlistId,
+                        referencedTable: $$EpgProgrammesTableReferences
+                            ._playlistIdTable(db),
+                        referencedColumn: $$EpgProgrammesTableReferences
+                            ._playlistIdTable(db)
+                            .id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$EpgProgrammesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $EpgProgrammesTable,
+      EpgProgrammeRow,
+      $$EpgProgrammesTableFilterComposer,
+      $$EpgProgrammesTableOrderingComposer,
+      $$EpgProgrammesTableAnnotationComposer,
+      $$EpgProgrammesTableCreateCompanionBuilder,
+      $$EpgProgrammesTableUpdateCompanionBuilder,
+      (EpgProgrammeRow, $$EpgProgrammesTableReferences),
+      EpgProgrammeRow,
+      PrefetchHooks Function({bool playlistId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -6219,6 +7148,8 @@ class $AppDatabaseManager {
       $$LiveChannelsTableTableManager(_db, _db.liveChannels);
   $$CatalogStatesTableTableManager get catalogStates =>
       $$CatalogStatesTableTableManager(_db, _db.catalogStates);
+  $$EpgProgrammesTableTableManager get epgProgrammes =>
+      $$EpgProgrammesTableTableManager(_db, _db.epgProgrammes);
 }
 
 // **************************************************************************

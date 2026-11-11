@@ -86,6 +86,20 @@ class DriftLiveTvRepository implements LiveTvRepository {
     return rows.map(_toDomain).toList();
   }
 
+  @override
+  Future<Set<String>> getEpgChannelIds(String playlistId) async {
+    final key = _db.liveChannels.epgChannelId;
+    final rows =
+        await (_db.selectOnly(_db.liveChannels, distinct: true)
+              ..addColumns([key])
+              ..where(
+                _db.liveChannels.playlistId.equals(playlistId) &
+                    key.isNotNull(),
+              ))
+            .get();
+    return {for (final row in rows) row.read(key)!};
+  }
+
   SimpleSelectStatement<$CatalogStatesTable, CatalogStateRow> _state(
     String playlistId,
   ) => _db.select(_db.catalogStates)

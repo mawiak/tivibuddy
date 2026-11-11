@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../live_tv/data/live_tv_data_providers.dart';
 import '../../profiles/application/profile_providers.dart';
 import '../data/settings_data_providers.dart';
 
@@ -33,6 +34,14 @@ class SettingsActions {
   Future<void> setStartProfile(String? profileId) => _ref
       .read(deviceSettingsRepositoryProvider)
       .setDefaultProfileId(profileId);
+
+  /// Changes how far ahead the guide is loaded. Guides are loaded again with
+  /// the new range when next opened; switching off frees their storage.
+  Future<void> setGuideDays(int days) async {
+    await _ref.read(deviceSettingsRepositoryProvider).setGuideDays(days);
+    final epg = _ref.read(epgRepositoryProvider);
+    await (days == 0 ? epg.deleteAll() : epg.markAllOutdated());
+  }
 
   Future<void> resetDeviceSettings() =>
       _ref.read(deviceSettingsRepositoryProvider).reset();

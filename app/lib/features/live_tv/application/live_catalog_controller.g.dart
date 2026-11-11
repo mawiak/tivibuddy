@@ -68,7 +68,7 @@ final class LiveCatalogControllerProvider
 }
 
 String _$liveCatalogControllerHash() =>
-    r'48b7d59b8a3a9793b3177da43475f2332f9a9a94';
+    r'cc6efd1f8c94be4b3066715df25b415a2848e276';
 
 /// Loads the live catalog of a playlist from the provider into the local
 /// database (DATA-1, DATA-2). The UI keeps showing the previous catalog

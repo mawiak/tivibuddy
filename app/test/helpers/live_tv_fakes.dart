@@ -4,25 +4,33 @@ import 'package:tivibuddy/features/live_tv/domain/live_channel.dart';
 import 'package:tivibuddy/features/live_tv/domain/live_tv_repository.dart';
 import 'package:tivibuddy/features/player/domain/playback_engine.dart';
 
-LiveChannel testChannel(String playlistId, int i, {String? categoryId}) =>
-    LiveChannel(
-      playlistId: playlistId,
-      streamId: 1000 + i,
-      number: i,
-      name: 'Channel $i',
-      categoryId: categoryId,
-    );
+LiveChannel testChannel(
+  String playlistId,
+  int i, {
+  String? categoryId,
+  String? epgChannelId,
+}) => LiveChannel(
+  playlistId: playlistId,
+  streamId: 1000 + i,
+  number: i,
+  name: 'Channel $i',
+  categoryId: categoryId,
+  epgChannelId: epgChannelId,
+);
 
 /// Catalog source serving a fixed catalog without network access.
 class FakeLiveCatalogSource implements LiveCatalogSource {
   FakeLiveCatalogSource({
     this.categories = const [],
     this.channels = const [],
+    this.programmes = const [],
     this.failure,
   });
 
   List<LiveCategory> categories;
   List<LiveChannel> channels;
+  List<EpgProgramme> programmes;
+  int guideLoads = 0;
   CatalogLoadFailure? failure;
   int channelLoads = 0;
 
@@ -51,6 +59,23 @@ class FakeLiveCatalogSource implements LiveCatalogSource {
       end: DateTime.now().toUtc().add(const Duration(minutes: 50)),
     ),
   );
+
+  @override
+  Stream<List<EpgProgramme>> fetchProgrammes(
+    PlaylistAccess access, {
+    required Set<String> channelKeys,
+    required DateTime from,
+    required DateTime to,
+  }) async* {
+    guideLoads++;
+    yield [
+      for (final programme in programmes)
+        if (channelKeys.contains(programme.channelKey) &&
+            programme.end.isAfter(from) &&
+            programme.start.isBefore(to))
+          programme,
+    ];
+  }
 
   @override
   String streamUrl(PlaylistAccess access, LiveChannel channel) =>

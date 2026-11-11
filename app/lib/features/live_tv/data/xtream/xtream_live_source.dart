@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import '../../../playlists/data/xtream/xtream_api_client.dart';
 import '../../domain/live_channel.dart';
 import '../../domain/live_tv_repository.dart';
+import '../xmltv/xmltv_loader.dart';
 import 'xtream_live_loader.dart';
 import 'xtream_live_parsing.dart';
 
@@ -84,6 +85,24 @@ class XtreamLiveSource implements LiveCatalogSource {
       return NowNext.empty;
     }
   }
+
+  @override
+  Stream<List<EpgProgramme>> fetchProgrammes(
+    PlaylistAccess access, {
+    required Set<String> channelKeys,
+    required DateTime from,
+    required DateTime to,
+  }) => loadXmltv(
+    XtreamApiClient.xmltvUri(
+      access.serverUrl,
+      access.username,
+      access.password,
+    ),
+    channelKeys: channelKeys,
+    from: from,
+    to: to,
+    clientFactory: _clientFactory,
+  );
 
   @override
   String streamUrl(PlaylistAccess access, LiveChannel channel) {

@@ -55,6 +55,47 @@ final class LiveTvRepositoryProvider
 
 String _$liveTvRepositoryHash() => r'b6cb5f5a629c9860f5fba40cac4ee4869fa9bef5';
 
+@ProviderFor(epgRepository)
+final epgRepositoryProvider = EpgRepositoryProvider._();
+
+final class EpgRepositoryProvider
+    extends $FunctionalProvider<EpgRepository, EpgRepository, EpgRepository>
+    with $Provider<EpgRepository> {
+  EpgRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'epgRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$epgRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<EpgRepository> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  EpgRepository create(Ref ref) {
+    return epgRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(EpgRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<EpgRepository>(value),
+    );
+  }
+}
+
+String _$epgRepositoryHash() => r'8025a592b1327b4e46b007f5d9e4dfde10bfcf0a';
+
 /// Catalog source for each playlist type (PL-3).
 
 @ProviderFor(liveCatalogSource)

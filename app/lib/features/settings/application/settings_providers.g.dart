@@ -132,3 +132,36 @@ final class AppLanguageProvider
 }
 
 String _$appLanguageHash() => r'c12deed7ce7960aebb82baa8f787ef1ae28e751f';
+
+@ProviderFor(guideDays)
+final guideDaysProvider = GuideDaysProvider._();
+
+final class GuideDaysProvider
+    extends $FunctionalProvider<AsyncValue<int>, int, Stream<int>>
+    with $FutureModifier<int>, $StreamProvider<int> {
+  GuideDaysProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'guideDaysProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$guideDaysHash();
+
+  @$internal
+  @override
+  $StreamProviderElement<int> $createElement($ProviderPointer pointer) =>
+      $StreamProviderElement(pointer);
+
+  @override
+  Stream<int> create(Ref ref) {
+    return guideDays(ref);
+  }
+}
+
+String _$guideDaysHash() => r'0926ffc55533d2591eecc1c491516b39ff8f8ff4';

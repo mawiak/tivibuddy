@@ -3,6 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../playlists/domain/playlist.dart';
 import '../data/live_tv_data_providers.dart';
 import '../domain/live_tv_repository.dart';
+import 'epg_controller.dart';
 import 'live_tv_providers.dart';
 
 part 'live_catalog_controller.g.dart';
@@ -38,6 +39,9 @@ class LiveCatalogController extends _$LiveCatalogController {
 
   bool get _isLoading => state is LiveCatalogLoading;
 
+  EpgController get _guide =>
+      ref.read(epgControllerProvider(playlistId).notifier);
+
   /// Loads the catalog when it was never loaded or is older than [maxAge].
   Future<void> ensureFresh() async {
     if (_isLoading) return;
@@ -47,6 +51,8 @@ class LiveCatalogController extends _$LiveCatalogController {
     if (loadedAt == null ||
         DateTime.now().toUtc().difference(loadedAt) > maxAge) {
       await refresh();
+    } else {
+      await _guide.ensureFresh();
     }
   }
 
@@ -56,18 +62,7 @@ class LiveCatalogController extends _$LiveCatalogController {
     final repository = ref.read(liveTvRepositoryProvider);
     try {
       final source = ref.read(liveCatalogSourceProvider(PlaylistType.xtream));
-      // Listening keeps the auto-disposed access provider alive while it
-      // loads.
-      final accessSubscription = ref.listen(
-        playlistAccessProvider(playlistId),
-        (_, _) {},
-      );
-      final PlaylistAccess access;
-      try {
-        access = await ref.read(playlistAccessProvider(playlistId).future);
-      } finally {
-        accessSubscription.close();
-      }
+      final access = await readPlaylistAccess(ref, playlistId);
 
       final startedAt = DateTime.now().toUtc();
       await repository.replaceCategories(
@@ -83,6 +78,9 @@ class LiveCatalogController extends _$LiveCatalogController {
       }
       await repository.completeLoad(playlistId, loadStartedAt: startedAt);
       state = const LiveCatalogIdle();
+      // The guide is filtered by the channels, so it follows every catalog
+      // load. The channels are usable meanwhile.
+      await _guide.refresh();
     } on CatalogLoadException catch (error) {
       state = LiveCatalogFailed(error.reason);
     }

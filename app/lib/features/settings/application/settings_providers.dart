@@ -22,3 +22,13 @@ Stream<ProfileSettings> activeProfileSettings(Ref ref) {
 @riverpod
 String? appLanguage(Ref ref) =>
     ref.watch(activeProfileSettingsProvider).value?.languageCode;
+
+/// Days of programme guide loaded ahead; 0 switches guide loading off.
+const defaultGuideDays = 3;
+const guideDayChoices = [0, 1, 2, 3, 5, 7];
+
+@Riverpod(keepAlive: true)
+Stream<int> guideDays(Ref ref) => ref
+    .watch(deviceSettingsRepositoryProvider)
+    .watchGuideDays()
+    .map((days) => days ?? defaultGuideDays);

@@ -9,6 +9,7 @@ class DriftDeviceSettingsRepository implements DeviceSettingsRepository {
   final AppDatabase _db;
 
   static const _defaultProfileKey = 'startup.defaultProfileId';
+  static const _guideDaysKey = 'guide.days';
 
   @override
   Stream<String?> watchDefaultProfileId() => _watch(_defaultProfileKey);
@@ -19,6 +20,17 @@ class DriftDeviceSettingsRepository implements DeviceSettingsRepository {
   @override
   Future<void> setDefaultProfileId(String? profileId) =>
       _set(_defaultProfileKey, profileId);
+
+  @override
+  Stream<int?> watchGuideDays() =>
+      _watch(_guideDaysKey).map((value) => int.tryParse(value ?? ''));
+
+  @override
+  Future<int?> getGuideDays() async =>
+      int.tryParse(await _get(_guideDaysKey) ?? '');
+
+  @override
+  Future<void> setGuideDays(int? days) => _set(_guideDaysKey, days?.toString());
 
   @override
   Future<void> reset() => _db.delete(_db.deviceSettingEntries).go();
