@@ -189,5 +189,49 @@
         "type": "String"
       }
     }
-  }
+  },
+  "languageName": "English",
+  "@languageName": {
+    "description": "Name of this language in the language itself. Shown in the language selection."
+  },
+  "settingsSectionProfile": "Profile {name}",
+  "@settingsSectionProfile": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsSectionDevice": "This device",
+  "settingsSectionGeneral": "General",
+  "settingsLanguage": "Language",
+  "settingsLanguageSystem": "Device language",
+  "settingsStartProfile": "Start profile",
+  "settingsStartProfileNone": "Show profile selection",
+  "settingsResetProfile": "Reset profile settings",
+  "settingsResetProfileMessage": "All settings of {name} return to their defaults. Playlists, favorites and watch history are kept.",
+  "@settingsResetProfileMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsResetDevice": "Reset device settings",
+  "settingsResetDeviceMessage": "All settings of this device return to their defaults. Profiles and playlists are kept.",
+  "settingsReset": "Reset",
+  "settingsAbout": "About TiviBuddy",
+  "aboutVersion": "Version {version}",
+  "@aboutVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "aboutLicenseTitle": "License",
+  "aboutLicenseText": "TiviBuddy is free and open source software, licensed under the GNU General Public License version 3.",
+  "aboutDisclaimerTitle": "Disclaimer",
+  "aboutDisclaimerText": "TiviBuddy is a media player only. It does not provide any content, playlists or streams. You are responsible for the sources you add and must be entitled to access them. TiviBuddy must not be used for illegal or unauthorized streams. The authors accept no liability for how the software is used or for any content accessed with it.",
+  "aboutOpenSourceLicenses": "Open source licenses"
 }

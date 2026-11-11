@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/tv_button.dart';
-import '../../settings/application/device_settings_providers.dart';
+import '../../settings/application/settings_providers.dart';
 import '../application/profile_actions.dart';
 import '../application/profile_providers.dart';
 import '../domain/profile.dart';

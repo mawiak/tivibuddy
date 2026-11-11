@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../features/about/presentation/about_screen.dart';
 import '../../features/home/presentation/home_shell.dart';
 import '../../features/playlists/presentation/playlist_edit_screen.dart';
 import '../../features/playlists/presentation/playlists_screen.dart';
@@ -67,6 +68,10 @@ GoRouter appRouter(Ref ref) {
                 ProfileEditScreen(profileId: state.pathParameters['id']),
           ),
         ],
+      ),
+      GoRoute(
+        path: AppRoutes.about,
+        builder: (context, state) => const AboutScreen(),
       ),
       GoRoute(
         path: AppRoutes.playlists,
