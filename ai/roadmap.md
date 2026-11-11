@@ -12,7 +12,7 @@ Implementation order agreed with the project owner. Status values: `planned`, `i
 | 4  | Settings (device and profile)                                          | done        |
 | 5  | Live TV: catalog, categories, channels, player, zapping, now/next      | done        |
 | 6  | EPG grid (TV guide) with XMLTV loading                                 | done        |
-| 7  | VOD movies: categories, grid, detail, playback, resume, favorites      | planned     |
+| 7  | VOD movies: categories, grid, detail, playback, resume, favorites      | in progress |
 | 8  | VOD series: seasons, episodes, progress, watched state                 | planned     |
 | 9  | Metadata enrichment from key-less sources                              | planned     |
 | 10 | Sync server (Dart, PostgreSQL, Docker) and client sync                 | planned     |

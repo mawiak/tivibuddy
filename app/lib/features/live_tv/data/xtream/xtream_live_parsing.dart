@@ -1,25 +1,13 @@
 import 'dart:convert';
 
+import '../../../playlists/data/xtream/xtream_values.dart';
 import '../../domain/live_channel.dart';
 
-// Parsing of Xtream live responses. Providers deliver numbers as strings or
-// ints and empty strings for missing values; everything here tolerates that.
-
-int? _int(Object? value) => switch (value) {
-  final int v => v,
-  final num v => v.toInt(),
-  final String v => int.tryParse(v.trim()),
-  _ => null,
-};
-
-String? _text(Object? value) {
-  final text = value?.toString().trim();
-  return text == null || text.isEmpty ? null : text;
-}
+// Parsing of Xtream live responses.
 
 LiveCategory? parseLiveCategory(Map<String, Object?> json) {
-  final id = _text(json['category_id']);
-  final name = _text(json['category_name']);
+  final id = xtreamText(json['category_id']);
+  final name = xtreamText(json['category_name']);
   if (id == null || name == null) return null;
   return LiveCategory(id: id, name: name, channelCount: 0);
 }
@@ -33,23 +21,18 @@ LiveChannel? parseLiveStream(
   required String playlistId,
   required int position,
 }) {
-  final streamId = _int(json['stream_id']);
+  final streamId = xtreamInt(json['stream_id']);
   if (streamId == null) return null;
-  final categoryIds = json['category_ids'];
   return LiveChannel(
     playlistId: playlistId,
     streamId: streamId,
-    number: _int(json['num']) ?? position + 1,
-    name: _text(json['name']) ?? '#$streamId',
-    logoUrl: _text(json['stream_icon']),
-    epgChannelId: _text(json['epg_channel_id']),
-    categoryId:
-        _text(json['category_id']) ??
-        (categoryIds is List && categoryIds.isNotEmpty
-            ? _text(categoryIds.first)
-            : null),
-    archiveDays: _int(json['tv_archive']) == 1
-        ? _int(json['tv_archive_duration']) ?? 0
+    number: xtreamInt(json['num']) ?? position + 1,
+    name: xtreamText(json['name']) ?? '#$streamId',
+    logoUrl: xtreamText(json['stream_icon']),
+    epgChannelId: xtreamText(json['epg_channel_id']),
+    categoryId: xtreamCategoryId(json),
+    archiveDays: xtreamInt(json['tv_archive']) == 1
+        ? xtreamInt(json['tv_archive_duration']) ?? 0
         : 0,
   );
 }
@@ -64,8 +47,8 @@ NowNext parseShortEpg(Object? body, {required DateTime now}) {
   final entries = <EpgEntry>[];
   for (final item in listings) {
     if (item is! Map<String, Object?>) continue;
-    final start = _int(item['start_timestamp']);
-    final end = _int(item['stop_timestamp']);
+    final start = xtreamInt(item['start_timestamp']);
+    final end = xtreamInt(item['stop_timestamp']);
     final title = _decodeBase64(item['title']);
     if (start == null || end == null || title == null) continue;
     entries.add(
@@ -82,10 +65,10 @@ NowNext parseShortEpg(Object? body, {required DateTime now}) {
 }
 
 String? _decodeBase64(Object? value) {
-  final text = _text(value);
+  final text = xtreamText(value);
   if (text == null) return null;
   try {
-    return _text(utf8.decode(base64.decode(text), allowMalformed: true));
+    return xtreamText(utf8.decode(base64.decode(text), allowMalformed: true));
   } on FormatException {
     // Some panels send plain text.
     return text;
