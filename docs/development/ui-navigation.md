@@ -53,6 +53,9 @@ registers a handler with `ContentBack` (`app/lib/shared/widgets/content_back.dar
 example live TV, which opens its categories. Nested `PopScope`s cannot do this, because the
 back key is a route pop that every `PopScope` of the route receives.
 
+Nested `FocusMemoryScopeNode`s also respect the `allowAutofocus` rules of the scopes around
+them, so a grid inside the content area cannot take the focus from the menu.
+
 Directional traversal never leaves a focus scope. Wrap every scope in `LeaveLeft` (same file):
 it tries the normal move first and, at the left edge, hands focus to the area on the left
 (channel list to categories, any content to the side menu).
