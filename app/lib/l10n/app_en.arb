@@ -17,5 +17,71 @@
   "featureSeriesEpisodes": "Seasons and episodes with watched state and progress",
   "featureSeriesContinue": "Continue watching with the next episode",
   "featureSearchGlobal": "Search across live channels, movies and series at once",
-  "featureSettingsProfiles": "Manage profiles, playlists, player and sync settings"
+  "featureSettingsProfiles": "Manage profiles, playlists, player and sync settings",
+  "commonSave": "Save",
+  "commonCancel": "Cancel",
+  "commonDelete": "Delete",
+  "commonDone": "Done",
+  "commonLoading": "Loading",
+  "startupFailed": "TiviBuddy could not start: {error}",
+  "@startupFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "profilesWhoIsWatching": "Who is watching?",
+  "profilesManage": "Manage profiles",
+  "profilesAdd": "Add profile",
+  "profilesSwitch": "Switch profile",
+  "profileCreateTitle": "Create profile",
+  "profileFirstTitle": "Welcome to TiviBuddy",
+  "profileFirstHint": "Create your first profile to get started.",
+  "profileEditTitle": "Edit profile",
+  "profileName": "Name",
+  "profileNameEmpty": "Please enter a name.",
+  "profileNameTooLong": "The name can have at most {max} characters.",
+  "@profileNameTooLong": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "profileAvatar": "Picture",
+  "profileAvatarChoose": "Choose picture",
+  "profileAvatarFromFile": "Choose image file",
+  "profileAvatarImageFailed": "The image could not be loaded.",
+  "profilePin": "PIN protection",
+  "profilePinOff": "Off",
+  "profilePinOn": "On",
+  "profilePinSet": "Set PIN",
+  "profilePinChange": "Change PIN",
+  "profilePinRemove": "Remove PIN",
+  "profilePinEnter": "Enter PIN for {name}",
+  "@profilePinEnter": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "profilePinNew": "Enter a new 4-digit PIN",
+  "profilePinConfirm": "Confirm the PIN",
+  "profilePinMismatch": "The PINs do not match. Please try again.",
+  "profilePinWrong": "Wrong PIN. Please try again.",
+  "profilePinClear": "Clear",
+  "profilePinBackspace": "Delete last digit",
+  "profileStartAutomatically": "Start with this profile",
+  "profileStartAutomaticallyHint": "Skip the profile selection when the app starts. Profiles with a PIN still ask for it.",
+  "profileDeleteTitle": "Delete profile?",
+  "profileDeleteMessage": "The profile {name} and all its playlists, favorites and watch history will be removed.",
+  "@profileDeleteMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }
