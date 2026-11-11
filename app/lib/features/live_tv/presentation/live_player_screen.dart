@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../../../core/data/paged_list.dart';
 import '../../../core/theme/app_colors.dart';
@@ -70,6 +69,7 @@ class _LivePlayerScreenState extends ConsumerState<LivePlayerScreen> {
     // Listening keeps the auto-disposed engine alive while this screen is
     // open; closing the subscription releases it.
     _engineSubscription = ref.listenManual(playbackEngineProvider, (_, _) {});
+    _playback = _engine.state;
     _stateSubscription = _engine.states.listen(
       (state) => setState(() => _playback = state),
     );
@@ -85,9 +85,6 @@ class _LivePlayerScreenState extends ConsumerState<LivePlayerScreen> {
       fireImmediately: true,
     );
 
-    // Keeps TV screen savers away during playback. Platforms without wake
-    // lock support simply do not get it.
-    WakelockPlus.enable().ignore();
     unawaited(
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky),
     );
@@ -101,7 +98,6 @@ class _LivePlayerScreenState extends ConsumerState<LivePlayerScreen> {
     _listSubscription.close();
     _engineSubscription.close();
     _keyFocus.dispose();
-    WakelockPlus.disable().ignore();
     unawaited(SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge));
     super.dispose();
   }
@@ -123,10 +119,25 @@ class _LivePlayerScreenState extends ConsumerState<LivePlayerScreen> {
     );
   }
 
-  Future<void> _play(LiveChannel channel) async {
+  Future<void> _play(LiveChannel channel, {bool retry = false}) async {
+    final nowPlaying = ref.read(nowPlayingProvider.notifier);
+    // Coming from the guide preview, the channel already plays.
+    final status = _engine.state.status;
+    if (!retry &&
+        ref.read(nowPlayingProvider)?.channel == channel &&
+        status != PlaybackStatus.idle &&
+        status != PlaybackStatus.failed) {
+      _playingChannel = channel;
+      return;
+    }
     final url = await ref.read(liveStreamUrlProvider(channel).future);
     if (!mounted || _channel != channel) return;
     _playingChannel = channel;
+    nowPlaying.set((
+      playlistId: widget.args.playlistId,
+      categoryId: widget.args.categoryId,
+      index: _index,
+    ), channel);
     await _engine.open(url);
   }
 
@@ -164,7 +175,7 @@ class _LivePlayerScreenState extends ConsumerState<LivePlayerScreen> {
         key == LogicalKeyboardKey.gameButtonA) {
       final channel = _channel;
       if (_playback.status == PlaybackStatus.failed && channel != null) {
-        _play(channel);
+        _play(channel, retry: true);
       } else {
         _toggleList(true);
       }

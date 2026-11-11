@@ -67,7 +67,7 @@ final class EpgControllerProvider
   }
 }
 
-String _$epgControllerHash() => r'5caecb37fdc340d12c96c494ed4d2c0f21304222';
+String _$epgControllerHash() => r'ea2560eb3ad41631bc32a8cfd2732f8e382d6f47';
 
 /// Loads the programme guide of a playlist into the local database
 /// (LIVE-2, DATA-1). Only programmes of channels in the catalog are kept,

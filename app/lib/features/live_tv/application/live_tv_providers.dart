@@ -172,3 +172,18 @@ Future<String> liveStreamUrl(Ref ref, LiveChannel channel) async {
 /// is added the type is part of [PlaylistAccess] (PL-3).
 LiveCatalogSource _sourceFor(Ref ref) =>
     ref.read(liveCatalogSourceProvider(PlaylistType.xtream));
+
+/// Position of a channel in a channel list.
+typedef LivePosition = ({String playlistId, String? categoryId, int index});
+
+/// Channel the player opened last. The guide shows it in its preview after
+/// the full screen player closes, and the player does not open it again when
+/// it is still playing.
+@Riverpod(keepAlive: true)
+class NowPlaying extends _$NowPlaying {
+  @override
+  ({LivePosition position, LiveChannel channel})? build() => null;
+
+  void set(LivePosition position, LiveChannel channel) =>
+      state = (position: position, channel: channel);
+}

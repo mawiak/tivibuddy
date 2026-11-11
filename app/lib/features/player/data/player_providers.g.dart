@@ -8,20 +8,26 @@ part of 'player_providers.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Playback engine of the open player screen. Auto-disposed when the screen
-/// closes, which frees decoders and buffers (RES-1).
+/// Playback engine shared by the full screen player and the guide preview.
+/// Auto-disposed when neither shows it anymore, which frees decoders and
+/// buffers (RES-1). While it exists the screen stays on; platforms without
+/// wake lock support simply do not get that.
 
 @ProviderFor(playbackEngine)
 final playbackEngineProvider = PlaybackEngineProvider._();
 
-/// Playback engine of the open player screen. Auto-disposed when the screen
-/// closes, which frees decoders and buffers (RES-1).
+/// Playback engine shared by the full screen player and the guide preview.
+/// Auto-disposed when neither shows it anymore, which frees decoders and
+/// buffers (RES-1). While it exists the screen stays on; platforms without
+/// wake lock support simply do not get that.
 
 final class PlaybackEngineProvider
     extends $FunctionalProvider<PlaybackEngine, PlaybackEngine, PlaybackEngine>
     with $Provider<PlaybackEngine> {
-  /// Playback engine of the open player screen. Auto-disposed when the screen
-  /// closes, which frees decoders and buffers (RES-1).
+  /// Playback engine shared by the full screen player and the guide preview.
+  /// Auto-disposed when neither shows it anymore, which frees decoders and
+  /// buffers (RES-1). While it exists the screen stays on; platforms without
+  /// wake lock support simply do not get that.
   PlaybackEngineProvider._()
     : super(
         from: null,
@@ -55,4 +61,4 @@ final class PlaybackEngineProvider
   }
 }
 
-String _$playbackEngineHash() => r'71efa06abc57dfd8603f79934eaa81c4e2917545';
+String _$playbackEngineHash() => r'42e328dd94d7881e7bc7880942ccba261e5ac2ba';

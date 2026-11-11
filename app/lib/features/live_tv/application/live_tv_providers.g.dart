@@ -605,3 +605,87 @@ final class LiveStreamUrlFamily extends $Family
   @override
   String toString() => r'liveStreamUrlProvider';
 }
+
+/// Channel the player opened last. The guide shows it in its preview after
+/// the full screen player closes, and the player does not open it again when
+/// it is still playing.
+
+@ProviderFor(NowPlaying)
+final nowPlayingProvider = NowPlayingProvider._();
+
+/// Channel the player opened last. The guide shows it in its preview after
+/// the full screen player closes, and the player does not open it again when
+/// it is still playing.
+final class NowPlayingProvider
+    extends
+        $NotifierProvider<
+          NowPlaying,
+          ({LiveChannel channel, LivePosition position})?
+        > {
+  /// Channel the player opened last. The guide shows it in its preview after
+  /// the full screen player closes, and the player does not open it again when
+  /// it is still playing.
+  NowPlayingProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'nowPlayingProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$nowPlayingHash();
+
+  @$internal
+  @override
+  NowPlaying create() => NowPlaying();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(
+    ({LiveChannel channel, LivePosition position})? value,
+  ) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride:
+          $SyncValueProvider<({LiveChannel channel, LivePosition position})?>(
+            value,
+          ),
+    );
+  }
+}
+
+String _$nowPlayingHash() => r'859edb40d6a29927678532cdd61b3507867e9d1c';
+
+/// Channel the player opened last. The guide shows it in its preview after
+/// the full screen player closes, and the player does not open it again when
+/// it is still playing.
+
+abstract class _$NowPlaying
+    extends $Notifier<({LiveChannel channel, LivePosition position})?> {
+  ({LiveChannel channel, LivePosition position})? build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref =
+        this.ref
+            as $Ref<
+              ({LiveChannel channel, LivePosition position})?,
+              ({LiveChannel channel, LivePosition position})?
+            >;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<
+                ({LiveChannel channel, LivePosition position})?,
+                ({LiveChannel channel, LivePosition position})?
+              >,
+              ({LiveChannel channel, LivePosition position})?,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}

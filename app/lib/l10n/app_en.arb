@@ -270,8 +270,6 @@
   "playerFailed": "The channel could not be played.",
   "playerRetryHint": "Press OK to try again or choose another channel.",
   "playerChannelList": "Channels",
-  "navGuide": "TV guide",
-  "guideNoChannels": "No channels yet. Open Live TV to load the channel list.",
   "guideLoading": "Loading guide: {count} programmes",
   "@guideLoading": {
     "placeholders": {
@@ -289,6 +287,14 @@
   "@settingsGuideDaysValue": {
     "placeholders": {
       "days": {
+        "type": "int"
+      }
+    }
+  },
+  "guideMinutes": "{minutes} min",
+  "@guideMinutes": {
+    "placeholders": {
+      "minutes": {
         "type": "int"
       }
     }

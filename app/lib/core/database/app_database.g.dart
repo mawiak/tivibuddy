@@ -3565,7 +3565,8 @@ class EpgProgrammeRow extends DataClass implements Insertable<EpgProgrammeRow> {
   final String title;
   final String? description;
 
-  /// Start time (seconds) of the load that last delivered this programme.
+  /// Start time (milliseconds) of the load that last delivered this
+  /// programme.
   final int seenInLoad;
   const EpgProgrammeRow({
     required this.playlistId,

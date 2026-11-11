@@ -40,7 +40,6 @@ void main() {
     await pressBack(tester);
 
     await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
-    await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
     await tester.sendKeyEvent(LogicalKeyboardKey.select);
     await tester.pumpAndSettle();
 
@@ -77,7 +76,7 @@ void main() {
   ) async {
     await pumpTestApp(tester, const HomeShell());
     await pressBack(tester);
-    for (var i = 0; i < 5; i++) {
+    for (var i = 0; i < 4; i++) {
       await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
     }
     await tester.sendKeyEvent(LogicalKeyboardKey.select);

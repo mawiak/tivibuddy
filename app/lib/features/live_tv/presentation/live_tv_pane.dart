@@ -1,10 +1,7 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/data/paged_list.dart';
 import '../../../core/layout/screen_class.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
@@ -14,16 +11,20 @@ import '../../../shared/widgets/marquee_text.dart';
 import '../../../shared/widgets/tv_button.dart';
 import '../../../shared/widgets/tv_dialogs.dart';
 import '../../../shared/widgets/tv_focusable.dart';
+import '../../player/data/player_providers.dart';
+import '../../player/domain/playback_engine.dart';
+import '../../player/presentation/playback_surface.dart';
 import '../../playlists/application/playlist_actions.dart';
 import '../../playlists/domain/playlist.dart';
 import '../application/live_catalog_controller.dart';
 import '../application/live_tv_providers.dart';
-import '../domain/live_channel.dart';
 import 'channel_widgets.dart';
+import 'guide_grid.dart';
 import 'live_player_screen.dart';
 
-/// Live TV section of the home screen (LIVE-1): categories, channel list and
-/// details of the focused channel.
+/// Live TV section of the home screen (LIVE-1, LIVE-2): the guide with a
+/// preview of the channel played last. Left from the guide opens the
+/// categories over it, left again the side menu.
 class LiveTvPane extends ConsumerStatefulWidget {
   const LiveTvPane({super.key});
 
@@ -32,46 +33,29 @@ class LiveTvPane extends ConsumerStatefulWidget {
 }
 
 class _LiveTvPaneState extends ConsumerState<LiveTvPane> {
-  /// Position of the channel shown in the info panel, together with the
-  /// category it belongs to. Updated after focus rested briefly, so
-  /// scrolling through the list does not request programme data for every
-  /// channel passed. A position instead of a channel keeps the panel correct
-  /// when the row's data arrives after it got focus.
-  final _infoPosition = ValueNotifier<(String?, int)?>(null);
-  Timer? _infoDelay;
   String? _checkedPlaylistId;
+  bool _categoriesOpen = false;
 
-  /// Channel list remembers its focused row. While the categories have
-  /// focus, a new channel list must not take focus with its first row.
-  bool _categoriesFocused = false;
-  late final _channelScope = FocusMemoryScopeNode(
-    debugLabel: 'liveChannels',
-    allowAutofocus: () => !_categoriesFocused,
-  );
-
-  /// Categories remember the last focused one, which is also the selected
-  /// one, so left from the channels returns to it.
+  /// Categories remember the selected one, so they open on it.
   final _categoryScope = FocusMemoryScopeNode(debugLabel: 'liveCategories');
+
+  /// A new category gets a new grid, which starts at its first channel.
+  var _gridKey = GlobalKey<GuideGridState>();
+  (String, String?)? _gridOf;
+
+  /// Keeps the player engine alive after the full screen player closed, so
+  /// the channel continues in the preview. Closed with this section.
+  ProviderSubscription<PlaybackEngine>? _preview;
 
   @override
   void dispose() {
-    _infoDelay?.cancel();
-    _infoPosition.dispose();
-    _channelScope.dispose();
+    _preview?.close();
     _categoryScope.dispose();
     super.dispose();
   }
 
-  void _onChannelFocused(String? categoryId, int index) {
-    _infoDelay?.cancel();
-    _infoDelay = Timer(
-      const Duration(milliseconds: 400),
-      () => _infoPosition.value = (categoryId, index),
-    );
-  }
-
-  void _play(Playlist playlist, String? categoryId, int index) {
-    context.push(
+  Future<void> _play(Playlist playlist, String? categoryId, int index) async {
+    await context.push(
       AppRoutes.livePlayer,
       extra: LivePlayerArgs(
         playlistId: playlist.id,
@@ -79,6 +63,33 @@ class _LiveTvPaneState extends ConsumerState<LiveTvPane> {
         index: index,
       ),
     );
+    if (!mounted) return;
+    final playing = ref.read(nowPlayingProvider);
+    if (playing == null) return;
+    setState(() {
+      _preview ??= ref.listenManual(playbackEngineProvider, (_, _) {});
+    });
+    // Back from the player shows the channel that played last.
+    if (playing.position.playlistId == playlist.id &&
+        playing.position.categoryId == categoryId) {
+      _gridKey.currentState?.showRow(playing.position.index);
+    }
+  }
+
+  void _openCategories() {
+    setState(() => _categoriesOpen = true);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && !_categoryScope.hasFocus) _categoryScope.enter();
+    });
+  }
+
+  void _closeCategories({bool focusGrid = true}) {
+    if (!_categoriesOpen) return;
+    setState(() => _categoriesOpen = false);
+    if (!focusGrid) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _gridKey.currentState?.focus();
+    });
   }
 
   /// Loads the catalog once per playlist when it is missing or outdated.
@@ -95,6 +106,7 @@ class _LiveTvPaneState extends ConsumerState<LiveTvPane> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final playlists = ref.watch(activeProfilePlaylistsProvider);
     final playlist = ref.watch(livePlaylistSelectionProvider);
 
@@ -106,79 +118,188 @@ class _LiveTvPaneState extends ConsumerState<LiveTvPane> {
     _ensureCatalog(playlist.id);
     final status = ref.watch(liveCatalogControllerProvider(playlist.id));
     final categoryId = ref.watch(liveCategorySelectionProvider(playlist.id));
+    final categories =
+        ref.watch(liveCategoriesProvider(playlist.id)).value ?? const [];
     final channels = ref
         .watch(liveChannelListProvider(playlist.id, categoryId))
         .value;
-    final hasCatalog = channels != null && channels.length > 0;
-
-    if (!hasCatalog && categoryId == null) {
+    // Nothing focusable while the list opens: a button shown only for a
+    // moment would take the focus with it when it disappears.
+    if (channels == null && categoryId == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (channels != null && channels.length == 0 && categoryId == null) {
       return _CatalogState(playlistId: playlist.id, status: status);
     }
 
+    if (_gridOf != (playlist.id, categoryId)) {
+      _gridOf = (playlist.id, categoryId);
+      _gridKey = GlobalKey<GuideGridState>();
+    }
+    final playing = _preview == null ? null : ref.watch(nowPlayingProvider);
+    final playingHere =
+        playing != null &&
+        playing.position.playlistId == playlist.id &&
+        playing.position.categoryId == categoryId;
+    final categoryName =
+        categories.where((c) => c.id == categoryId).firstOrNull?.name ??
+        l10n.liveAllChannels;
     final isPhone = ScreenClass.of(context).isPhone;
-    final channelList = _ChannelList(
-      channels: channels,
-      header: _ChannelHeader(playlist: playlist, categoryId: categoryId),
-      onFocused: (index) => _onChannelFocused(categoryId, index),
-      onSelect: (index) => _play(playlist, categoryId, index),
-    );
 
-    if (isPhone) return channelList;
+    final grid = channels == null
+        ? const SizedBox.shrink()
+        : GuideGrid(
+            key: _gridKey,
+            playlistId: playlist.id,
+            channels: channels,
+            autofocus: !_categoriesOpen,
+            playingIndex: playingHere ? playing.position.index : null,
+            subtitle: '${playlist.name}  ·  $categoryName',
+            preview: isPhone
+                ? null
+                : _Preview(
+                    engine: _preview?.read(),
+                    onSelect: playing == null
+                        ? null
+                        : () => _play(
+                            playlist,
+                            playing.position.categoryId,
+                            playing.position.index,
+                          ),
+                  ),
+            headerAction: isPhone
+                ? _CategoryButton(playlistId: playlist.id, title: categoryName)
+                : null,
+            onPlay: (index) => _play(playlist, categoryId, index),
+          );
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+    if (isPhone) return grid;
+
+    return Stack(
       children: [
-        SizedBox(
-          width: 220,
-          child: Focus(
-            canRequestFocus: false,
-            skipTraversal: true,
-            onFocusChange: (focused) => _categoriesFocused = focused,
-            child: ExitRight(
-              onRight: _channelScope.enter,
-              // Left from the categories reaches the menu through the
-              // LeaveLeft of the home screen.
-              child: LeaveLeft(
-                child: FocusScope(
-                  node: _categoryScope,
-                  child: FocusTraversalGroup(
-                    child: _CategoryColumn(
-                      playlist: playlist,
-                      playlists: playlists.value!,
-                      selectedCategoryId: categoryId,
-                      status: status,
+        Positioned.fill(
+          child: LeaveLeft(onLeftEdge: _openCategories, child: grid),
+        ),
+        if (_categoriesOpen)
+          Positioned(
+            left: 0,
+            top: 0,
+            bottom: 0,
+            width: 260,
+            child: Focus(
+              canRequestFocus: false,
+              skipTraversal: true,
+              // Leaving the categories in any direction closes them.
+              onFocusChange: (focused) {
+                if (!focused) _closeCategories(focusGrid: false);
+              },
+              child: ExitRight(
+                onRight: _closeCategories,
+                // Left from the categories reaches the menu through the
+                // LeaveLeft of the home screen.
+                child: LeaveLeft(
+                  child: FocusScope(
+                    node: _categoryScope,
+                    child: FocusTraversalGroup(
+                      child: _CategoryColumn(
+                        playlist: playlist,
+                        playlists: playlists.value!,
+                        selectedCategoryId: categoryId,
+                        status: status,
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
           ),
-        ),
-        Expanded(
-          child: LeaveLeft(
-            onLeftEdge: _categoryScope.enter,
-            child: FocusScope(
-              node: _channelScope,
-              child: FocusTraversalGroup(child: channelList),
-            ),
-          ),
-        ),
-        SizedBox(
-          width: 280,
-          child: ListenableBuilder(
-            listenable: Listenable.merge([_infoPosition, channels]),
-            builder: (context, _) {
-              final position = _infoPosition.value;
-              final channel = position == null || position.$1 != categoryId
-                  ? null
-                  : channels?.itemAt(position.$2);
-              return channel == null
-                  ? const SizedBox.shrink()
-                  : _InfoPanel(channel: channel);
-            },
-          ),
-        ),
       ],
+    );
+  }
+}
+
+/// Video of the channel played last, or an empty frame before anything
+/// played.
+class _Preview extends StatelessWidget {
+  const _Preview({required this.engine, required this.onSelect});
+
+  final PlaybackEngine? engine;
+  final VoidCallback? onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    final engine = this.engine;
+    return GestureDetector(
+      onTap: onSelect,
+      child: engine == null
+          ? const ColoredBox(
+              color: AppColors.surface,
+              child: Center(
+                child: Icon(
+                  Icons.live_tv,
+                  size: 40,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            )
+          : PlaybackSurface(engine: engine),
+    );
+  }
+}
+
+/// Category selection on phones, where there is no room for the list.
+class _CategoryButton extends ConsumerWidget {
+  const _CategoryButton({required this.playlistId, required this.title});
+
+  final String playlistId;
+  final String title;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final textTheme = Theme.of(context).textTheme;
+    return TvFocusable(
+      onSelect: () async {
+        final categories =
+            ref.read(liveCategoriesProvider(playlistId)).value ?? const [];
+        final chosen = await showTvChoiceDialog<String>(
+          context,
+          title: l10n.liveChooseCategory,
+          choices: [
+            TvChoice('', l10n.liveAllChannels),
+            for (final c in categories) TvChoice(c.id, c.name),
+          ],
+        );
+        if (chosen == null) return;
+        ref
+            .read(liveCategorySelectionProvider(playlistId).notifier)
+            .select(chosen.isEmpty ? null : chosen);
+      },
+      builder: (context, focused) => Container(
+        constraints: const BoxConstraints(maxWidth: 160),
+        padding: const EdgeInsets.fromLTRB(10, 4, 4, 4),
+        decoration: BoxDecoration(
+          color: focused ? AppColors.focusFill : AppColors.surface,
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(
+            color: focused ? AppColors.focusBorder : Colors.transparent,
+            width: 2,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(
+              child: MarqueeText(
+                title,
+                active: focused,
+                style: textTheme.bodyMedium,
+              ),
+            ),
+            const Icon(Icons.arrow_drop_down, size: 20),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -325,6 +446,7 @@ class _CategoryColumn extends ConsumerWidget {
       _CategoryTile(
         label: l10n.liveAllChannels,
         selected: selectedCategoryId == null,
+        autofocus: selectedCategoryId == null,
         onFocus: () => selection.select(null),
       ),
       for (final category in categories)
@@ -332,6 +454,7 @@ class _CategoryColumn extends ConsumerWidget {
           label: category.name,
           count: category.channelCount,
           selected: category.id == selectedCategoryId,
+          autofocus: category.id == selectedCategoryId,
           onFocus: () => selection.select(category.id),
         ),
       _CategoryTile(
@@ -362,6 +485,7 @@ class _CategoryTile extends StatelessWidget {
     this.count,
     this.icon,
     this.selected = false,
+    this.autofocus = false,
     this.onFocus,
     this.onSelect,
   });
@@ -370,6 +494,7 @@ class _CategoryTile extends StatelessWidget {
   final int? count;
   final IconData? icon;
   final bool selected;
+  final bool autofocus;
 
   /// Categories switch the channel list as soon as they are focused, like in
   /// common IPTV players.
@@ -380,6 +505,7 @@ class _CategoryTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     return TvFocusable(
+      autofocus: autofocus,
       onFocusChange: (focused) {
         if (focused) onFocus?.call();
       },
@@ -416,163 +542,6 @@ class _CategoryTile extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-}
-
-class _ChannelHeader extends ConsumerWidget {
-  const _ChannelHeader({required this.playlist, required this.categoryId});
-
-  final Playlist playlist;
-  final String? categoryId;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
-    final textTheme = Theme.of(context).textTheme;
-    final categories =
-        ref.watch(liveCategoriesProvider(playlist.id)).value ?? const [];
-    final status = ref.watch(liveCatalogControllerProvider(playlist.id));
-    final title =
-        categories.where((c) => c.id == categoryId).firstOrNull?.name ??
-        l10n.liveAllChannels;
-
-    final Widget heading = ScreenClass.of(context).isPhone
-        ? TvFocusable(
-            onSelect: () async {
-              final chosen = await showTvChoiceDialog<String>(
-                context,
-                title: l10n.liveChooseCategory,
-                choices: [
-                  TvChoice('', l10n.liveAllChannels),
-                  for (final c in categories) TvChoice(c.id, c.name),
-                ],
-              );
-              if (chosen == null) return;
-              ref
-                  .read(liveCategorySelectionProvider(playlist.id).notifier)
-                  .select(chosen.isEmpty ? null : chosen);
-            },
-            builder: (context, focused) => Row(
-              children: [
-                Flexible(
-                  child: Text(
-                    title,
-                    style: textTheme.titleMedium,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                const Icon(Icons.arrow_drop_down),
-              ],
-            ),
-          )
-        : Text(title, style: textTheme.titleMedium, maxLines: 1);
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-      child: Row(
-        children: [
-          Expanded(child: heading),
-          if (status is LiveCatalogLoading) ...[
-            const SizedBox.square(
-              dimension: 14,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
-            const SizedBox(width: 8),
-            Text(l10n.liveUpdating, style: textTheme.bodySmall),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _ChannelList extends StatelessWidget {
-  const _ChannelList({
-    required this.channels,
-    required this.header,
-    required this.onFocused,
-    required this.onSelect,
-  });
-
-  final PagedList<LiveChannel>? channels;
-  final Widget header;
-  final ValueChanged<int> onFocused;
-  final ValueChanged<int> onSelect;
-
-  @override
-  Widget build(BuildContext context) {
-    final channels = this.channels;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        header,
-        Expanded(
-          child: channels == null
-              ? const SizedBox.shrink()
-              : ListenableBuilder(
-                  listenable: channels,
-                  builder: (context, _) => ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    itemExtent: channelRowHeight,
-                    itemCount: channels.length,
-                    itemBuilder: (context, index) {
-                      final channel = channels.itemAt(index);
-                      return ChannelRow(
-                        key: ValueKey(index),
-                        channel: channel,
-                        autofocus: index == 0,
-                        onFocusChange: (focused) {
-                          if (focused) onFocused(index);
-                        },
-                        onSelect: () => onSelect(index),
-                      );
-                    },
-                  ),
-                ),
-        ),
-      ],
-    );
-  }
-}
-
-class _InfoPanel extends ConsumerWidget {
-  const _InfoPanel({required this.channel});
-
-  final LiveChannel channel;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
-    final textTheme = Theme.of(context).textTheme;
-    final nowNext = ref.watch(nowNextProvider(channel));
-
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ChannelLogo(url: channel.logoUrl, size: 80),
-          const SizedBox(height: 12),
-          Text(
-            '${channel.number}  ${channel.name}',
-            style: textTheme.titleMedium,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          if (channel.archiveDays > 0) ...[
-            const SizedBox(height: 4),
-            Text(
-              l10n.liveCatchupDays(channel.archiveDays),
-              style: textTheme.bodySmall,
-            ),
-          ],
-          const SizedBox(height: 16),
-          nowNext.isLoading && !nowNext.hasValue
-              ? const LinearProgressIndicator(minHeight: 2)
-              : NowNextView(nowNext: nowNext.value, showDescription: true),
-        ],
-      ),
     );
   }
 }

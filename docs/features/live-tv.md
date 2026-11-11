@@ -5,15 +5,17 @@ UI-3.
 
 ## Behaviour
 
-- **Section layout (TV):** categories on the left, channel list in the middle, details of the
-  focused channel on the right (logo, catch-up days, now and next programme with progress and
-  description). Phones show the channel list with a category selector in the header.
-- **Categories** switch the channel list as soon as they get focus. "All channels" is the
-  first entry, "Update channels" the last. With more than one playlist, the first entry
-  selects the playlist.
-- **Right from the categories** focuses the last focused channel of the list, or its first
-  channel after a category change. **Left from the channels** returns to the selected
-  category, left from the categories opens the side menu.
+- **Section layout (TV):** the live TV section is the guide, following the common IPTV player
+  layout: a preview of the channel played last at the top left, details of the focused
+  programme at the top right and the programme grid below (see [TV guide](#tv-guide)).
+  Phones show details and grid with a category selector in the header, without preview.
+- **Categories** open over the grid with left from the programme running now. They switch the
+  grid as soon as they get focus. "All channels" is the first entry, "Update channels" the
+  last. With more than one playlist, the first entry selects the playlist. Right closes them
+  and returns to the grid, left opens the side menu, which also closes them.
+- **Back from the player** returns to the guide on the channel played last, which continues
+  in the preview. Select on it returns to full screen without opening the stream again.
+  Leaving the live TV section stops playback. The screen stays on while a stream plays.
 - **Player:** full screen.
 
   | Key                          | Action                                          |
@@ -57,18 +59,17 @@ base64 encoded).
 
 ## TV guide
 
-The TV guide section shows the channels of the category selected in live TV (shared
-selection) as a grid: channels as rows, time as columns, details of the focused programme
-above the grid and a line at the current time.
+The grid shows the channels of the selected category: channels as rows, time as columns, a
+line at the current time and the playing channel marked in the accent colour.
 
 | Key                          | Action                                                  |
 |------------------------------|---------------------------------------------------------|
 | Right / left                 | Next / previous programme; empty times move by 30 min   |
 | Up / down, channel up / down | Previous / next channel, keeping the time position      |
 | Page up / down               | One screen of channels                                  |
-| Select                       | Play the channel                                        |
-| Up from the first channel    | Category button                                         |
-| Left from the current programme | Side menu (no catch-up yet, so the past is hidden)   |
+| Select                       | Play the channel in full screen                         |
+| Up from the first channel    | Category button (phones)                                |
+| Left from the current programme | Categories (no catch-up yet, so the past is hidden)  |
 
 On touch screens a tap plays the channel and dragging sideways moves the time axis.
 
@@ -79,7 +80,7 @@ chunks, so moving within a chunk does not query again (`guide_providers.dart`).
 
 ## Guide loading
 
-1. The guide is loaded after every catalog load and when the live TV or guide section opens
+1. The guide is loaded after every catalog load and when the live TV section opens
    and the last complete guide load is older than 12 hours.
 2. `xmltv.php` can be hundreds of megabytes. `xmltv_loader.dart` downloads it in a background
    isolate and feeds the XML event stream to `XmltvReader`, which keeps only programmes of
