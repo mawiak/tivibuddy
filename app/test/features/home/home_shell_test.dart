@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tivibuddy/features/home/presentation/home_shell.dart';
 import 'package:tivibuddy/features/home/presentation/side_menu.dart';
+import 'package:tivibuddy/shared/widgets/tv_list_tile.dart';
 
 import '../../helpers/test_app.dart';
 
@@ -45,5 +46,53 @@ void main() {
     expect(focusedLabel(), 'menu.movies');
     expect(find.text('Coming soon'), findsOneWidget);
     expect(find.widgetWithText(Column, 'Movies'), findsWidgets);
+  });
+
+  testWidgets('right from the menu restores the last focused content', (
+    tester,
+  ) async {
+    await pumpTestApp(tester, const HomeShell());
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+    await tester.pump();
+    final contentFocus = focusedLabel();
+
+    await pressBack(tester);
+    expect(focusedLabel(), 'menu.liveTv');
+    for (var i = 0; i < 4; i++) {
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+    }
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+    await tester.pump();
+
+    expect(focusedLabel(), contentFocus);
+  });
+
+  testWidgets('right from the menu into a new section focuses its first item', (
+    tester,
+  ) async {
+    await pumpTestApp(tester, const HomeShell());
+    await pressBack(tester);
+    for (var i = 0; i < 4; i++) {
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+    }
+    await tester.sendKeyEvent(LogicalKeyboardKey.select);
+    await settle(tester);
+    expect(focusedLabel(), 'menu.settings', reason: 'menu keeps focus');
+
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+    await tester.pump();
+
+    final focused = FocusManager.instance.primaryFocus!.context!.widget;
+    expect(
+      find.descendant(
+        of: find.widgetWithText(TvListTile, 'Playlists'),
+        matching: find.byWidget(focused),
+      ),
+      findsOneWidget,
+    );
   });
 }

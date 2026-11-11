@@ -32,8 +32,16 @@ class _HomeShellState extends ConsumerState<HomeShell> {
   };
   bool _menuHasFocus = false;
 
+  /// Remembers the last focused element of the content, so returning from
+  /// the menu restores it instead of jumping to the geometrically closest
+  /// element.
+  late final _contentScope = _ContentScopeNode(
+    allowAutofocus: () => !_menuHasFocus,
+  );
+
   @override
   void dispose() {
+    _contentScope.dispose();
     for (final node in _menuFocusNodes.values) {
       node.dispose();
     }
@@ -42,6 +50,15 @@ class _HomeShellState extends ConsumerState<HomeShell> {
 
   void _select(HomeSection section) {
     ref.read(selectedHomeSectionProvider.notifier).select(section);
+  }
+
+  void _focusContent() {
+    final last = _contentScope.focusedChild;
+    if (last != null && last.canRequestFocus) {
+      last.requestFocus();
+      return;
+    }
+    ReadingOrderTraversalPolicy().findFirstFocus(_contentScope)?.requestFocus();
   }
 
   void _focusMenu() {
@@ -86,8 +103,14 @@ class _HomeShellState extends ConsumerState<HomeShell> {
               onProfileSelect: _switchProfile,
               onFocusChange: (hasFocus) =>
                   setState(() => _menuHasFocus = hasFocus),
+              onExitRight: _focusContent,
             ),
-            Expanded(child: FocusTraversalGroup(child: content)),
+            Expanded(
+              child: FocusScope(
+                node: _contentScope,
+                child: FocusTraversalGroup(child: content),
+              ),
+            ),
           ],
         ),
       ),
@@ -140,5 +163,20 @@ class _PhoneLayout extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+/// Focus scope of the content area. Sections request autofocus for their
+/// first element when they are built. That must not take focus away from the
+/// menu while the user switches sections there.
+class _ContentScopeNode extends FocusScopeNode {
+  _ContentScopeNode({required this.allowAutofocus})
+    : super(debugLabel: 'content');
+
+  final bool Function() allowAutofocus;
+
+  @override
+  void autofocus(FocusNode node) {
+    if (allowAutofocus()) super.autofocus(node);
   }
 }

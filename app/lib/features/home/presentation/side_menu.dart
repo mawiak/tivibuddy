@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../l10n/app_localizations.dart';
@@ -19,6 +20,7 @@ class SideMenu extends StatefulWidget {
     this.profile,
     this.onProfileSelect,
     this.onFocusChange,
+    this.onExitRight,
   });
 
   static const collapsedWidth = 64.0;
@@ -32,6 +34,10 @@ class SideMenu extends StatefulWidget {
   final Profile? profile;
   final VoidCallback? onProfileSelect;
   final ValueChanged<bool>? onFocusChange;
+
+  /// Called when the user presses right inside the menu. The owner moves
+  /// focus into the content.
+  final VoidCallback? onExitRight;
 
   @override
   State<SideMenu> createState() => _SideMenuState();
@@ -54,6 +60,16 @@ class _SideMenuState extends State<SideMenu> {
       canRequestFocus: false,
       skipTraversal: true,
       onFocusChange: _handleFocusChange,
+      onKeyEvent: (node, event) {
+        final onExitRight = widget.onExitRight;
+        if (onExitRight == null ||
+            event is! KeyDownEvent ||
+            event.logicalKey != LogicalKeyboardKey.arrowRight) {
+          return KeyEventResult.ignored;
+        }
+        onExitRight();
+        return KeyEventResult.handled;
+      },
       child: FocusTraversalGroup(
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
