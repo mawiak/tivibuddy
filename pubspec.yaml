@@ -1,0 +1,8 @@
+name: tivibuddy_workspace
+publish_to: none
+
+environment:
+  sdk: ^3.13.7
+
+workspace:
+  - app
