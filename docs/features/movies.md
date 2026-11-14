@@ -38,7 +38,10 @@ PLAY-4 (resume), UI-1 to UI-4.
   subtitle and video track and their current value. Select opens a side panel with the tracks
   of that type, the selected one marked; audio and subtitles can be switched off. Track names
   combine language and channel layout, for example "German, 5.1 surround sound". Left or back
-  closes the panel, up or back closes the options.
+  closes the panel, up or back closes the options. Subtitles start off unless the stream marks
+  a track as forced. Switching the audio track pauses the picture for about half a second:
+  mpv loads the new track from the current position again ("refresh seek"), because tracks
+  that are not selected are not buffered.
 
   The position is saved every 15 seconds and when the player closes. A movie within five
   minutes of its end counts as watched and starts from the beginning next time.

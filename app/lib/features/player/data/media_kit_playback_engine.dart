@@ -116,6 +116,11 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
     await platform.setProperty('network-timeout', '15');
     // Live streams are buffered in memory only.
     await platform.setProperty('cache-on-disk', 'no');
+    // Subtitles stay off unless a stream marks them forced (for example for
+    // foreign-language scenes); mpv would otherwise pick any track flagged
+    // as default. Preferred languages per profile come later (SET-2).
+    await platform.setProperty('subs-fallback', 'no');
+    await platform.setProperty('subs-fallback-forced', 'yes');
     // Reconnect on short network drops of live streams.
     await platform.setProperty(
       'stream-lavf-o',
