@@ -25,6 +25,8 @@ Notes:
   updated-at timestamps, soft-delete flags), so milestone 10 does not require migrations of
   existing semantics.
 - Each milestone is tested on a Fire TV before it is marked `done`.
+- Milestone 11 publishes a universal Android APK (all ABIs, agreed 2026-11-14) next to the
+  per-ABI APKs, plus a proper release signing key instead of the debug key.
 - Open item for web support: add `sqlite3.wasm` and `drift_worker.js` to `app/web/`.
 
 ## Backlog of detail features
