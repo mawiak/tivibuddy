@@ -24,8 +24,8 @@ import '../../series/domain/series.dart';
 import '../../vod/presentation/poster_tile.dart';
 import '../application/search_providers.dart';
 
-/// Search section of the home screen (VOD-1): one query over the channels,
-/// movies and series of the selected playlist, shown in one row per kind.
+/// Search section of the home screen (VOD-1): one query over the movies,
+/// series and channels of the selected playlist, shown in one row per kind.
 class SearchPane extends ConsumerStatefulWidget {
   const SearchPane({super.key});
 
@@ -133,17 +133,6 @@ class _SearchPaneState extends ConsumerState<SearchPane> {
               style: textTheme.bodyMedium,
             ),
           ),
-        if (channels != null && channels.isNotEmpty)
-          _ResultRow(
-            title: l10n.playerChannelList,
-            height: 88,
-            itemWidth: 220,
-            count: channels.length,
-            itemBuilder: (context, index) => _ChannelResult(
-              channel: channels[index],
-              onSelect: () => _playChannel(channels[index]),
-            ),
-          ),
         if (movies != null && movies.isNotEmpty)
           _ResultRow(
             title: l10n.navMovies,
@@ -160,6 +149,17 @@ class _SearchPaneState extends ConsumerState<SearchPane> {
             count: series.length,
             itemBuilder: (context, index) =>
                 _SeriesResult(series: series[index]),
+          ),
+        if (channels != null && channels.isNotEmpty)
+          _ResultRow(
+            title: l10n.playerChannelList,
+            height: 88,
+            itemWidth: 220,
+            count: channels.length,
+            itemBuilder: (context, index) => _ChannelResult(
+              channel: channels[index],
+              onSelect: () => _playChannel(channels[index]),
+            ),
           ),
       ],
     );

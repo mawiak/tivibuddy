@@ -128,10 +128,26 @@ void main() {
 
     await search(tester, 'MOVIE 1');
     expect(find.text('Movies  (11)'), findsOneWidget);
-    expect(find.text('Channels  (11)'), findsNothing);
-
     await search(tester, 'nothing like this');
     expect(find.text('No results for “nothing like this”.'), findsOneWidget);
+
+    // Movies come first, then series, then channels.
+    await search(tester, '10');
+    double top(String title) =>
+        tester.getTopLeft(find.textContaining('$title  (')).dy;
+    expect(top('Movies'), lessThan(top('Series')));
+    await tester.scrollUntilVisible(
+      find.textContaining('Channels  ('),
+      200,
+      scrollable: find
+          .descendant(
+            of: find.byType(SearchPane),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
+    expect(top('Series'), lessThan(top('Channels')));
+    expect(find.text('Channels  (11)'), findsNothing);
   });
 
   testWidgets('a channel result plays from its place in all channels', (

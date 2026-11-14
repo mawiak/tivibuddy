@@ -20,20 +20,18 @@ class FocusMemoryScopeNode extends FocusScopeNode {
   @override
   void autofocus(FocusNode node) {
     // Enclosing memory scopes guard their whole area, so nested scopes
-    // respect their rules, too. Each refusing scope keeps the element as its
-    // entry point.
-    var allowed = true;
-    for (final scope in [
-      this,
-      ...ancestors.whereType<FocusMemoryScopeNode>(),
-    ]) {
-      if (!(scope.allowAutofocus?.call() ?? true)) {
-        scope._deferredAutofocus = node;
-        allowed = false;
-      }
+    // respect their rules, too. When one refuses, every scope on the way
+    // keeps the element as its entry point.
+    final scopes = [this, ...ancestors.whereType<FocusMemoryScopeNode>()];
+    if (scopes.every((scope) => scope.allowAutofocus?.call() ?? true)) {
+      super.autofocus(node);
+      return;
     }
-    if (allowed) super.autofocus(node);
+    for (final scope in scopes) {
+      scope._deferredAutofocus = node;
+    }
   }
+
 
   /// Focuses the last focused element, else the element that asked for
   /// autofocus, else the first one in reading order.

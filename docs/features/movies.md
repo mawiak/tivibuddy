@@ -16,10 +16,12 @@ PLAY-4 (resume), UI-1 to UI-4.
 - **Categories:** "Continue watching", "Favorites" and "All movies" (per profile), then the
   provider categories and "Update movies" last. A category switches the grid as soon as it
   gets focus. The playlist choice is shared with live TV.
-- **Sorting:** "Sort: …" at the top of the categories, or the menu key in the grid, chooses
-  the order of all lists except continue watching and favorites: playlist order, recently
-  added, name A–Z or Z–A (ignoring case), rating. The choice is kept per section on the
-  device (`vod.sort.movies`).
+- **Sorting:** per list, like common IPTV players: a sort button at the top right of the grid
+  (up from the first row of posters, or the menu key) chooses the order of the opened list:
+  playlist order, recently added, name A–Z or Z–A (ignoring case), rating. Each category keeps
+  its own order on the device (`vod.sort.movies.<list>`). Continue watching and favorites have
+  no sort button; they show the most recent first. After sorting, the list starts again at its
+  first poster.
 - **Posters** show a progress bar for started movies, a check mark for watched ones and a
   star for favorites. The title scrolls when the poster has focus.
 - **Detail page:** backdrop, poster, year, duration, genre, rating, plot, director and cast

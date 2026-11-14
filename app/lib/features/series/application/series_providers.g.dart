@@ -258,7 +258,7 @@ final class SeriesListProvider
   }
 }
 
-String _$seriesListHash() => r'8778d2f25a6733a5633713e02f571dc9826f38be';
+String _$seriesListHash() => r'1b9ea619fa2ef7eeafec894feefae2124ef39917';
 
 /// Series of a filter as a lazily loaded list, rebuilt when their number
 /// changes and stays stable (see `liveChannelList`).

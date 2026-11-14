@@ -3,7 +3,7 @@
 /// Lists the grid can show besides the provider categories.
 enum VodList { all, favorites, continueWatching }
 
-/// Which movies a grid shows: a provider category or one of [VodList].
+/// Which titles a grid shows: a provider category or one of [VodList].
 class VodFilter {
   const VodFilter.list(VodList this.list) : categoryId = null;
 
@@ -13,6 +13,14 @@ class VodFilter {
 
   final VodList? list;
   final String? categoryId;
+
+  /// Continue watching and favorites keep their own order (most recent
+  /// first); all other lists can be sorted.
+  bool get sortable =>
+      list != VodList.continueWatching && list != VodList.favorites;
+
+  /// Stable text form, for example to store settings per list.
+  String get key => categoryId == null ? list!.name : 'category:$categoryId';
 
   @override
   bool operator ==(Object other) =>

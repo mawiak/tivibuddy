@@ -71,6 +71,7 @@ class VodBrowser<T> extends StatefulWidget {
     this.emptyView,
     this.gridKey,
     this.onMenu,
+    this.headerAction,
     this.updating = false,
     this.updatingLabel,
   });
@@ -94,6 +95,10 @@ class VodBrowser<T> extends StatefulWidget {
 
   /// The menu key, for example to choose the sort order.
   final VoidCallback? onMenu;
+
+  /// Shown at the top right of the grid, for example to sort the list; up
+  /// from the first row of posters reaches it.
+  final Widget? headerAction;
   final String listTitle;
   final List<VodCategoryEntry> entries;
 
@@ -217,6 +222,7 @@ class _VodBrowserState<T> extends State<VodBrowser<T>> {
           entries: widget.entries,
           onListFocused: widget.onListFocused,
           updatingLabel: widget.updating ? widget.updatingLabel : null,
+          action: widget.headerAction,
         ),
       );
     }
@@ -236,9 +242,15 @@ class _VodBrowserState<T> extends State<VodBrowser<T>> {
       posterWidth: 150,
       onFocused: _onItemFocused,
       tileBuilder: widget.tileBuilder,
-      header: ValueListenableBuilder(
-        valueListenable: _infoItem,
-        builder: (context, item, _) => widget.infoBuilder(context, item),
+      header: Stack(
+        children: [
+          ValueListenableBuilder(
+            valueListenable: _infoItem,
+            builder: (context, item, _) => widget.infoBuilder(context, item),
+          ),
+          if (widget.headerAction case final action?)
+            Positioned(top: 12, right: 16, child: action),
+        ],
       ),
     );
 
@@ -316,12 +328,14 @@ class _PhoneHeader extends StatelessWidget {
     required this.entries,
     required this.onListFocused,
     this.updatingLabel,
+    this.action,
   });
 
   final String title;
   final List<VodCategoryEntry> entries;
   final ValueChanged<Object> onListFocused;
   final String? updatingLabel;
+  final Widget? action;
 
   Future<void> _choose(BuildContext context) async {
     final l10n = AppLocalizations.of(context);
@@ -369,6 +383,7 @@ class _PhoneHeader extends StatelessWidget {
             const SizedBox(width: 8),
             Text(updatingLabel, style: textTheme.bodySmall),
           ],
+          if (action != null) ...[const SizedBox(width: 8), action!],
         ],
       ),
     );

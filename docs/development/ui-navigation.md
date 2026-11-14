@@ -55,7 +55,8 @@ their categories when entered from the menu and open them with back from the gri
 back key is a route pop that every `PopScope` of the route receives.
 
 Nested `FocusMemoryScopeNode`s also respect the `allowAutofocus` rules of the scopes around
-them, so a grid inside the content area cannot take the focus from the menu.
+them, so a grid inside the content area cannot take the focus from the menu. A suppressed
+element becomes the entry point of every memory scope it is in.
 
 Directional traversal never leaves a focus scope. Wrap every scope in `LeaveLeft` (same file):
 it tries the normal move first and, at the left edge, hands focus to the area on the left

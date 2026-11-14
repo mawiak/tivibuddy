@@ -8,18 +8,21 @@ part of 'vod_sort_providers.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Sort order of a VOD section, kept as a device setting.
+/// Sort order of one list of a VOD section, like common IPTV players sort
+/// per category. Kept as a device setting.
 
 @ProviderFor(VodSortSelection)
 final vodSortSelectionProvider = VodSortSelectionFamily._();
 
-/// Sort order of a VOD section, kept as a device setting.
+/// Sort order of one list of a VOD section, like common IPTV players sort
+/// per category. Kept as a device setting.
 final class VodSortSelectionProvider
     extends $NotifierProvider<VodSortSelection, VodSort> {
-  /// Sort order of a VOD section, kept as a device setting.
+  /// Sort order of one list of a VOD section, like common IPTV players sort
+  /// per category. Kept as a device setting.
   VodSortSelectionProvider._({
     required VodSortSelectionFamily super.from,
-    required VodSection super.argument,
+    required (VodSection, String) super.argument,
   }) : super(
          retry: null,
          name: r'vodSortSelectionProvider',
@@ -35,7 +38,7 @@ final class VodSortSelectionProvider
   String toString() {
     return r'vodSortSelectionProvider'
         ''
-        '($argument)';
+        '$argument';
   }
 
   @$internal
@@ -61,9 +64,10 @@ final class VodSortSelectionProvider
   }
 }
 
-String _$vodSortSelectionHash() => r'5ee6e652f623e9fd819e52f9c24f0888048d1f74';
+String _$vodSortSelectionHash() => r'0219cb174a14e623501aa18bb25206e01bdc7bb9';
 
-/// Sort order of a VOD section, kept as a device setting.
+/// Sort order of one list of a VOD section, like common IPTV players sort
+/// per category. Kept as a device setting.
 
 final class VodSortSelectionFamily extends $Family
     with
@@ -72,7 +76,7 @@ final class VodSortSelectionFamily extends $Family
           VodSort,
           VodSort,
           VodSort,
-          VodSection
+          (VodSection, String)
         > {
   VodSortSelectionFamily._()
     : super(
@@ -83,22 +87,25 @@ final class VodSortSelectionFamily extends $Family
         isAutoDispose: false,
       );
 
-  /// Sort order of a VOD section, kept as a device setting.
+  /// Sort order of one list of a VOD section, like common IPTV players sort
+  /// per category. Kept as a device setting.
 
-  VodSortSelectionProvider call(VodSection section) =>
-      VodSortSelectionProvider._(argument: section, from: this);
+  VodSortSelectionProvider call(VodSection section, String listKey) =>
+      VodSortSelectionProvider._(argument: (section, listKey), from: this);
 
   @override
   String toString() => r'vodSortSelectionProvider';
 }
 
-/// Sort order of a VOD section, kept as a device setting.
+/// Sort order of one list of a VOD section, like common IPTV players sort
+/// per category. Kept as a device setting.
 
 abstract class _$VodSortSelection extends $Notifier<VodSort> {
-  late final _$args = ref.$arg as VodSection;
-  VodSection get section => _$args;
+  late final _$args = ref.$arg as (VodSection, String);
+  VodSection get section => _$args.$1;
+  String get listKey => _$args.$2;
 
-  VodSort build(VodSection section);
+  VodSort build(VodSection section, String listKey);
   @$mustCallSuper
   @override
   WhenComplete runBuild() {
@@ -111,6 +118,6 @@ abstract class _$VodSortSelection extends $Notifier<VodSort> {
               Object?,
               Object?
             >;
-    return element.handleCreate(ref, () => build(_$args));
+    return element.handleCreate(ref, () => build(_$args.$1, _$args.$2));
   }
 }

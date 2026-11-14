@@ -256,7 +256,7 @@ final class MovieListProvider
   }
 }
 
-String _$movieListHash() => r'390e3eab213c50c6212ceb371e7bff5678a0fb93';
+String _$movieListHash() => r'58709869b652e7d5ff7013dbed4a88816f9f0a23';
 
 /// Movies of a filter as a lazily loaded list, rebuilt when their number
 /// changes and stays stable (see `liveChannelList`).

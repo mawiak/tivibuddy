@@ -7,7 +7,7 @@ Requirements: VOD-1, DATA-3, UI-1 to UI-4.
 - The search section has one text field. Select opens the keyboard (on Fire TV the full
   screen system keyboard); results appear while typing, 300 ms after the last change, from
   two characters on.
-- Results are listed in one row per kind with their number: channels, movies, series. At most
+- Results are listed in one row per kind with their number: movies, series, channels. At most
   50 per kind; a more specific query narrows them.
 - Select on a channel plays it; the player then zaps through all channels from there.
   Movies and series open their detail pages.

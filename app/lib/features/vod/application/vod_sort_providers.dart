@@ -28,13 +28,15 @@ const vodSortChoices = {
   ],
 };
 
-/// Sort order of a VOD section, kept as a device setting.
+/// Sort order of one list of a VOD section, like common IPTV players sort
+/// per category. Kept as a device setting.
 @Riverpod(keepAlive: true)
 class VodSortSelection extends _$VodSortSelection {
-  String get _key => 'vod.sort.${section.name}';
+  String get _key => 'vod.sort.${section.name}.$listKey';
 
+  /// [listKey] is [VodFilter.key] of the list.
   @override
-  VodSort build(VodSection section) {
+  VodSort build(VodSection section, String listKey) {
     final subscription = ref
         .watch(deviceSettingsRepositoryProvider)
         .watchValue(_key)

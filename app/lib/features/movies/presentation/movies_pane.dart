@@ -99,8 +99,17 @@ class _MoviesPaneState extends ConsumerState<MoviesPane> {
           : null,
       items: movies,
       listKey: filter,
-      gridKey: (filter, ref.watch(vodSortSelectionProvider(VodSection.movies))),
-      onMenu: () => chooseVodSort(context, ref, VodSection.movies),
+      // A new sort order starts the grid again at its first poster.
+      gridKey: (
+        filter,
+        filter.sortable
+            ? ref.watch(vodSortSelectionProvider(VodSection.movies, filter.key))
+            : null,
+      ),
+      onMenu: () => chooseVodSort(context, ref, VodSection.movies, filter),
+      headerAction: filter.sortable
+          ? VodSortButton(section: VodSection.movies, filter: filter)
+          : null,
       listTitle: filterLabel(l10n, filter, categories),
       updating: status is MovieCatalogLoading,
       updatingLabel: l10n.moviesUpdating,
@@ -111,7 +120,6 @@ class _MoviesPaneState extends ConsumerState<MoviesPane> {
             icon: Icons.playlist_play,
             onSelect: () => _choosePlaylist(playlists.value!),
           ),
-        vodSortEntry(context, ref, VodSection.movies),
         for (final list in const [
           VodFilter.list(VodList.continueWatching),
           VodFilter.list(VodList.favorites),

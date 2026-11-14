@@ -319,27 +319,29 @@ void main() {
     await settle(tester);
 
     expect(posterNames().first, 'Movie 9', reason: 'names sort as text');
-    await press(tester, LogicalKeyboardKey.arrowLeft);
-    expect(find.text('Sort: Name Z–A'), findsOneWidget);
+    expect(find.text('Name Z–A'), findsOneWidget, reason: 'on the button');
   });
 
-  testWidgets('choosing the sort in the categories keeps them open', (
+  testWidgets('up from the first row sorts the opened category only', (
     tester,
   ) async {
     await openMovies(tester);
-    await press(tester, LogicalKeyboardKey.arrowLeft);
-    for (var i = 0; i < 3; i++) {
-      await press(tester, LogicalKeyboardKey.arrowUp);
-    }
-    expect(focusedText(), 'Sort: Playlist order');
+    await press(tester, LogicalKeyboardKey.arrowUp);
+    expect(focusedText(), 'Playlist order', reason: 'sort button focused');
 
     await press(tester, LogicalKeyboardKey.select);
-    await tester.tap(find.text('Name A–Z'));
+    await tester.tap(find.text('Name Z–A'));
     await settle(tester);
     await settle(tester);
+    expect(posterNames().first, 'Movie 9');
+    expect(focusedText(), 'Movie 9', reason: 'the sorted list starts over');
 
-    expect(focusedText(), 'Sort: Name A–Z', reason: 'categories stay open');
+    // Another category keeps its own order.
+    await press(tester, LogicalKeyboardKey.arrowLeft);
     await press(tester, LogicalKeyboardKey.arrowDown);
-    expect(focusedText(), 'Continue watching');
+    expect(focusedText(), 'Action');
+    expect(posterNames().first, 'Movie 2');
+    await press(tester, LogicalKeyboardKey.arrowUp);
+    expect(posterNames().first, 'Movie 9', reason: 'all movies kept Z–A');
   });
 }

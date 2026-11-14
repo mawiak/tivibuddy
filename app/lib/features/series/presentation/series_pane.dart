@@ -106,8 +106,17 @@ class _SeriesPaneState extends ConsumerState<SeriesPane> {
           : null,
       items: series,
       listKey: filter,
-      gridKey: (filter, ref.watch(vodSortSelectionProvider(VodSection.series))),
-      onMenu: () => chooseVodSort(context, ref, VodSection.series),
+      // A new sort order starts the grid again at its first poster.
+      gridKey: (
+        filter,
+        filter.sortable
+            ? ref.watch(vodSortSelectionProvider(VodSection.series, filter.key))
+            : null,
+      ),
+      onMenu: () => chooseVodSort(context, ref, VodSection.series, filter),
+      headerAction: filter.sortable
+          ? VodSortButton(section: VodSection.series, filter: filter)
+          : null,
       listTitle: label(filter),
       updating: status is SeriesCatalogLoading,
       updatingLabel: l10n.seriesUpdating,
@@ -118,7 +127,6 @@ class _SeriesPaneState extends ConsumerState<SeriesPane> {
             icon: Icons.playlist_play,
             onSelect: () => _choosePlaylist(playlists.value!),
           ),
-        vodSortEntry(context, ref, VodSection.series),
         for (final list in const [
           VodFilter.list(VodList.continueWatching),
           VodFilter.list(VodList.favorites),

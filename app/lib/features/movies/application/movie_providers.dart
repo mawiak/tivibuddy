@@ -36,7 +36,9 @@ Future<PagedList<Movie>> movieList(
 ) async {
   final repository = ref.watch(movieRepositoryProvider);
   final profileId = ref.watch(activeProfileIdProvider) ?? '';
-  final sort = ref.watch(vodSortSelectionProvider(VodSection.movies));
+  final sort = filter.sortable
+      ? ref.watch(vodSortSelectionProvider(VodSection.movies, filter.key))
+      : VodSort.provider;
   final counts = repository.watchCount(
     playlistId,
     filter,
