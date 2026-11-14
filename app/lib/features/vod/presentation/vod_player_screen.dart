@@ -10,6 +10,7 @@ import '../../player/data/player_providers.dart';
 import '../../player/domain/playback_engine.dart';
 import '../../player/presentation/playback_surface.dart';
 import '../../player/presentation/playback_time.dart';
+import '../../player/presentation/player_options.dart';
 
 /// What the VOD player plays and where it reports progress to, so movies
 /// and series episodes share one player.
@@ -145,11 +146,39 @@ class _VodPlayerScreenState extends ConsumerState<VodPlayerScreen> {
     _showOsd();
   }
 
+  /// Additional options (tracks) are open; they handle the keys.
+  bool _optionsOpen = false;
+  final _optionsKey = GlobalKey<PlayerOptionsState>();
+
+  void _openOptions() {
+    _osdTimer?.cancel();
+    setState(() {
+      _optionsOpen = true;
+      _osdVisible = false;
+    });
+  }
+
+  void _closeOptions() {
+    setState(() => _optionsOpen = false);
+    _keyFocus.requestFocus();
+  }
+
   KeyEventResult _onKey(FocusNode node, KeyEvent event) {
+    // The options handle their keys themselves; unhandled ones go on to the
+    // app-wide shortcuts, which move focus and select.
+    if (_optionsOpen) return KeyEventResult.ignored;
     if (event is! KeyDownEvent && event is! KeyRepeatEvent) {
       return KeyEventResult.ignored;
     }
     final key = event.logicalKey;
+
+    // Down shows the info bar, down again the options, like common IPTV
+    // players; the menu key opens the options directly.
+    if (key == LogicalKeyboardKey.contextMenu ||
+        (key == LogicalKeyboardKey.arrowDown && _osdVisible)) {
+      if (event is KeyDownEvent) _openOptions();
+      return KeyEventResult.handled;
+    }
 
     if (key == LogicalKeyboardKey.arrowLeft) {
       _seekBy(-_seekStep);
@@ -186,51 +215,63 @@ class _VodPlayerScreenState extends ConsumerState<VodPlayerScreen> {
   @override
   Widget build(BuildContext context) {
     final paused = _playback.status == PlaybackStatus.paused;
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Focus(
-        focusNode: _keyFocus,
-        autofocus: true,
-        onKeyEvent: _onKey,
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () {
-            if (_osdVisible) {
-              unawaited(_engine.togglePause());
-            }
-            _showOsd();
-          },
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              PlaybackSurface(engine: _engine),
-              if (_playback.isBusy)
-                const Center(
-                  child: SizedBox.square(
-                    dimension: 40,
-                    child: CircularProgressIndicator(strokeWidth: 3),
+    return PopScope(
+      canPop: !_optionsOpen,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _optionsKey.currentState?.back();
+      },
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        body: Focus(
+          focusNode: _keyFocus,
+          autofocus: true,
+          onKeyEvent: _onKey,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () {
+              if (_osdVisible) {
+                unawaited(_engine.togglePause());
+              }
+              _showOsd();
+            },
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                PlaybackSurface(engine: _engine),
+                if (_playback.isBusy)
+                  const Center(
+                    child: SizedBox.square(
+                      dimension: 40,
+                      child: CircularProgressIndicator(strokeWidth: 3),
+                    ),
                   ),
-                ),
-              if (_playback.status == PlaybackStatus.failed)
-                const _PlaybackError(),
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: IgnorePointer(
-                  child: AnimatedOpacity(
-                    opacity: _osdVisible || paused ? 1 : 0,
-                    duration: const Duration(milliseconds: 200),
-                    child: _VodOsd(
-                      title: _args.title,
-                      position: _position,
-                      duration: _playback.duration,
-                      paused: paused,
+                if (_playback.status == PlaybackStatus.failed)
+                  const _PlaybackError(),
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: IgnorePointer(
+                    child: AnimatedOpacity(
+                      opacity: (_osdVisible || paused) && !_optionsOpen ? 1 : 0,
+                      duration: const Duration(milliseconds: 200),
+                      child: _VodOsd(
+                        title: _args.title,
+                        position: _position,
+                        duration: _playback.duration,
+                        paused: paused,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+                if (_optionsOpen)
+                  PlayerOptions(
+                    key: _optionsKey,
+                    engine: _engine,
+                    onClose: _closeOptions,
+                  ),
+              ],
+            ),
           ),
         ),
       ),
@@ -305,6 +346,10 @@ class _VodOsd extends StatelessWidget {
               if (duration != null && duration > Duration.zero)
                 Text(formatPlaybackTime(duration), style: textTheme.bodySmall),
             ],
+          ),
+          // Down again opens the options.
+          const Center(
+            child: Icon(Icons.expand_more, color: AppColors.textSecondary),
           ),
         ],
       ),

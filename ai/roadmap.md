@@ -13,7 +13,7 @@ Implementation order agreed with the project owner. Status values: `planned`, `i
 | 5  | Live TV: catalog, categories, channels, player, zapping, now/next      | done        |
 | 6  | EPG grid (TV guide) with XMLTV loading                                 | done        |
 | 7  | VOD movies: categories, grid, detail, playback, resume, favorites      | done        |
-| 8  | VOD series: seasons, episodes, progress, watched state                 | in progress |
+| 8  | VOD series: seasons, episodes, progress, watched state                 | done        |
 | 9  | Metadata enrichment from key-less sources                              | planned     |
 | 10 | Sync server (Dart, PostgreSQL, Docker) and client sync                 | planned     |
 | 11 | CI and release builds for all platforms                                | planned     |
@@ -35,7 +35,8 @@ here may be dropped silently; when an item is implemented, remove it here and me
 
 Live TV and player:
 
-- Audio track and subtitle selection in the player (PLAY-4), remembered per channel.
+- Remember the chosen audio and subtitle track per channel or title; preferred audio and
+  subtitle languages per profile (SET-2).
 - Player options in the OSD: aspect ratio / zoom, playback speed for VOD, stream info
   (codec, resolution, bitrate), sleep timer.
 - Decoder choice per device (hardware direct, hardware copy, software) and buffer size as

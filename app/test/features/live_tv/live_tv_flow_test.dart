@@ -289,4 +289,33 @@ void main() {
     await press(tester, LogicalKeyboardKey.select);
     expect(engine.opened, hasLength(2));
   });
+
+  testWidgets('the menu key opens the options in live tv', (tester) async {
+    await openLiveTv(tester);
+    await press(tester, LogicalKeyboardKey.select);
+    engine.emitTracks(
+      const MediaTracks(
+        audio: [
+          MediaTrack(id: '1', type: MediaTrackType.audio, language: 'deu'),
+          MediaTrack(id: '2', type: MediaTrackType.audio, language: 'eng'),
+        ],
+        selectedAudio: '1',
+      ),
+    );
+    await settle(tester);
+
+    await press(tester, LogicalKeyboardKey.contextMenu);
+    expect(find.text('Audio'), findsOneWidget);
+    await press(tester, LogicalKeyboardKey.select);
+    await press(tester, LogicalKeyboardKey.arrowDown);
+    await press(tester, LogicalKeyboardKey.select);
+    expect(engine.selections, [(MediaTrackType.audio, '2')]);
+
+    // Up closes the options; down switches channels again.
+    await press(tester, LogicalKeyboardKey.arrowUp);
+    expect(find.text('Audio'), findsNothing);
+    final opened = engine.opened.length;
+    await press(tester, LogicalKeyboardKey.arrowDown);
+    expect(engine.opened.length, opened + 1);
+  });
 }

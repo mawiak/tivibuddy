@@ -408,5 +408,44 @@
     }
   },
   "seriesNoEpisodes": "No episodes available.",
-  "seriesDetailsFailed": "Seasons and episodes could not be loaded."
+  "seriesDetailsFailed": "Seasons and episodes could not be loaded.",
+  "playerOptionAudio": "Audio",
+  "playerOptionSubtitles": "Subtitles",
+  "playerOptionVideo": "Video",
+  "playerAudioTracks": "Audio tracks",
+  "playerSubtitleTracks": "Subtitles",
+  "playerVideoTracks": "Video tracks",
+  "playerTrackOff": "Off",
+  "playerTrackNumber": "Track {number}",
+  "@playerTrackNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "playerChannelsMono": "Mono",
+  "playerChannelsStereo": "Stereo",
+  "playerChannels51": "5.1 surround sound",
+  "playerChannels71": "7.1 surround sound",
+  "playerChannelsCount": "{count} channels",
+  "@playerChannelsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "trackLanguageDe": "German",
+  "trackLanguageEn": "English",
+  "trackLanguageFr": "French",
+  "trackLanguageEs": "Spanish",
+  "trackLanguageIt": "Italian",
+  "trackLanguageTr": "Turkish",
+  "trackLanguagePl": "Polish",
+  "trackLanguageRu": "Russian",
+  "trackLanguageNl": "Dutch",
+  "trackLanguagePt": "Portuguese",
+  "trackLanguageAr": "Arabic",
+  "trackLanguageJa": "Japanese"
 }

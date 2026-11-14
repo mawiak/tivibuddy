@@ -59,6 +59,8 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
           _emit(_state.copyWith(status: PlaybackStatus.paused));
         }
       }),
+      player.stream.tracks.listen((_) => _updateTracks()),
+      player.stream.track.listen((_) => _updateTracks()),
       player.stream.duration.listen(
         (duration) => _emit(_state.copyWith(duration: duration)),
       ),
@@ -143,6 +145,86 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
   Future<void> seek(Duration position) => player.seek(position);
 
   @override
+  Stream<MediaTracks> get tracks => _tracks.stream;
+
+  @override
+  MediaTracks get currentTracks => _currentTracks;
+
+  final _tracks = StreamController<MediaTracks>.broadcast();
+  MediaTracks _currentTracks = MediaTracks.none;
+
+  void _updateTracks() {
+    final available = player.state.tracks;
+    final selected = player.state.track;
+    // mpv lists the pseudo tracks "auto" and "no" with the real ones.
+    bool real(String id) => id != 'auto' && id != 'no';
+    String? selectedId(String id) => real(id) ? id : null;
+    _currentTracks = MediaTracks(
+      audio: [
+        for (final t in available.audio)
+          if (real(t.id))
+            MediaTrack(
+              id: t.id,
+              type: MediaTrackType.audio,
+              language: t.language,
+              title: t.title,
+              codec: t.codec,
+              channels: t.channelscount ?? t.audiochannels,
+            ),
+      ],
+      subtitle: [
+        for (final t in available.subtitle)
+          if (real(t.id))
+            MediaTrack(
+              id: t.id,
+              type: MediaTrackType.subtitle,
+              language: t.language,
+              title: t.title,
+              codec: t.codec,
+            ),
+      ],
+      video: [
+        for (final t in available.video)
+          if (real(t.id))
+            MediaTrack(
+              id: t.id,
+              type: MediaTrackType.video,
+              title: t.title,
+              codec: t.codec,
+              width: t.w,
+              height: t.h,
+            ),
+      ],
+      selectedAudio: selectedId(selected.audio.id),
+      selectedSubtitle: selectedId(selected.subtitle.id),
+      selectedVideo: selectedId(selected.video.id),
+    );
+    if (!_tracks.isClosed) _tracks.add(_currentTracks);
+  }
+
+  @override
+  Future<void> selectTrack(MediaTrackType type, String? id) async {
+    final available = player.state.tracks;
+    switch (type) {
+      case MediaTrackType.audio:
+        await player.setAudioTrack(
+          available.audio.where((t) => t.id == id).firstOrNull ??
+              AudioTrack.no(),
+        );
+      case MediaTrackType.subtitle:
+        await player.setSubtitleTrack(
+          available.subtitle.where((t) => t.id == id).firstOrNull ??
+              SubtitleTrack.no(),
+        );
+      case MediaTrackType.video:
+        await player.setVideoTrack(
+          available.video.where((t) => t.id == id).firstOrNull ??
+              VideoTrack.auto(),
+        );
+    }
+  }
+
+  @override
   Future<void> togglePause() => player.playOrPause();
 
   @override
@@ -157,6 +239,7 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
       await subscription.cancel();
     }
     await _states.close();
+    await _tracks.close();
     await player.dispose();
   }
 }

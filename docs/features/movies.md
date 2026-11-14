@@ -29,8 +29,16 @@ PLAY-4 (resume), UI-1 to UI-4.
   | Left / right                 | Seek 10 seconds back / forward (repeats)   |
   | Rewind / fast forward        | Seek 30 seconds                            |
   | Select, play / pause         | Pause and resume; retry after a failure    |
-  | Up / down / info             | Show the info bar                          |
+  | Up / info                    | Show the info bar                          |
+  | Down                         | Info bar; down again opens the options     |
+  | Menu                         | Options                                    |
   | Back                         | Leave the player                           |
+
+  **Options** (shared with live TV, `player_options.dart`): a bar at the bottom with audio,
+  subtitle and video track and their current value. Select opens a side panel with the tracks
+  of that type, the selected one marked; audio and subtitles can be switched off. Track names
+  combine language and channel layout, for example "German, 5.1 surround sound". Left or back
+  closes the panel, up or back closes the options.
 
   The position is saved every 15 seconds and when the player closes. A movie within five
   minutes of its end counts as watched and starts from the beginning next time.
@@ -50,5 +58,5 @@ PLAY-4 (resume), UI-1 to UI-4.
 
 ## Not yet implemented
 
-Search, sorting, trailers, audio track and subtitle selection, metadata from external sources
+Search, sorting, trailers, remembered and preferred audio and subtitle languages, metadata from external sources
 (milestone 9). See the backlog in `ai/roadmap.md`.

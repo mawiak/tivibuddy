@@ -127,6 +127,41 @@ class FakePlaybackEngine implements PlaybackEngine {
   @override
   Future<void> seek(Duration position) async => emitPosition(position);
 
+  final _tracks = StreamController<MediaTracks>.broadcast();
+  MediaTracks _currentTracks = MediaTracks.none;
+
+  /// Track selections asked for, as (type, id).
+  final selections = <(MediaTrackType, String?)>[];
+
+  void emitTracks(MediaTracks tracks) {
+    _currentTracks = tracks;
+    _tracks.add(tracks);
+  }
+
+  @override
+  Stream<MediaTracks> get tracks => _tracks.stream;
+
+  @override
+  MediaTracks get currentTracks => _currentTracks;
+
+  @override
+  Future<void> selectTrack(MediaTrackType type, String? id) async {
+    selections.add((type, id));
+    final t = _currentTracks;
+    emitTracks(
+      MediaTracks(
+        audio: t.audio,
+        subtitle: t.subtitle,
+        video: t.video,
+        selectedAudio: type == MediaTrackType.audio ? id : t.selectedAudio,
+        selectedSubtitle: type == MediaTrackType.subtitle
+            ? id
+            : t.selectedSubtitle,
+        selectedVideo: type == MediaTrackType.video ? id : t.selectedVideo,
+      ),
+    );
+  }
+
   @override
   Future<void> togglePause() async {}
 
@@ -138,5 +173,6 @@ class FakePlaybackEngine implements PlaybackEngine {
     disposed = true;
     await _states.close();
     await _positions.close();
+    await _tracks.close();
   }
 }

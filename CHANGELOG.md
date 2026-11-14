@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Player options for live TV, movies and series: audio, subtitle and video track in a bar
+  with a side panel to choose from; down twice or the menu key in VOD, the menu key in live
+  TV.
 - Repository skeleton: license (GPL-3.0), git configuration, project documentation and AI guidelines.
 - Flutter app for Android, iOS, macOS, Windows, Linux and web with dark TV theme.
 - Remote-control navigation: side menu that expands on focus, select and back key handling.

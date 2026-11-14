@@ -10,6 +10,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../player/data/player_providers.dart';
 import '../../player/domain/playback_engine.dart';
 import '../../player/presentation/playback_surface.dart';
+import '../../player/presentation/player_options.dart';
 import '../application/live_tv_providers.dart';
 import '../domain/live_channel.dart';
 import 'channel_widgets.dart';
@@ -154,11 +155,35 @@ class _LivePlayerScreenState extends ConsumerState<LivePlayerScreen> {
     if (!visible) _keyFocus.requestFocus();
   }
 
+  /// Additional options (tracks) are open; they handle the keys.
+  bool _optionsOpen = false;
+  final _optionsKey = GlobalKey<PlayerOptionsState>();
+
+  void _closeOptions() {
+    setState(() => _optionsOpen = false);
+    _keyFocus.requestFocus();
+  }
+
   KeyEventResult _onKey(FocusNode node, KeyEvent event) {
+    // The options handle their keys themselves; unhandled ones go on to the
+    // app-wide shortcuts, which move focus and select.
+    if (_optionsOpen) return KeyEventResult.ignored;
     if (event is! KeyDownEvent && event is! KeyRepeatEvent) {
       return KeyEventResult.ignored;
     }
     final key = event.logicalKey;
+
+    // Up and down switch channels, so the options open with the menu key.
+    if (key == LogicalKeyboardKey.contextMenu) {
+      if (event is KeyDownEvent) {
+        _osdTimer?.cancel();
+        setState(() {
+          _optionsOpen = true;
+          _osdVisible = false;
+        });
+      }
+      return KeyEventResult.handled;
+    }
 
     if (key == LogicalKeyboardKey.arrowUp ||
         key == LogicalKeyboardKey.channelUp ||
@@ -198,9 +223,14 @@ class _LivePlayerScreenState extends ConsumerState<LivePlayerScreen> {
   Widget build(BuildContext context) {
     final channel = _channel;
     return PopScope(
-      canPop: !_listVisible,
+      canPop: !_listVisible && !_optionsOpen,
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) _toggleList(false);
+        if (didPop) return;
+        if (_optionsOpen) {
+          _optionsKey.currentState?.back();
+        } else {
+          _toggleList(false);
+        }
       },
       child: Scaffold(
         backgroundColor: Colors.black,
@@ -242,6 +272,12 @@ class _LivePlayerScreenState extends ConsumerState<LivePlayerScreen> {
                         child: _ChannelOsd(channel: channel),
                       ),
                     ),
+                  ),
+                if (_optionsOpen)
+                  PlayerOptions(
+                    key: _optionsKey,
+                    engine: _engine,
+                    onClose: _closeOptions,
                   ),
                 if (_listVisible && _channels != null)
                   _ChannelListOverlay(

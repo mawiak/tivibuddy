@@ -244,4 +244,67 @@ void main() {
     expect(find.text('Mark as not watched'), findsOneWidget);
     expect(find.text('Play'), findsOneWidget);
   });
+
+  testWidgets('down twice opens the options to choose the audio track', (
+    tester,
+  ) async {
+    await openMovies(tester);
+    await press(tester, LogicalKeyboardKey.select);
+    await press(tester, LogicalKeyboardKey.select);
+    engine.emitTracks(
+      const MediaTracks(
+        audio: [
+          MediaTrack(
+            id: '1',
+            type: MediaTrackType.audio,
+            language: 'ger',
+            channels: 6,
+          ),
+          MediaTrack(
+            id: '2',
+            type: MediaTrackType.audio,
+            language: 'eng',
+            channels: 2,
+          ),
+        ],
+        subtitle: [
+          MediaTrack(id: '3', type: MediaTrackType.subtitle, language: 'de'),
+        ],
+        selectedAudio: '1',
+      ),
+    );
+    await settle(tester);
+
+    // The info bar shows when the player starts; down again opens the
+    // options.
+    await press(tester, LogicalKeyboardKey.arrowDown);
+    expect(find.text('German, 5.1 surround sound'), findsWidgets);
+    expect(find.text('Off'), findsWidgets, reason: 'subtitles off');
+
+    await press(tester, LogicalKeyboardKey.select);
+    expect(find.text('Audio tracks'), findsOneWidget);
+    expect(focusedText(), 'German, 5.1 surround sound');
+    await press(tester, LogicalKeyboardKey.arrowDown);
+    expect(focusedText(), 'English, Stereo');
+    await press(tester, LogicalKeyboardKey.select);
+    expect(engine.selections, [(MediaTrackType.audio, '2')]);
+    expect(find.text('Audio tracks'), findsNothing, reason: 'panel closes');
+    expect(find.text('English, Stereo'), findsWidgets);
+
+    // Subtitles can be switched on.
+    await press(tester, LogicalKeyboardKey.arrowRight);
+    await press(tester, LogicalKeyboardKey.select);
+    await press(tester, LogicalKeyboardKey.arrowDown);
+    expect(focusedText(), 'German');
+    await press(tester, LogicalKeyboardKey.select);
+    expect(engine.selections.last, (MediaTrackType.subtitle, '3'));
+
+    await pressBack(tester);
+    await settle(tester);
+    expect(find.text('Audio'), findsNothing, reason: 'options close');
+    expect(find.byType(VodPlayerScreen), findsOneWidget);
+    await pressBack(tester);
+    await settle(tester);
+    expect(find.byType(VodPlayerScreen), findsNothing);
+  });
 }
