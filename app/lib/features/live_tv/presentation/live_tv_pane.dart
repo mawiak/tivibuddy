@@ -268,11 +268,11 @@ class _LiveTvPaneState extends ConsumerState<LiveTvPane> {
             child: Focus(
               canRequestFocus: false,
               skipTraversal: true,
-              // Leaving the categories in any direction closes them.
+              // Focus moving into the grid, for example by touch, closes the
+              // categories. The side menu and dialogs leave them open, like
+              // in common IPTV players.
               onFocusChange: (focused) {
-                // A dialog on top, for example a choice opened from the
-                // categories, takes the focus without leaving them.
-                if (!focused && (ModalRoute.of(context)?.isCurrent ?? true)) {
+                if (!focused && (_gridKey.currentState?.hasFocus ?? false)) {
                   _closeCategories(focusGrid: false);
                 }
               },

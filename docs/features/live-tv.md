@@ -15,7 +15,8 @@ UI-3.
   pushes the grid to the right, focused on the selected category. They switch the grid as
   soon as they get focus. "All channels" is the first entry, "Update channels" the last.
   With more than one playlist, the first entry selects the playlist. Select or right closes
-  them and returns to the grid; left or back opens the side menu, which also closes them.
+  them and returns to the grid; left or back opens the side menu and leaves them open, so right from
+  the menu returns to them.
 - **Select or right on "Live TV"** in the menu starts in the categories, focused on the
   selected one.
 - **Back from the player** returns to the guide on the channel played last, which continues

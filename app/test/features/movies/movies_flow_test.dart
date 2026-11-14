@@ -172,6 +172,9 @@ void main() {
     await pressBack(tester);
     await settle(tester);
     expect(focusedLabel(), 'menu.movies');
+    expect(find.text('Drama'), findsOneWidget, reason: 'stay next to the menu');
+    await press(tester, LogicalKeyboardKey.arrowRight);
+    expect(focusedText(), 'Action', reason: 'back in the categories');
   });
 
   testWidgets('plays a movie, resumes it and keeps favorites', (tester) async {

@@ -32,7 +32,6 @@ class FocusMemoryScopeNode extends FocusScopeNode {
     }
   }
 
-
   /// Focuses the last focused element, else the element that asked for
   /// autofocus, else the first one in reading order.
   void enter() {

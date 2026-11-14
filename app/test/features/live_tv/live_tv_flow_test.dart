@@ -203,7 +203,10 @@ void main() {
     await pressBack(tester);
     await settle(tester);
     expect(focusedLabel(), 'menu.liveTv');
-    expect(find.text('News'), findsNothing, reason: 'categories close');
+    expect(find.text('News'), findsOneWidget, reason: 'stay next to the menu');
+
+    await press(tester, LogicalKeyboardKey.arrowRight);
+    expect(activeTexts(), contains('Sport'), reason: 'back in the categories');
   });
 
   testWidgets('a focused category filters and right returns to the guide', (
