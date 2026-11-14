@@ -11,6 +11,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/content_hooks.dart';
 import '../../../shared/widgets/focus_memory_scope.dart';
 import '../../../shared/widgets/marquee_text.dart';
+import '../../../shared/widgets/push_aside.dart';
 import '../../../shared/widgets/tv_dialogs.dart';
 import '../../../shared/widgets/tv_focusable.dart';
 import 'poster_tile.dart';
@@ -254,53 +255,46 @@ class _VodBrowserState<T> extends State<VodBrowser<T>> {
       ),
     );
 
-    final row = Row(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        if (_categoriesOpen)
-          SizedBox(
-            width: 240,
-            child: Focus(
-              canRequestFocus: false,
-              skipTraversal: true,
-              // Focus moving into the grid, for example by touch, closes the
-              // categories. The side menu and dialogs leave them open, like
-              // in common IPTV players.
-              onFocusChange: (focused) {
-                if (!focused && _gridScope.hasFocus) {
-                  _closeCategories(focusGrid: false);
-                }
-              },
-              child: ExitRight(
-                onRight: _closeCategories,
-                // Left from the categories reaches the menu through the
-                // LeaveLeft of the home screen.
-                child: LeaveLeft(
-                  child: FocusScope(
-                    node: _categoryScope,
-                    child: FocusTraversalGroup(
-                      child: _CategoryColumn(
-                        entries: widget.entries,
-                        selected: widget.listKey,
-                        onListFocused: widget.onListFocused,
-                        onChosen: _closeCategories,
-                      ),
-                    ),
-                  ),
+    final row = PushAside(
+      open: _categoriesOpen,
+      panelWidth: 240,
+      panel: Focus(
+        canRequestFocus: false,
+        skipTraversal: true,
+        // Focus moving into the grid, for example by touch, closes the
+        // categories. The side menu and dialogs leave them open, like
+        // in common IPTV players.
+        onFocusChange: (focused) {
+          if (!focused && _gridScope.hasFocus) {
+            _closeCategories(focusGrid: false);
+          }
+        },
+        child: ExitRight(
+          onRight: _closeCategories,
+          // Left from the categories reaches the menu through the
+          // LeaveLeft of the home screen.
+          child: LeaveLeft(
+            child: FocusScope(
+              node: _categoryScope,
+              child: FocusTraversalGroup(
+                child: _CategoryColumn(
+                  entries: widget.entries,
+                  selected: widget.listKey,
+                  onListFocused: widget.onListFocused,
+                  onChosen: _closeCategories,
                 ),
               ),
             ),
           ),
-        Expanded(
-          child: LeaveLeft(
-            onLeftEdge: _openCategories,
-            child: FocusScope(
-              node: _gridScope,
-              child: FocusTraversalGroup(child: grid),
-            ),
-          ),
         ),
-      ],
+      ),
+      child: LeaveLeft(
+        onLeftEdge: _openCategories,
+        child: FocusScope(
+          node: _gridScope,
+          child: FocusTraversalGroup(child: grid),
+        ),
+      ),
     );
     final onMenu = widget.onMenu;
     if (onMenu == null) return row;

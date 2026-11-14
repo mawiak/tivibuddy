@@ -10,7 +10,7 @@ PLAY-4 (resume), UI-1 to UI-4.
   them one row of posters with the next row peeking in; the focused row scrolls to the top.
   Select or right on "Movies" in the menu starts in the categories. The poster grid uses
   the full width. Left from the first column or
-  back opens the categories next to it, focused on (and scrolled to) the selected one. Select
+  back opens the categories next to it, shifting the posters to the right at the same size, focused on (and scrolled to) the selected one. Select
   or right on a category closes them and focuses the first poster; left or back from them
   opens the side menu and leaves them open, so right from the menu returns to them. Phones show the grid with a category selector in the header.
 - **Categories:** "Continue watching", "Favorites" and "All movies" (per profile), then the

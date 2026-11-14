@@ -12,7 +12,8 @@ UI-3.
 - While the programme running now has focus, its channel is highlighted as well, so up and
   down visibly move through the channel list.
 - **Left or back** from the programme running now opens the **categories** as a column that
-  pushes the grid to the right, focused on the selected category. They switch the grid as
+  pushes the grid to the right without narrowing it (its right edge runs out of the
+  screen), focused on the selected category. They switch the grid as
   soon as they get focus. "All channels" is the first entry, "Update channels" the last.
   With more than one playlist, the first entry selects the playlist. Select or right closes
   them and returns to the grid; left or back opens the side menu and leaves them open, so right from
