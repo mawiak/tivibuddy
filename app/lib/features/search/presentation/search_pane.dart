@@ -10,13 +10,16 @@ import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/marquee_text.dart';
 import '../../../shared/widgets/tv_focusable.dart';
 import '../../../shared/widgets/tv_text_field.dart';
+import '../../live_tv/application/live_catalog_controller.dart';
 import '../../live_tv/application/live_tv_providers.dart';
 import '../../live_tv/data/live_tv_data_providers.dart';
 import '../../live_tv/domain/live_channel.dart';
 import '../../live_tv/presentation/channel_widgets.dart';
 import '../../live_tv/presentation/live_player_screen.dart';
+import '../../movies/application/movie_catalog_controller.dart';
 import '../../movies/domain/movie.dart';
 import '../../movies/presentation/movie_poster.dart';
+import '../../series/application/series_catalog_controller.dart';
 import '../../series/domain/series.dart';
 import '../../vod/presentation/poster_tile.dart';
 import '../application/search_providers.dart';
@@ -35,6 +38,26 @@ class _SearchPaneState extends ConsumerState<SearchPane> {
     text: ref.read(searchQueryProvider),
   );
   Timer? _debounce;
+  String? _checkedPlaylistId;
+
+  /// Loads missing or outdated catalogs once per playlist, so the search
+  /// also covers sections that were never opened.
+  void _ensureCatalogs(String playlistId) {
+    if (_checkedPlaylistId == playlistId) return;
+    _checkedPlaylistId = playlistId;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref
+          .read(liveCatalogControllerProvider(playlistId).notifier)
+          .ensureFresh();
+      ref
+          .read(movieCatalogControllerProvider(playlistId).notifier)
+          .ensureFresh();
+      ref
+          .read(seriesCatalogControllerProvider(playlistId).notifier)
+          .ensureFresh();
+    });
+  }
 
   @override
   void dispose() {
@@ -72,6 +95,7 @@ class _SearchPaneState extends ConsumerState<SearchPane> {
     final textTheme = Theme.of(context).textTheme;
     final playlist = ref.watch(livePlaylistSelectionProvider);
     final query = ref.watch(searchQueryProvider);
+    if (playlist != null) _ensureCatalogs(playlist.id);
     final searching = playlist != null && query.length >= searchMinLength;
 
     final channels = searching

@@ -21,5 +21,5 @@ The search runs in SQLite on the local catalogs of the selected playlist
 SQLite compares ASCII letters case-insensitively, umlauts only in their exact case. Queries
 run on the database isolate, so typing never blocks the UI.
 
-The catalogs only exist after a section was opened once (or the catalog loaded in the
-background); searching does not load catalogs by itself.
+Opening the search loads missing or outdated catalogs of all three kinds in the background,
+so it also covers sections that were never opened.
