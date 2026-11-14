@@ -9,9 +9,11 @@ import '../../live_tv/application/live_tv_providers.dart';
 import '../../playlists/application/playlist_actions.dart';
 import '../../playlists/domain/playlist.dart';
 import '../../playlists/presentation/catalog_views.dart';
+import '../../vod/application/vod_sort_providers.dart';
 import '../../vod/presentation/poster_tile.dart';
 import '../../vod/presentation/vod_browser.dart';
 import '../../vod/presentation/vod_info_header.dart';
+import '../../vod/presentation/vod_sort_choice.dart';
 import '../application/series_catalog_controller.dart';
 import '../application/series_providers.dart';
 import '../domain/series.dart';
@@ -104,6 +106,8 @@ class _SeriesPaneState extends ConsumerState<SeriesPane> {
           : null,
       items: series,
       listKey: filter,
+      gridKey: (filter, ref.watch(vodSortSelectionProvider(VodSection.series))),
+      onMenu: () => chooseVodSort(context, ref, VodSection.series),
       listTitle: label(filter),
       updating: status is SeriesCatalogLoading,
       updatingLabel: l10n.seriesUpdating,
@@ -114,6 +118,7 @@ class _SeriesPaneState extends ConsumerState<SeriesPane> {
             icon: Icons.playlist_play,
             onSelect: () => _choosePlaylist(playlists.value!),
           ),
+        vodSortEntry(context, ref, VodSection.series),
         for (final list in const [
           VodFilter.list(VodList.continueWatching),
           VodFilter.list(VodList.favorites),

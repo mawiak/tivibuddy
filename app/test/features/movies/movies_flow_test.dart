@@ -307,4 +307,19 @@ void main() {
     await settle(tester);
     expect(find.byType(VodPlayerScreen), findsNothing);
   });
+
+  testWidgets('the menu key sorts the grid', (tester) async {
+    await openMovies(tester);
+    expect(posterNames().first, 'Movie 1');
+
+    await press(tester, LogicalKeyboardKey.contextMenu);
+    expect(find.text('Name Z–A'), findsOneWidget);
+    await tester.tap(find.text('Name Z–A'));
+    await settle(tester);
+    await settle(tester);
+
+    expect(posterNames().first, 'Movie 9', reason: 'names sort as text');
+    await press(tester, LogicalKeyboardKey.arrowLeft);
+    expect(find.text('Sort: Name Z–A'), findsOneWidget);
+  });
 }

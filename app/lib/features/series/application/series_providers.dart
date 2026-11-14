@@ -6,6 +6,7 @@ import '../../../core/data/paged_list.dart';
 import '../../live_tv/application/live_tv_providers.dart';
 import '../../playlists/domain/playlist.dart';
 import '../../profiles/application/profile_providers.dart';
+import '../../vod/application/vod_sort_providers.dart';
 import '../data/series_data_providers.dart';
 import '../domain/series.dart';
 import '../domain/series_repository.dart';
@@ -35,6 +36,7 @@ Future<PagedList<Series>> seriesList(
 ) async {
   final repository = ref.watch(seriesRepositoryProvider);
   final profileId = ref.watch(activeProfileIdProvider) ?? '';
+  final sort = ref.watch(vodSortSelectionProvider(VodSection.series));
   final counts = repository.watchCount(
     playlistId,
     filter,
@@ -62,6 +64,7 @@ Future<PagedList<Series>> seriesList(
       playlistId,
       filter,
       profileId: profileId,
+      sort: sort,
       offset: offset,
       limit: limit,
     ),

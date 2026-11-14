@@ -1,8 +1,10 @@
 import '../../playlists/domain/catalog_access.dart';
 import '../../vod/domain/vod_filter.dart';
+import '../../vod/domain/vod_sort.dart';
 import 'series.dart';
 
 export '../../vod/domain/vod_filter.dart';
+export '../../vod/domain/vod_sort.dart';
 
 /// Local copy of the series catalog of playlists plus the series and
 /// episode states of profiles (DATA-3, DATA-4). The UI only reads from here.
@@ -17,11 +19,13 @@ abstract interface class SeriesRepository {
     required String profileId,
   });
 
-  /// A page of series matching [filter] in display order.
+  /// A page of series matching [filter] in display order; [sort] orders
+  /// all lists except continue watching and favorites.
   Future<List<Series>> getSeries(
     String playlistId,
     VodFilter filter, {
     required String profileId,
+    VodSort sort = VodSort.provider,
     required int offset,
     required int limit,
   });

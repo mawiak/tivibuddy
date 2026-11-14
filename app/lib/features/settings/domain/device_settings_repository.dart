@@ -16,6 +16,12 @@ abstract interface class DeviceSettingsRepository {
 
   Future<void> setGuideDays(int? days);
 
+  /// A device setting of a feature by [key], for example the sort order of
+  /// a section; null when not set.
+  Stream<String?> watchValue(String key);
+
+  Future<void> setValue(String key, String? value);
+
   /// Restores the defaults of all device settings.
   Future<void> reset();
 }

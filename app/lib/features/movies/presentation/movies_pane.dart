@@ -9,8 +9,10 @@ import '../../live_tv/application/live_tv_providers.dart';
 import '../../playlists/application/playlist_actions.dart';
 import '../../playlists/domain/playlist.dart';
 import '../../playlists/presentation/catalog_views.dart';
+import '../../vod/application/vod_sort_providers.dart';
 import '../../vod/presentation/vod_browser.dart';
 import '../../vod/presentation/vod_info_header.dart';
+import '../../vod/presentation/vod_sort_choice.dart';
 import '../application/movie_catalog_controller.dart';
 import '../application/movie_providers.dart';
 import '../domain/movie.dart';
@@ -97,6 +99,8 @@ class _MoviesPaneState extends ConsumerState<MoviesPane> {
           : null,
       items: movies,
       listKey: filter,
+      gridKey: (filter, ref.watch(vodSortSelectionProvider(VodSection.movies))),
+      onMenu: () => chooseVodSort(context, ref, VodSection.movies),
       listTitle: filterLabel(l10n, filter, categories),
       updating: status is MovieCatalogLoading,
       updatingLabel: l10n.moviesUpdating,
@@ -107,6 +111,7 @@ class _MoviesPaneState extends ConsumerState<MoviesPane> {
             icon: Icons.playlist_play,
             onSelect: () => _choosePlaylist(playlists.value!),
           ),
+        vodSortEntry(context, ref, VodSection.movies),
         for (final list in const [
           VodFilter.list(VodList.continueWatching),
           VodFilter.list(VodList.favorites),

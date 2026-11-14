@@ -10,6 +10,8 @@ PLAY-4 (resume), UI-1 to UI-4.
   "Continue watching", "Favorites" and "All series" per profile, entering from the menu starts
   in the categories. The details come from the provider list, so moving over posters needs no
   requests.
+- **Sorting:** like movies, with release year instead of recently added (the provider list
+  of series has no date added); kept as `vod.sort.series`.
 - **Detail page:** cover, title, year, genre, rating and plot; a button that plays or resumes
   where the profile left off ("Play S1 E1", "Resume S2 E4 at 12:30"); favorite. Below it the
   seasons on the left and the episodes of the selected season on the right with image, code,
@@ -36,4 +38,4 @@ PLAY-4 (resume), UI-1 to UI-4.
 ## Not yet implemented
 
 Automatic next episode at the end, marking single episodes or seasons as watched by hand,
-search and sorting. See the backlog in `ai/roadmap.md`.
+search in episodes. See the backlog in `ai/roadmap.md`.

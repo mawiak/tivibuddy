@@ -174,6 +174,40 @@ void main() {
       );
     });
 
+    test('sorts by name, rating and date added', () async {
+      await repository.upsertMovies([
+        Movie(
+          playlistId: playlistId,
+          streamId: 1,
+          name: 'zebra',
+          position: 200,
+          rating: 9.5,
+          addedAt: DateTime.utc(2020),
+        ),
+        Movie(
+          playlistId: playlistId,
+          streamId: 2,
+          name: 'Aardvark',
+          position: 201,
+          addedAt: DateTime.utc(2030),
+        ),
+      ], loadStartedAt: DateTime.now().toUtc());
+      Future<String> first(VodSort sort) async => (await repository.getMovies(
+        playlistId,
+        VodFilter.all,
+        profileId: profileId,
+        sort: sort,
+        offset: 0,
+        limit: 1,
+      )).single.name;
+
+      expect(await first(VodSort.provider), 'Movie 1');
+      expect(await first(VodSort.nameAscending), 'Aardvark');
+      expect(await first(VodSort.nameDescending), 'zebra', reason: 'no case');
+      expect(await first(VodSort.rating), 'zebra');
+      expect(await first(VodSort.added), 'Aardvark');
+    });
+
     test('favorites and continue watching follow the profile state', () async {
       final actions = container.read(movieActionsProvider);
       final movies = source.movies;

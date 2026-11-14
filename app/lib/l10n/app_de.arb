@@ -196,5 +196,13 @@
   "trackLanguageJa": "Japanisch",
   "searchLabel": "Suchen",
   "searchHint": "Kanäle, Filme und Serien nach Namen suchen.",
-  "searchNoResults": "Keine Treffer für „{query}“."
+  "searchNoResults": "Keine Treffer für „{query}“.",
+  "vodSort": "Sortierung",
+  "vodSortEntry": "Sortierung: {order}",
+  "vodSortProvider": "Reihenfolge der Playlist",
+  "vodSortAdded": "Zuletzt hinzugefügt",
+  "vodSortNameAscending": "Name A–Z",
+  "vodSortNameDescending": "Name Z–A",
+  "vodSortRating": "Bewertung",
+  "vodSortYear": "Erscheinungsjahr"
 }

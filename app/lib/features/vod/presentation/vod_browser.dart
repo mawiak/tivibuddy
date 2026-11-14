@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../core/data/paged_list.dart';
 import '../../../core/layout/screen_class.dart';
@@ -68,6 +69,8 @@ class VodBrowser<T> extends StatefulWidget {
     required this.tileBuilder,
     required this.infoBuilder,
     this.emptyView,
+    this.gridKey,
+    this.onMenu,
     this.updating = false,
     this.updatingLabel,
   });
@@ -84,6 +87,13 @@ class VodBrowser<T> extends StatefulWidget {
 
   /// Key of the selected list entry.
   final Object listKey;
+
+  /// Changes start the grid again at its first poster, for example a new
+  /// sort order; defaults to [listKey].
+  final Object? gridKey;
+
+  /// The menu key, for example to choose the sort order.
+  final VoidCallback? onMenu;
   final String listTitle;
   final List<VodCategoryEntry> entries;
 
@@ -198,7 +208,7 @@ class _VodBrowserState<T> extends State<VodBrowser<T>> {
     final isPhone = ScreenClass.of(context).isPhone;
     if (isPhone) {
       return _VodGrid<T>(
-        key: ValueKey(widget.listKey),
+        key: ValueKey(widget.gridKey ?? widget.listKey),
         items: widget.items,
         posterWidth: 112,
         tileBuilder: widget.tileBuilder,
@@ -220,7 +230,7 @@ class _VodBrowserState<T> extends State<VodBrowser<T>> {
     }
     final grid = _VodGrid<T>(
       // A new list starts at its first poster.
-      key: ValueKey(widget.listKey),
+      key: ValueKey(widget.gridKey ?? widget.listKey),
       items: widget.items,
       // One row of posters below the details, the next one peeking in.
       posterWidth: 150,
@@ -232,7 +242,7 @@ class _VodBrowserState<T> extends State<VodBrowser<T>> {
       ),
     );
 
-    return Row(
+    final row = Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (_categoriesOpen)
@@ -275,6 +285,21 @@ class _VodBrowserState<T> extends State<VodBrowser<T>> {
           ),
         ),
       ],
+    );
+    final onMenu = widget.onMenu;
+    if (onMenu == null) return row;
+    return Focus(
+      canRequestFocus: false,
+      skipTraversal: true,
+      onKeyEvent: (node, event) {
+        if (event is! KeyDownEvent ||
+            event.logicalKey != LogicalKeyboardKey.contextMenu) {
+          return KeyEventResult.ignored;
+        }
+        onMenu();
+        return KeyEventResult.handled;
+      },
+      child: row,
     );
   }
 }

@@ -60,6 +60,7 @@ class DriftSeriesRepository implements SeriesRepository {
     String playlistId,
     VodFilter filter,
     String profileId, {
+    VodSort sort = VodSort.provider,
     Expression<int>? counting,
   }) {
     final series = _db.seriesItems;
@@ -81,7 +82,30 @@ class DriftSeriesRepository implements SeriesRepository {
         order = [OrderingTerm.desc(states.lastWatchedAt)];
       case VodList.all || null:
         joins = [];
-        order = [OrderingTerm.asc(series.position)];
+        order = switch (sort) {
+          VodSort.provider ||
+          VodSort.added => [OrderingTerm.asc(series.position)],
+          VodSort.nameAscending => [
+            OrderingTerm.asc(series.name.collate(Collate.noCase)),
+          ],
+          VodSort.nameDescending => [
+            OrderingTerm.desc(series.name.collate(Collate.noCase)),
+          ],
+          VodSort.rating => [
+            OrderingTerm(
+              expression: series.rating,
+              mode: OrderingMode.desc,
+              nulls: NullsOrder.last,
+            ),
+          ],
+          VodSort.year => [
+            OrderingTerm(
+              expression: series.releaseDate,
+              mode: OrderingMode.desc,
+              nulls: NullsOrder.last,
+            ),
+          ],
+        };
     }
 
     if (counting != null) {
@@ -123,10 +147,11 @@ class DriftSeriesRepository implements SeriesRepository {
     String playlistId,
     VodFilter filter, {
     required String profileId,
+    VodSort sort = VodSort.provider,
     required int offset,
     required int limit,
   }) async {
-    final query = _query(playlistId, filter, profileId)
+    final query = _query(playlistId, filter, profileId, sort: sort)
       ..limit(limit, offset: offset);
     final rows = await query.get();
     return [for (final row in rows) _toDomain(row.readTable(_db.seriesItems))];

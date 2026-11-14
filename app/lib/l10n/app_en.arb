@@ -445,5 +445,20 @@
         "type": "String"
       }
     }
-  }
+  },
+  "vodSort": "Sort",
+  "vodSortEntry": "Sort: {order}",
+  "@vodSortEntry": {
+    "placeholders": {
+      "order": {
+        "type": "String"
+      }
+    }
+  },
+  "vodSortProvider": "Playlist order",
+  "vodSortAdded": "Recently added",
+  "vodSortNameAscending": "Name A–Z",
+  "vodSortNameDescending": "Name Z–A",
+  "vodSortRating": "Rating",
+  "vodSortYear": "Release year"
 }

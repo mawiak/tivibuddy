@@ -56,7 +56,6 @@ Live TV and player:
 VOD and general:
 
 - Search: case-insensitive umlauts, search in plot and cast, recent searches.
-- Sorting options (added, name, rating) for VOD grids.
 - Series: automatic next episode at the end, mark episodes or seasons watched by hand,
   context menu on posters (favorite, watched) in the grids.
 - Metadata enrichment and caching (milestone 9).

@@ -16,6 +16,10 @@ PLAY-4 (resume), UI-1 to UI-4.
 - **Categories:** "Continue watching", "Favorites" and "All movies" (per profile), then the
   provider categories and "Update movies" last. A category switches the grid as soon as it
   gets focus. The playlist choice is shared with live TV.
+- **Sorting:** "Sort: …" at the top of the categories, or the menu key in the grid, chooses
+  the order of all lists except continue watching and favorites: playlist order, recently
+  added, name A–Z or Z–A (ignoring case), rating. The choice is kept per section on the
+  device (`vod.sort.movies`).
 - **Posters** show a progress bar for started movies, a check mark for watched ones and a
   star for favorites. The title scrolls when the poster has focus.
 - **Detail page:** backdrop, poster, year, duration, genre, rating, plot, director and cast
@@ -65,5 +69,5 @@ PLAY-4 (resume), UI-1 to UI-4.
 
 ## Not yet implemented
 
-Search, sorting, trailers, remembered and preferred audio and subtitle languages, metadata from external sources
+Trailers, remembered and preferred audio and subtitle languages, metadata from external sources
 (milestone 9). See the backlog in `ai/roadmap.md`.
