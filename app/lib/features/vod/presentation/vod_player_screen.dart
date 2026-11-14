@@ -377,7 +377,7 @@ class _VodOsd extends StatelessWidget {
       VoidCallback onTap, {
       bool primary = false,
     }) {
-      final active = primary || action == highlighted;
+      final active = primary || (action != null && action == highlighted);
       return GestureDetector(
         onTap: onTap,
         child: AnimatedContainer(

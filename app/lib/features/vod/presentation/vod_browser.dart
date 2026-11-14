@@ -253,7 +253,11 @@ class _VodBrowserState<T> extends State<VodBrowser<T>> {
               skipTraversal: true,
               // Leaving the categories in any direction closes them.
               onFocusChange: (focused) {
-                if (!focused) _closeCategories(focusGrid: false);
+                // A dialog on top, for example a choice opened from the
+                // categories, takes the focus without leaving them.
+                if (!focused && (ModalRoute.of(context)?.isCurrent ?? true)) {
+                  _closeCategories(focusGrid: false);
+                }
               },
               child: ExitRight(
                 onRight: _closeCategories,

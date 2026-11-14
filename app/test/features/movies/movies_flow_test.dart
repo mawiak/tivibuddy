@@ -322,4 +322,24 @@ void main() {
     await press(tester, LogicalKeyboardKey.arrowLeft);
     expect(find.text('Sort: Name Z–A'), findsOneWidget);
   });
+
+  testWidgets('choosing the sort in the categories keeps them open', (
+    tester,
+  ) async {
+    await openMovies(tester);
+    await press(tester, LogicalKeyboardKey.arrowLeft);
+    for (var i = 0; i < 3; i++) {
+      await press(tester, LogicalKeyboardKey.arrowUp);
+    }
+    expect(focusedText(), 'Sort: Playlist order');
+
+    await press(tester, LogicalKeyboardKey.select);
+    await tester.tap(find.text('Name A–Z'));
+    await settle(tester);
+    await settle(tester);
+
+    expect(focusedText(), 'Sort: Name A–Z', reason: 'categories stay open');
+    await press(tester, LogicalKeyboardKey.arrowDown);
+    expect(focusedText(), 'Continue watching');
+  });
 }
