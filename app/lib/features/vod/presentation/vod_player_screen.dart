@@ -91,6 +91,7 @@ class _VodPlayerScreenState extends ConsumerState<VodPlayerScreen> {
   @override
   void dispose() {
     _osdTimer?.cancel();
+    _highlightTimer?.cancel();
     _saveTimer?.cancel();
     if (!_finished) _save();
     for (final subscription in _subscriptions) {
@@ -135,7 +136,53 @@ class _VodPlayerScreenState extends ConsumerState<VodPlayerScreen> {
     });
   }
 
+  _OsdAction? _highlight;
+  Timer? _highlightTimer;
+
+  /// Lights up the control of [action] for a moment, so the key's effect is
+  /// visible.
+  void _flash(_OsdAction action) {
+    _highlightTimer?.cancel();
+    setState(() => _highlight = action);
+    _highlightTimer = Timer(const Duration(milliseconds: 400), () {
+      if (mounted) setState(() => _highlight = null);
+    });
+  }
+
+  void _playPause() {
+    if (_playback.status == PlaybackStatus.failed) {
+      unawaited(_open(_position));
+    } else {
+      unawaited(_engine.togglePause());
+    }
+    _flash(_OsdAction.playPause);
+    _showOsd();
+  }
+
+  void _restart() {
+    setState(() => _position = Duration.zero);
+    unawaited(_engine.seek(Duration.zero));
+    _showOsd();
+  }
+
+  /// Resolution and audio channels of the stream for the info bar.
+  List<String> get _facts {
+    final width = _playback.videoWidth;
+    final height = _playback.videoHeight;
+    final audio = _engine.currentTracks.selectedTrack(MediaTrackType.audio);
+    return [
+      if (width != null && height != null && width > 0) '$width×$height',
+      ?switch (audio?.channels) {
+        6 => '5.1',
+        8 => '7.1',
+        2 => '2.0',
+        _ => null,
+      },
+    ];
+  }
+
   void _seekBy(Duration offset) {
+    _flash(offset.isNegative ? _OsdAction.rewind : _OsdAction.forward);
     final duration = _playback.duration;
     var target = _position + offset;
     if (target < Duration.zero) target = Duration.zero;
@@ -197,12 +244,7 @@ class _VodPlayerScreenState extends ConsumerState<VodPlayerScreen> {
         key == LogicalKeyboardKey.mediaPlayPause ||
         key == LogicalKeyboardKey.mediaPlay ||
         key == LogicalKeyboardKey.mediaPause) {
-      if (_playback.status == PlaybackStatus.failed) {
-        unawaited(_open(_position));
-      } else {
-        unawaited(_engine.togglePause());
-      }
-      _showOsd();
+      _playPause();
     } else if (key == LogicalKeyboardKey.arrowUp ||
         key == LogicalKeyboardKey.arrowDown ||
         key == LogicalKeyboardKey.info) {
@@ -216,6 +258,7 @@ class _VodPlayerScreenState extends ConsumerState<VodPlayerScreen> {
   @override
   Widget build(BuildContext context) {
     final paused = _playback.status == PlaybackStatus.paused;
+    final osdVisible = (_osdVisible || paused) && !_optionsOpen;
     return PopScope(
       canPop: !_optionsOpen,
       onPopInvokedWithResult: (didPop, _) {
@@ -255,14 +298,21 @@ class _VodPlayerScreenState extends ConsumerState<VodPlayerScreen> {
                   right: 0,
                   bottom: 0,
                   child: IgnorePointer(
+                    ignoring: !osdVisible,
                     child: AnimatedOpacity(
-                      opacity: (_osdVisible || paused) && !_optionsOpen ? 1 : 0,
+                      opacity: osdVisible ? 1 : 0,
                       duration: const Duration(milliseconds: 200),
                       child: _VodOsd(
                         title: _args.title,
+                        facts: _facts,
                         position: _position,
                         duration: _playback.duration,
                         paused: paused,
+                        highlighted: _highlight,
+                        onRewind: () => _seekBy(-_skipStep),
+                        onPlayPause: _playPause,
+                        onForward: () => _seekBy(_skipStep),
+                        onRestart: _restart,
                       ),
                     ),
                   ),
@@ -282,26 +332,74 @@ class _VodPlayerScreenState extends ConsumerState<VodPlayerScreen> {
   }
 }
 
+/// Action of the last key, highlighted on its control for a moment.
+enum _OsdAction { rewind, playPause, forward }
+
+/// Info bar while playing, laid out like common IPTV players: title and
+/// stream facts, progress, and the controls. The keys trigger the controls;
+/// on touch screens they can be tapped.
 class _VodOsd extends StatelessWidget {
   const _VodOsd({
     required this.title,
+    required this.facts,
     required this.position,
     required this.duration,
     required this.paused,
+    required this.highlighted,
+    required this.onRewind,
+    required this.onPlayPause,
+    required this.onForward,
+    required this.onRestart,
   });
 
   final String title;
+
+  /// Short stream facts, for example "1920×800" and "5.1".
+  final List<String> facts;
   final Duration position;
   final Duration? duration;
   final bool paused;
+  final _OsdAction? highlighted;
+  final VoidCallback onRewind;
+  final VoidCallback onPlayPause;
+  final VoidCallback onForward;
+  final VoidCallback onRestart;
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final duration = this.duration;
     final total = duration?.inMilliseconds ?? 0;
+
+    Widget control(
+      IconData icon,
+      _OsdAction? action,
+      VoidCallback onTap, {
+      bool primary = false,
+    }) {
+      final active = primary || action == highlighted;
+      return GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 120),
+          width: primary ? 56 : 44,
+          height: primary ? 56 : 44,
+          margin: const EdgeInsets.symmetric(horizontal: 8),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: active ? AppColors.textPrimary : null,
+          ),
+          child: Icon(
+            icon,
+            size: primary ? 32 : 28,
+            color: active ? AppColors.background : AppColors.textPrimary,
+          ),
+        ),
+      );
+    }
+
     return Container(
-      padding: const EdgeInsets.fromLTRB(32, 48, 32, 28),
+      padding: const EdgeInsets.fromLTRB(40, 48, 40, 12),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
@@ -310,16 +408,11 @@ class _VodOsd extends StatelessWidget {
         ),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             children: [
-              Icon(
-                paused ? Icons.pause : Icons.play_arrow,
-                color: AppColors.textPrimary,
-              ),
-              const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   title,
@@ -328,6 +421,19 @@ class _VodOsd extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
+              for (final fact in facts)
+                Container(
+                  margin: const EdgeInsets.only(left: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceRaised,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(fact, style: textTheme.bodySmall),
+                ),
             ],
           ),
           const SizedBox(height: 12),
@@ -341,19 +447,36 @@ class _VodOsd extends StatelessWidget {
               backgroundColor: AppColors.surfaceRaised,
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           Row(
             children: [
-              Text(formatPlaybackTime(position), style: textTheme.bodySmall),
-              const Spacer(),
-              if (duration != null && duration > Duration.zero)
-                Text(formatPlaybackTime(duration), style: textTheme.bodySmall),
+              Expanded(
+                child: Text(
+                  duration != null && duration > Duration.zero
+                      ? '${formatPlaybackTime(position)} / '
+                            '${formatPlaybackTime(duration)}'
+                      : formatPlaybackTime(position),
+                  style: textTheme.bodyMedium,
+                ),
+              ),
+              control(Icons.fast_rewind, _OsdAction.rewind, onRewind),
+              control(
+                paused ? Icons.play_arrow : Icons.pause,
+                _OsdAction.playPause,
+                onPlayPause,
+                primary: true,
+              ),
+              control(Icons.fast_forward, _OsdAction.forward, onForward),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: control(Icons.replay, null, onRestart),
+                ),
+              ),
             ],
           ),
           // Down again opens the options.
-          const Center(
-            child: Icon(Icons.expand_more, color: AppColors.textSecondary),
-          ),
+          const Icon(Icons.expand_more, color: AppColors.textSecondary),
         ],
       ),
     );

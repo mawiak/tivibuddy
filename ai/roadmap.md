@@ -36,7 +36,9 @@ here may be dropped silently; when an item is implemented, remove it here and me
 Live TV and player:
 
 - Remember the chosen audio and subtitle track per channel or title; preferred audio and
-  subtitle languages per profile (SET-2).
+  subtitle languages per profile (SET-2). Low priority for the owner (2026-11-14).
+- Optional second playback engine (ExoPlayer / Media3) for instant audio track switching;
+  mpv pauses about half a second for its refresh seek.
 - Player options in the OSD: aspect ratio / zoom, playback speed for VOD, stream info
   (codec, resolution, bitrate), sleep timer.
 - Decoder choice per device (hardware direct, hardware copy, software) and buffer size as

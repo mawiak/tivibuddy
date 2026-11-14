@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- VOD info bar with rewind, play/pause, fast forward and start over controls, resolution and
+  audio channels.
 - Player options for live TV, movies and series: audio, subtitle and video track in a bar
   with a side panel to choose from; down twice or the menu key in VOD, the menu key in live
   TV.

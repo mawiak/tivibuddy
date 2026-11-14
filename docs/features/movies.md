@@ -34,6 +34,10 @@ PLAY-4 (resume), UI-1 to UI-4.
   | Menu                         | Options                                    |
   | Back                         | Leave the player                           |
 
+  The info bar shows title, resolution and audio channels, progress, time and the controls
+  rewind, play/pause and fast forward in the middle and start over on the right. The keys
+  light up their control; on touch screens the controls can be tapped.
+
   **Options** (shared with live TV, `player_options.dart`): a bar at the bottom with audio,
   subtitle and video track and their current value. Select opens a side panel with the tracks
   of that type, the selected one marked; audio and subtitles can be switched off. Track names
