@@ -8,6 +8,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../player/data/player_providers.dart';
 import '../../player/domain/playback_engine.dart';
+import '../../player/presentation/delayed_busy.dart';
 import '../../player/presentation/playback_surface.dart';
 import '../../player/presentation/playback_time.dart';
 import '../../player/presentation/player_options.dart';
@@ -238,13 +239,15 @@ class _VodPlayerScreenState extends ConsumerState<VodPlayerScreen> {
               fit: StackFit.expand,
               children: [
                 PlaybackSurface(engine: _engine),
-                if (_playback.isBusy)
-                  const Center(
+                DelayedBusy(
+                  busy: _playback.isBusy,
+                  child: const Center(
                     child: SizedBox.square(
                       dimension: 40,
                       child: CircularProgressIndicator(strokeWidth: 3),
                     ),
                   ),
+                ),
                 if (_playback.status == PlaybackStatus.failed)
                   const _PlaybackError(),
                 Positioned(

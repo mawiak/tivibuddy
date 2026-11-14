@@ -59,8 +59,10 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
           _emit(_state.copyWith(status: PlaybackStatus.paused));
         }
       }),
-      player.stream.tracks.listen((_) => _updateTracks()),
-      player.stream.track.listen((_) => _updateTracks()),
+      player.stream.tracks.listen((_) => unawaited(_updateTracks())),
+      player.stream.track.listen((_) => unawaited(_updateTracks())),
+      // mpv decides on "auto" tracks once the stream plays.
+      player.stream.playing.listen((_) => unawaited(_updateTracks())),
       player.stream.duration.listen(
         (duration) => _emit(_state.copyWith(duration: duration)),
       ),
@@ -153,12 +155,31 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
   final _tracks = StreamController<MediaTracks>.broadcast();
   MediaTracks _currentTracks = MediaTracks.none;
 
-  void _updateTracks() {
+  /// Id of the track mpv actually plays of a type (`audio`, `sub` or
+  /// `video`). The selection reported by media_kit stays "auto" while mpv
+  /// chooses itself, which would read as off.
+  Future<String?> _currentTrackId(String type) async {
+    final platform = player.platform;
+    if (platform is! NativePlayer) return null;
+    try {
+      final id = await platform.getProperty('current-tracks/$type/id');
+      return id.isEmpty ? null : id;
+    } on Object {
+      // The property does not exist while nothing of the type plays.
+      return null;
+    }
+  }
+
+  Future<void> _updateTracks() async {
     final available = player.state.tracks;
     final selected = player.state.track;
     // mpv lists the pseudo tracks "auto" and "no" with the real ones.
     bool real(String id) => id != 'auto' && id != 'no';
-    String? selectedId(String id) => real(id) ? id : null;
+    Future<String?> selectedId(String id, String type) async =>
+        id == 'auto' ? _currentTrackId(type) : (real(id) ? id : null);
+    final audioId = await selectedId(selected.audio.id, 'audio');
+    final subtitleId = await selectedId(selected.subtitle.id, 'sub');
+    final videoId = await selectedId(selected.video.id, 'video');
     _currentTracks = MediaTracks(
       audio: [
         for (final t in available.audio)
@@ -195,9 +216,9 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
               height: t.h,
             ),
       ],
-      selectedAudio: selectedId(selected.audio.id),
-      selectedSubtitle: selectedId(selected.subtitle.id),
-      selectedVideo: selectedId(selected.video.id),
+      selectedAudio: audioId,
+      selectedSubtitle: subtitleId,
+      selectedVideo: videoId,
     );
     if (!_tracks.isClosed) _tracks.add(_currentTracks);
   }

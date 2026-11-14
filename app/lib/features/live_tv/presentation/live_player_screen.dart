@@ -9,6 +9,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../player/data/player_providers.dart';
 import '../../player/domain/playback_engine.dart';
+import '../../player/presentation/delayed_busy.dart';
 import '../../player/presentation/playback_surface.dart';
 import '../../player/presentation/player_options.dart';
 import '../application/live_tv_providers.dart';
@@ -249,15 +250,17 @@ class _LivePlayerScreenState extends ConsumerState<LivePlayerScreen> {
               fit: StackFit.expand,
               children: [
                 PlaybackSurface(engine: _engine),
-                if (_playback.isBusy)
-                  const Positioned(
-                    top: 24,
-                    right: 24,
-                    child: SizedBox.square(
+                Positioned(
+                  top: 24,
+                  right: 24,
+                  child: DelayedBusy(
+                    busy: _playback.isBusy,
+                    child: const SizedBox.square(
                       dimension: 28,
                       child: CircularProgressIndicator(strokeWidth: 3),
                     ),
                   ),
+                ),
                 if (_playback.stopped && _playingChannel == channel)
                   const _PlaybackError(),
                 if (channel != null)
