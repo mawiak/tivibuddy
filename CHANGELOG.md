@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Search over channels, movies and series of the selected playlist.
 - VOD info bar with rewind, play/pause, fast forward and start over controls, resolution and
   audio channels.
 - Player options for live TV, movies and series: audio, subtitle and video track in a bar

@@ -26,6 +26,13 @@ abstract interface class SeriesRepository {
     required int limit,
   });
 
+  /// Series whose name contains [query], in provider order (VOD-1).
+  Future<List<Series>> search(
+    String playlistId,
+    String query, {
+    required int limit,
+  });
+
   Future<DateTime?> getLoadedAt(String playlistId);
 
   Future<void> replaceCategories(

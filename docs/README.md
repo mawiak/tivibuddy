@@ -13,6 +13,7 @@
   - [Live TV](features/live-tv.md)
   - [Movies](features/movies.md)
   - [Series](features/series.md)
+  - [Search](features/search.md)
 - [Release process](release-process.md)
 
 AI agent guidelines and the full requirement list are in [`../ai/`](../ai/README.md).

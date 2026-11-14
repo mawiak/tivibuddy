@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../../../core/database/app_database.dart';
+import '../../../core/database/like_pattern.dart';
 import '../domain/live_channel.dart';
 import '../domain/live_tv_repository.dart';
 
@@ -84,6 +85,45 @@ class DriftLiveTvRepository implements LiveTvRepository {
               ..limit(limit, offset: offset))
             .get();
     return rows.map(_toDomain).toList();
+  }
+
+  @override
+  Future<List<LiveChannel>> search(
+    String playlistId,
+    String query, {
+    required int limit,
+  }) async {
+    final rows =
+        await (_db.select(_db.liveChannels)
+              ..where(
+                (c) =>
+                    c.playlistId.equals(playlistId) &
+                    c.name.like(likePattern(query), escapeChar: likeEscape),
+              )
+              ..orderBy([
+                (c) => OrderingTerm(expression: c.number),
+                (c) => OrderingTerm(expression: c.streamId),
+              ])
+              ..limit(limit))
+            .get();
+    return rows.map(_toDomain).toList();
+  }
+
+  @override
+  Future<int> indexOf(LiveChannel channel, {String? categoryId}) async {
+    final count = _db.liveChannels.streamId.count();
+    final c = _db.liveChannels;
+    // Channels before it in the order of getChannels: number, then id.
+    final before =
+        c.number.isSmallerThanValue(channel.number) |
+        (c.number.equals(channel.number) &
+            c.streamId.isSmallerThanValue(channel.streamId));
+    final row =
+        await (_db.selectOnly(c)
+              ..addColumns([count])
+              ..where(_channelFilter(channel.playlistId, categoryId) & before))
+            .getSingle();
+    return row.read(count)!;
   }
 
   @override

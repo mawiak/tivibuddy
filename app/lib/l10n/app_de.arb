@@ -6,18 +6,6 @@
   "navSeries": "Serien",
   "navSearch": "Suche",
   "navSettings": "Einstellungen",
-  "comingSoon": "Demnächst verfügbar",
-  "plannedFeatures": "Geplante Funktionen",
-  "featureLiveChannels": "Kanalliste nach Kategorien mit Informationen zur laufenden und nächsten Sendung",
-  "featureLiveGuide": "TV-Guide mit flüssigem Programmraster für tausende Kanäle",
-  "featureLiveCatchup": "Catch-up und Timeshift, sofern dein Anbieter es unterstützt",
-  "featureMoviesBrowse": "Filme nach Kategorien mit Postern und schneller Suche durchstöbern",
-  "featureMoviesResume": "Wiedergabe genau dort fortsetzen, wo du aufgehört hast",
-  "featureMoviesMetadata": "Bewertungen und Details aus zusätzlichen Metadatenquellen",
-  "featureSeriesEpisodes": "Staffeln und Episoden mit Gesehen-Status und Fortschritt",
-  "featureSeriesContinue": "Weiterschauen mit der nächsten Episode",
-  "featureSearchGlobal": "Gleichzeitig in Live-Kanälen, Filmen und Serien suchen",
-  "featureSettingsProfiles": "Profile, Playlists, Player und Synchronisation verwalten",
   "commonSave": "Speichern",
   "commonCancel": "Abbrechen",
   "commonDelete": "Löschen",
@@ -205,5 +193,8 @@
   "trackLanguageNl": "Niederländisch",
   "trackLanguagePt": "Portugiesisch",
   "trackLanguageAr": "Arabisch",
-  "trackLanguageJa": "Japanisch"
+  "trackLanguageJa": "Japanisch",
+  "searchLabel": "Suchen",
+  "searchHint": "Kanäle, Filme und Serien nach Namen suchen.",
+  "searchNoResults": "Keine Treffer für „{query}“."
 }

@@ -24,6 +24,17 @@ abstract interface class LiveTvRepository {
   /// programmes of known channels when the guide is loaded.
   Future<Set<String>> getEpgChannelIds(String playlistId);
 
+  /// Channels whose name contains [query], in display order (VOD-1).
+  Future<List<LiveChannel>> search(
+    String playlistId,
+    String query, {
+    required int limit,
+  });
+
+  /// Position of [channel] in the list of [categoryId] (all channels when
+  /// null), for starting the player there.
+  Future<int> indexOf(LiveChannel channel, {String? categoryId});
+
   /// When the catalog of [playlistId] was last loaded completely.
   Stream<DateTime?> watchLoadedAt(String playlistId);
 

@@ -28,6 +28,13 @@ abstract interface class MovieRepository {
 
   Future<Movie?> getMovie(String playlistId, int streamId);
 
+  /// Movies whose name contains [query], in provider order (VOD-1).
+  Future<List<Movie>> search(
+    String playlistId,
+    String query, {
+    required int limit,
+  });
+
   Future<DateTime?> getLoadedAt(String playlistId);
 
   Future<void> replaceCategories(

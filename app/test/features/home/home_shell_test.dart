@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tivibuddy/features/home/presentation/home_shell.dart';
-import 'package:tivibuddy/features/home/presentation/section_placeholder.dart';
 import 'package:tivibuddy/features/home/presentation/side_menu.dart';
+import 'package:tivibuddy/features/search/presentation/search_pane.dart';
 import 'package:tivibuddy/shared/widgets/tv_list_tile.dart';
 
 import '../../helpers/test_app.dart';
@@ -44,16 +44,15 @@ void main() {
     await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
     await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
     await tester.sendKeyEvent(LogicalKeyboardKey.select);
-    await tester.pumpAndSettle();
+    await settle(tester);
 
-    expect(find.text('Coming soon'), findsOneWidget);
+    expect(find.byType(SearchPane), findsOneWidget);
     expect(
       FocusManager.instance.primaryFocus?.context
-          ?.findAncestorWidgetOfExactType<SectionPlaceholder>(),
+          ?.findAncestorWidgetOfExactType<SearchPane>(),
       isNotNull,
       reason: 'select moves into the section',
     );
-    expect(find.widgetWithText(Column, 'Search'), findsWidgets);
   });
 
   testWidgets('right from the menu restores the last focused content', (

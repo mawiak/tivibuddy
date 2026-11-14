@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../core/database/app_database.dart';
+import '../../../core/database/like_pattern.dart';
 import '../domain/series.dart';
 import '../domain/series_repository.dart';
 
@@ -129,6 +130,25 @@ class DriftSeriesRepository implements SeriesRepository {
       ..limit(limit, offset: offset);
     final rows = await query.get();
     return [for (final row in rows) _toDomain(row.readTable(_db.seriesItems))];
+  }
+
+  @override
+  Future<List<Series>> search(
+    String playlistId,
+    String query, {
+    required int limit,
+  }) async {
+    final rows =
+        await (_db.select(_db.seriesItems)
+              ..where(
+                (s) =>
+                    s.playlistId.equals(playlistId) &
+                    s.name.like(likePattern(query), escapeChar: likeEscape),
+              )
+              ..orderBy([(s) => OrderingTerm(expression: s.position)])
+              ..limit(limit))
+            .get();
+    return rows.map(_toDomain).toList();
   }
 
   @override
