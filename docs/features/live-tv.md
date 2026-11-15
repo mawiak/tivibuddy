@@ -100,7 +100,7 @@ chunks, so moving within a chunk does not query again (`guide_providers.dart`).
 4. Changing the number of days marks all guides as outdated; switching the guide off
    deletes them.
 
-On the Fire TV Stick Lite a real provider guide (more than 85,000 programmes kept) loads in
+On a Fire TV Stick 4K Max a real provider guide (more than 85,000 programmes kept) loads in
 about one minute in the background, with the app at about 120 to 145 MB.
 
 
@@ -108,11 +108,14 @@ about one minute in the background, with the app at about 120 to 145 MB.
 
 `PlaybackEngine` (`app/lib/features/player/domain/`) abstracts the player. The implementation
 uses media_kit (libmpv with FFmpeg). On Android the hardware decoder (MediaCodec) renders
-straight into the video surface (`vo=mediacodec_embed`, `hwdec=mediacodec`). The default
-copy mode reads decoded frames back, which costs more CPU and shows striped green frames on
-MediaTek chips such as the Fire TV Stick Lite. Other chips show wrong colours with direct
-rendering, so the decoder can be changed in the player settings (see `settings.md`). With direct rendering a 720p H.264 channel
-needs about 45 % of one of four cores on that device. mpv warnings and errors are written to the platform log with the prefix `mpv`.
+straight into the video surface by default (`vo=mediacodec_embed`, `hwdec=mediacodec`). The
+copy mode reads decoded frames back, which costs more CPU and memory bandwidth: on the Fire TV
+Stick 4K Max (MediaTek) it stutters with 4K HEVC films and showed striped green frames while
+the device was low on memory. Other chips, such as the one in the Nvidia Shield, show wrong
+colours with direct rendering, so the decoder can be changed in the player settings (see
+`settings.md`). With direct rendering a 720p H.264 channel needs about 45 % of one of four
+cores on the 4K Max. mpv warnings and errors are written to the platform log with the prefix
+`mpv`.
 
 Live streams are requested as MPEG-TS (`/live/<user>/<password>/<id>.ts`). mpv reconnects
 after short network drops. The screen stays awake during playback (wakelock).

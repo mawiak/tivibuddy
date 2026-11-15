@@ -102,7 +102,7 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
     return switch (decoder) {
       // The hardware decoder renders straight into the video surface.
       // Copying decoded frames back is slower and shows striped green
-      // frames on some MediaTek chips such as the Fire TV Stick Lite, whose
+      // frames on some MediaTek chips such as the Fire TV Stick 4K Max, whose
       // decoders use their own pixel layouts. Other chips, for example in
       // the Nvidia Shield, show wrong colours this way instead.
       VideoDecoder.hardware => const VideoControllerConfiguration(
