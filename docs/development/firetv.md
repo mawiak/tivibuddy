@@ -33,13 +33,23 @@ tool/deploy_firetv.sh <fire-tv-ip> --debug
 tool/deploy_firetv.sh <fire-tv-ip> --no-build   # reinstall the last build
 ```
 
-The script connects through adb, reads the device ABI (`armeabi-v7a` on the Fire TV Stick
-Lite, `arm64-v8a` on newer devices), builds split APKs, installs the matching one and starts
-the app.
+The script connects through adb, reads the device ABI (`armeabi-v7a` on most Fire TV sticks,
+including the 4K Max, `arm64-v8a` on for example the Fire TV Cube or Nvidia Shield), builds
+split APKs, installs the matching one and starts the app.
+
+## Builds for testers
+
+```sh
+tool/build_tester_apk.sh
+```
+
+builds one universal APK for all devices with "Send log to developer" enabled (see
+`docs/features/diagnostics.md`).
 
 Use release or profile builds to judge performance. Debug builds are much slower.
 
 ## Reference device
 
 The Fire TV Stick Lite (armv7, about 1 GB RAM) is the minimum supported device. Performance and
-memory must be checked on it before a milestone is marked done.
+memory must be checked on it before a milestone is marked done. The measurements so far come
+from a Fire TV Stick 4K Max (MediaTek MT8696, 2 GB RAM), which is clearly faster.

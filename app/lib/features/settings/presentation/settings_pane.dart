@@ -9,6 +9,8 @@ import '../../../core/theme/app_colors.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/tv_dialogs.dart';
 import '../../../shared/widgets/tv_list_tile.dart';
+import '../../diagnostics/application/log_report_actions.dart';
+import '../../diagnostics/presentation/send_log_dialog.dart';
 import '../../player/application/player_settings_providers.dart';
 import '../../player/domain/player_settings.dart';
 import '../../playlists/application/playlist_actions.dart';
@@ -145,6 +147,15 @@ class SettingsPane extends ConsumerWidget {
           ),
         ),
         _SectionHeader(l10n.settingsSectionGeneral),
+        if (ref.read(logReportActionsProvider).canSend)
+          _Entry(
+            TvListTile(
+              title: l10n.settingsSendLog,
+              subtitle: l10n.settingsSendLogSubtitle,
+              leading: Icons.bug_report_outlined,
+              onSelect: () => showSendLogDialog(context),
+            ),
+          ),
         _Entry(
           TvListTile(
             title: l10n.settingsAbout,

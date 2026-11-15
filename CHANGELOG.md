@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- "Send log to developer" in the settings of tester builds: sends device details and the
+  recent app and player log, without playlist passwords.
 - Player settings: video decoder mode (hardware, hardware copy, software) and audio
   passthrough of Dolby Digital, Dolby Digital Plus, DTS, DTS-HD and TrueHD to a receiver.
 - Sorting of movies and series by playlist order, date added, name, rating or release year.

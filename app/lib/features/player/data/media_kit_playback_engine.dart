@@ -31,6 +31,10 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
       ),
       player.stream.buffering.listen((buffering) {
         if (buffering) {
+          // Stalls are what testers notice as stutter.
+          if (_state.status == PlaybackStatus.playing) {
+            debugPrint('player buffering');
+          }
           _emit(_state.copyWith(status: PlaybackStatus.buffering));
         } else if (_state.status == PlaybackStatus.buffering) {
           _emit(
@@ -67,17 +71,38 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
         // mpv also reports recoverable problems here; only failures to open
         // or decode stop playback.
         if (!player.state.playing) {
+          debugPrint('player failed: $error');
           _emit(PlaybackState(status: PlaybackStatus.failed, error: error));
         }
       }),
       player.stream.completed.listen((completed) {
         // For live streams this means the server closed the stream.
         if (completed) {
+          debugPrint('player ended');
           _emit(_state.copyWith(status: PlaybackStatus.ended));
         }
       }),
     ]);
     unawaited(_configureMpv());
+    debugPrint(
+      'player created: decoder ${settings.decoder.name}, passthrough '
+      '${settings.passthrough.map((format) => format.mpvName).join(',')}',
+    );
+    // Playback details for diagnostic reports: once a stream plays and then
+    // every minute, so dropped frames and cache levels show up over time.
+    _subscriptions.add(
+      player.stream.playing.listen((playing) {
+        _statsTimer?.cancel();
+        if (!playing) return;
+        _statsTimer = Timer(const Duration(seconds: 3), () {
+          unawaited(_logStats());
+          _statsTimer = Timer.periodic(
+            const Duration(minutes: 1),
+            (_) => unawaited(_logStats()),
+          );
+        });
+      }),
+    );
   }
 
   final Player player;
@@ -125,6 +150,40 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
 
   final _states = StreamController<PlaybackState>.broadcast();
   final _subscriptions = <StreamSubscription<Object?>>[];
+  Timer? _statsTimer;
+
+  static const _statsProperties = [
+    'video-codec',
+    'hwdec-current',
+    'width',
+    'height',
+    'container-fps',
+    'estimated-vf-fps',
+    'video-bitrate',
+    'audio-codec-name',
+    'audio-params/channel-count',
+    'current-ao',
+    'audio-bitrate',
+    'frame-drop-count',
+    'decoder-frame-drop-count',
+    'demuxer-cache-duration',
+  ];
+
+  Future<void> _logStats() async {
+    final platform = player.platform;
+    if (platform is! NativePlayer) return;
+    final values = <String>[];
+    for (final property in _statsProperties) {
+      try {
+        final value = await platform.getProperty(property);
+        if (value.isNotEmpty) values.add('$property=$value');
+      } on Object {
+        // Not every property exists for every stream.
+      }
+    }
+    debugPrint('player stats: ${values.join(', ')}');
+  }
+
   PlaybackState _state = PlaybackState.idle;
 
   @override
@@ -174,6 +233,7 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
         start == null || start <= Duration.zero ? 'none' : '${start.inSeconds}',
       );
     }
+    debugPrint('player open: $url${start == null ? '' : ' at $start'}');
     await player.open(Media(url));
   }
 
@@ -296,6 +356,7 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
 
   @override
   Future<void> dispose() async {
+    _statsTimer?.cancel();
     for (final subscription in _subscriptions) {
       await subscription.cancel();
     }

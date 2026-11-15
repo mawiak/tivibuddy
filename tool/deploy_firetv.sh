@@ -4,7 +4,9 @@
 # Usage: tool/deploy_firetv.sh <device-ip[:port]> [--debug|--profile|--release] [--no-build]
 #
 # The device ABI is detected automatically, so the same command works for
-# 32-bit devices (Fire TV Stick Lite) and 64-bit devices (Fire TV Stick 4K Max).
+# 32-bit devices (most Fire TV sticks, including the 4K Max) and 64-bit
+# devices (for example Fire TV Cube, Nvidia Shield). With ~/.tivibuddy-telegram
+# present (see build_tester_apk.sh) the build can send logs to the developer.
 
 set -euo pipefail
 
@@ -13,7 +15,7 @@ readonly REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 readonly APP_DIR="${REPO_ROOT}/app"
 
 usage() {
-  sed -n '2,7p' "$0" | sed 's/^# \{0,1\}//'
+  sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//'
   exit 1
 }
 
@@ -48,7 +50,15 @@ echo "Device ABI: ${abi}"
 
 if [[ "${build}" == true ]]; then
   echo "Building ${mode} APKs"
-  (cd "${APP_DIR}" && flutter build apk "--${mode}" --split-per-abi)
+  defines=()
+  secrets="${TIVIBUDDY_TELEGRAM_FILE:-${HOME}/.tivibuddy-telegram}"
+  if [[ -f "${secrets}" ]]; then
+    defines=(
+      "--dart-define=TELEGRAM_BOT_TOKEN=$(sed -n 1p "${secrets}")"
+      "--dart-define=TELEGRAM_CHAT_ID=$(sed -n 2p "${secrets}")"
+    )
+  fi
+  (cd "${APP_DIR}" && flutter build apk "--${mode}" --split-per-abi ${defines[@]+"${defines[@]}"})
 fi
 
 apk="${APP_DIR}/build/app/outputs/flutter-apk/app-${abi}-${mode}.apk"

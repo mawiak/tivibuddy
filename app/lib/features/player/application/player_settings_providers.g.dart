@@ -51,7 +51,7 @@ final class PlayerSettingsControllerProvider
 }
 
 String _$playerSettingsControllerHash() =>
-    r'81cd70fd01e2bb82e08301491da3db224b6a8d4d';
+    r'8ccf58fb20bb5702e48d46d5f2b74b02bb73eb97';
 
 /// Player settings of this device, kept as device settings (SET-1). Kept
 /// alive and listened to from the app root, so the playback engine finds the

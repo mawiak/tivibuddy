@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:media_kit/media_kit.dart';
 
 import 'app.dart';
+import 'core/logging/app_log.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  installLogCapture();
   MediaKit.ensureInitialized();
 
   // Channel logos and posters are decoded at display size; this caps the

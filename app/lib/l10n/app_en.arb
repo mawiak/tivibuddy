@@ -209,6 +209,15 @@
   "settingsResetDeviceMessage": "All settings of this device return to their defaults. Profiles and playlists are kept.",
   "settingsReset": "Reset",
   "settingsAbout": "About TiviBuddy",
+  "settingsSendLog": "Send log to developer",
+  "settingsSendLogSubtitle": "Helps to find problems on this device",
+  "sendLogDescription": "What happened?",
+  "sendLogHint": "For example: ZDF stutters since 8:15 pm",
+  "sendLogPrivacy": "The log contains details of this device and the app messages since the last start. Playlist passwords are removed.",
+  "sendLogSend": "Send",
+  "sendLogSending": "Sending",
+  "sendLogSent": "Log sent. Thank you!",
+  "sendLogFailed": "The log could not be sent. Please check the internet connection.",
   "aboutVersion": "Version {version}",
   "@aboutVersion": {
     "placeholders": {

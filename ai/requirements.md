@@ -118,6 +118,13 @@ All requirements must be re-checked at the end of every unit of work (see `workf
 - I18N-2: Additional languages can be added through translation files (ARB) without code
   changes beyond registration.
 
+## DIAG - Diagnostics
+
+- DIAG-1: Testers can send a diagnostic report (device, memory, player settings, recent app
+  and player log) to the developers from the settings, only on their own request.
+- DIAG-2: Reports never contain playlist credentials. The transport secrets are compiled into
+  tester builds only and are never stored in the repository.
+
 ## CODE - Code quality
 
 - CODE-1: Clean, modular, readable code. Strict separation of UI (widgets), state/actions
