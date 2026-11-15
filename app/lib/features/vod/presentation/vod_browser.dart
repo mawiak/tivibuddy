@@ -552,7 +552,14 @@ class _CategoryColumnState extends State<_CategoryColumn> {
             selected: key != null && key == widget.selected,
             focusNode: key != null && key == _openedKey ? _openedOn : null,
             onFocus: key == null ? null : () => widget.onListFocused(key),
-            onSelect: entry.onSelect ?? widget.onChosen,
+            onSelect:
+                entry.onSelect ??
+                () {
+                  // A tap selects without focusing, so the list switches
+                  // here too.
+                  if (key != null) widget.onListFocused(key);
+                  widget.onChosen();
+                },
           );
         },
       ),

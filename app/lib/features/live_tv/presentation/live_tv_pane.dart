@@ -441,6 +441,11 @@ class _CategoryColumnState extends ConsumerState<_CategoryColumn> {
       liveCategorySelectionProvider(playlist.id).notifier,
     );
 
+    void choose(String? categoryId) {
+      selection.select(categoryId);
+      widget.onChosen();
+    }
+
     final entries = <Widget>[
       if (playlists.length > 1)
         _CategoryTile(
@@ -461,7 +466,8 @@ class _CategoryColumnState extends ConsumerState<_CategoryColumn> {
         label: l10n.liveAllChannels,
         selected: selectedCategoryId == null,
         focusNode: _openedCategoryId == null ? _openedOn : null,
-        onSelect: widget.onChosen,
+        // A tap selects without focusing, so the category switches here too.
+        onSelect: () => choose(null),
         onFocus: () => selection.select(null),
       ),
       for (final category in categories)
@@ -470,7 +476,7 @@ class _CategoryColumnState extends ConsumerState<_CategoryColumn> {
           count: category.channelCount,
           selected: category.id == selectedCategoryId,
           focusNode: category.id == _openedCategoryId ? _openedOn : null,
-          onSelect: widget.onChosen,
+          onSelect: () => choose(category.id),
           onFocus: () => selection.select(category.id),
         ),
       _CategoryTile(

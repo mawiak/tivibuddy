@@ -225,6 +225,19 @@ void main() {
     expect(activeTexts(), containsAll(['Channel 11', 'Show A11']));
   });
 
+  testWidgets('tapping a category filters and closes the categories', (
+    tester,
+  ) async {
+    await openLiveTv(tester);
+    await press(tester, LogicalKeyboardKey.arrowLeft);
+
+    await tester.tap(find.text('Sport'));
+    await settle(tester);
+    expect(find.text('News'), findsNothing, reason: 'categories close');
+    expect(find.text('Channel 1'), findsNothing);
+    expect(find.text('Channel 11'), findsWidgets);
+  });
+
   testWidgets('player zaps and back keeps the channel in the preview', (
     tester,
   ) async {
