@@ -30,11 +30,16 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
         (log) => debugPrint('mpv ${log.level} ${log.prefix}: ${log.text}'),
       ),
       player.stream.buffering.listen((buffering) {
+        // Start-up time and stalls are what testers notice as slow zapping
+        // and stutter.
+        final sinceOpen = _openedAt;
+        if (!buffering && sinceOpen != null && !_started) {
+          _started = true;
+          debugPrint('player started in ${sinceOpen.elapsedMilliseconds} ms');
+        } else if (buffering && _started) {
+          debugPrint('player stalled');
+        }
         if (buffering) {
-          // Stalls are what testers notice as stutter.
-          if (_state.status == PlaybackStatus.playing) {
-            debugPrint('player buffering');
-          }
           _emit(_state.copyWith(status: PlaybackStatus.buffering));
         } else if (_state.status == PlaybackStatus.buffering) {
           _emit(
@@ -88,18 +93,23 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
       'player created: decoder ${settings.decoder.name}, passthrough '
       '${settings.passthrough.map((format) => format.mpvName).join(',')}',
     );
-    // Playback details for diagnostic reports: once a stream plays and then
-    // every minute, so dropped frames and cache levels show up over time.
+    // Playback details for diagnostic reports: shortly after a stream
+    // starts, again once the decoder settled (hardware decoding may only
+    // start with the video surface) and then every minute, so dropped
+    // frames and cache levels show up over time.
     _subscriptions.add(
       player.stream.playing.listen((playing) {
         _statsTimer?.cancel();
         if (!playing) return;
         _statsTimer = Timer(const Duration(seconds: 3), () {
           unawaited(_logStats());
-          _statsTimer = Timer.periodic(
-            const Duration(minutes: 1),
-            (_) => unawaited(_logStats()),
-          );
+          _statsTimer = Timer(const Duration(seconds: 12), () {
+            unawaited(_logStats());
+            _statsTimer = Timer.periodic(
+              const Duration(minutes: 1),
+              (_) => unawaited(_logStats()),
+            );
+          });
         });
       }),
     );
@@ -151,6 +161,8 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
   final _states = StreamController<PlaybackState>.broadcast();
   final _subscriptions = <StreamSubscription<Object?>>[];
   Timer? _statsTimer;
+  Stopwatch? _openedAt;
+  bool _started = false;
 
   static const _statsProperties = [
     'video-codec',
@@ -234,6 +246,8 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
       );
     }
     debugPrint('player open: $url${start == null ? '' : ' at $start'}');
+    _openedAt = Stopwatch()..start();
+    _started = false;
     await player.open(Media(url));
   }
 

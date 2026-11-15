@@ -16,8 +16,9 @@ builds have no destination compiled in and do not show it.
 - Memory of the device and of the app (`/proc/meminfo`, `/proc/self/status`), load average.
 - Player settings (decoder, audio passthrough).
 - The last 3000 log lines since the app started: app messages, mpv warnings and errors, and
-  player events. The player logs when it is created, every stream it opens, stalls while
-  playing (`player buffering`), failures, and every minute while playing a line of statistics:
+  player events. The player logs when it is created, every stream it opens, how long a stream
+  took to start (`player started in ... ms`), stalls while playing (`player stalled`),
+  failures, and lines of statistics 3 and 15 seconds after the start and then every minute:
   codec, hardware decoder in use, resolution, frame rates, bitrates, audio channels and output,
   dropped frames and the seconds buffered.
 
