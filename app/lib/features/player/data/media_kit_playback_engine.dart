@@ -5,11 +5,12 @@ import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 
 import '../domain/playback_engine.dart';
+import '../domain/player_settings.dart';
 
 /// libmpv with FFmpeg through media_kit: plays practically every container
 /// and codec, with hardware decoding where available (PLAY-1, PLAY-2).
 class MediaKitPlaybackEngine implements PlaybackEngine {
-  MediaKitPlaybackEngine()
+  MediaKitPlaybackEngine([this.settings = PlayerSettings.defaults])
     : player = Player(
         configuration: const PlayerConfiguration(
           title: 'TiviBuddy',
@@ -20,17 +21,7 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
       ) {
     controller = VideoController(
       player,
-      configuration: _isAndroid
-          // The hardware decoder renders straight into the video surface.
-          // Copying decoded frames back (the default) is slower and shows
-          // striped green frames on MediaTek chips such as the Fire TV
-          // Stick Lite, whose decoders use their own pixel layouts.
-          ? const VideoControllerConfiguration(
-              vo: 'mediacodec_embed',
-              hwdec: 'mediacodec',
-            )
-          // Elsewhere media_kit picks hardware decoding itself (PLAY-2).
-          : const VideoControllerConfiguration(),
+      configuration: _videoConfiguration(settings.decoder),
     );
     _subscriptions.addAll([
       // Warnings and errors of mpv end up in the platform log (logcat on
@@ -91,6 +82,43 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
 
   final Player player;
   late final VideoController controller;
+  final PlayerSettings settings;
+
+  static VideoControllerConfiguration _videoConfiguration(
+    VideoDecoder decoder,
+  ) {
+    if (!_isAndroid) {
+      // Elsewhere media_kit picks hardware decoding itself (PLAY-2).
+      return switch (decoder) {
+        VideoDecoder.hardware => const VideoControllerConfiguration(),
+        VideoDecoder.hardwareCopy => const VideoControllerConfiguration(
+          hwdec: 'auto-copy',
+        ),
+        VideoDecoder.software => const VideoControllerConfiguration(
+          hwdec: 'no',
+        ),
+      };
+    }
+    return switch (decoder) {
+      // The hardware decoder renders straight into the video surface.
+      // Copying decoded frames back is slower and shows striped green
+      // frames on some MediaTek chips such as the Fire TV Stick Lite, whose
+      // decoders use their own pixel layouts. Other chips, for example in
+      // the Nvidia Shield, show wrong colours this way instead.
+      VideoDecoder.hardware => const VideoControllerConfiguration(
+        vo: 'mediacodec_embed',
+        hwdec: 'mediacodec',
+      ),
+      VideoDecoder.hardwareCopy => const VideoControllerConfiguration(
+        vo: 'gpu',
+        hwdec: 'mediacodec-copy',
+      ),
+      VideoDecoder.software => const VideoControllerConfiguration(
+        vo: 'gpu',
+        hwdec: 'no',
+      ),
+    };
+  }
 
   static bool get _isAndroid =>
       !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
@@ -121,6 +149,13 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
     // as default. Preferred languages per profile come later (SET-2).
     await platform.setProperty('subs-fallback', 'no');
     await platform.setProperty('subs-fallback-forced', 'yes');
+    // Formats the receiver decodes itself; everything else becomes PCM.
+    if (settings.passthrough.isNotEmpty) {
+      await platform.setProperty(
+        'audio-spdif',
+        settings.passthrough.map((format) => format.mpvName).join(','),
+      );
+    }
     // Reconnect on short network drops of live streams.
     await platform.setProperty(
       'stream-lavf-o',

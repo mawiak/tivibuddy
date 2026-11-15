@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Player settings: video decoder mode (hardware, hardware copy, software) and audio
+  passthrough of Dolby Digital, Dolby Digital Plus, DTS, DTS-HD and TrueHD to a receiver.
 - Sorting of movies and series by playlist order, date added, name, rating or release year.
 - Search over channels, movies and series of the selected playlist.
 - VOD info bar with rewind, play/pause, fast forward and start over controls, resolution and

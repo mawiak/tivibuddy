@@ -11,7 +11,8 @@ part of 'player_providers.dart';
 /// Playback engine shared by the full screen player and the guide preview.
 /// Auto-disposed when neither shows it anymore, which frees decoders and
 /// buffers (RES-1). While it exists the screen stays on; platforms without
-/// wake lock support simply do not get that.
+/// wake lock support simply do not get that. Changed player settings apply
+/// to the next engine.
 
 @ProviderFor(playbackEngine)
 final playbackEngineProvider = PlaybackEngineProvider._();
@@ -19,7 +20,8 @@ final playbackEngineProvider = PlaybackEngineProvider._();
 /// Playback engine shared by the full screen player and the guide preview.
 /// Auto-disposed when neither shows it anymore, which frees decoders and
 /// buffers (RES-1). While it exists the screen stays on; platforms without
-/// wake lock support simply do not get that.
+/// wake lock support simply do not get that. Changed player settings apply
+/// to the next engine.
 
 final class PlaybackEngineProvider
     extends $FunctionalProvider<PlaybackEngine, PlaybackEngine, PlaybackEngine>
@@ -27,7 +29,8 @@ final class PlaybackEngineProvider
   /// Playback engine shared by the full screen player and the guide preview.
   /// Auto-disposed when neither shows it anymore, which frees decoders and
   /// buffers (RES-1). While it exists the screen stays on; platforms without
-  /// wake lock support simply do not get that.
+  /// wake lock support simply do not get that. Changed player settings apply
+  /// to the next engine.
   PlaybackEngineProvider._()
     : super(
         from: null,
@@ -61,4 +64,4 @@ final class PlaybackEngineProvider
   }
 }
 
-String _$playbackEngineHash() => r'42e328dd94d7881e7bc7880942ccba261e5ac2ba';
+String _$playbackEngineHash() => r'e344bcf0c6ec6e32c21826875b18d2045d97b6b9';

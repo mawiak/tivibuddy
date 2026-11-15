@@ -110,7 +110,8 @@ about one minute in the background, with the app at about 120 to 145 MB.
 uses media_kit (libmpv with FFmpeg). On Android the hardware decoder (MediaCodec) renders
 straight into the video surface (`vo=mediacodec_embed`, `hwdec=mediacodec`). The default
 copy mode reads decoded frames back, which costs more CPU and shows striped green frames on
-MediaTek chips such as the Fire TV Stick Lite. With direct rendering a 720p H.264 channel
+MediaTek chips such as the Fire TV Stick Lite. Other chips show wrong colours with direct
+rendering, so the decoder can be changed in the player settings (see `settings.md`). With direct rendering a 720p H.264 channel
 needs about 45 % of one of four cores on that device. mpv warnings and errors are written to the platform log with the prefix `mpv`.
 
 Live streams are requested as MPEG-TS (`/live/<user>/<password>/<id>.ts`). mpv reconnects

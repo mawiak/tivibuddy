@@ -43,8 +43,8 @@ Live TV and player:
   mpv pauses about half a second for its refresh seek.
 - Player options in the OSD: aspect ratio / zoom, playback speed for VOD, stream info
   (codec, resolution, bitrate), sleep timer.
-- Decoder choice per device (hardware direct, hardware copy, software) and buffer size as
-  device settings (SET-1); software fallback when the hardware decoder fails.
+- Buffer size as a device setting (SET-1); automatic software fallback when the hardware
+  decoder fails (the decoder mode itself is a setting since 2026-11-15).
 - Favorites for channels and a favorites category; recently watched channels.
 - Channel number input with the remote; jump to the previous channel.
 - Catch-up / timeshift (LIVE-3), past programmes in the guide.

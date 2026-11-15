@@ -83,11 +83,13 @@ class TvSwitchTile extends StatelessWidget {
     required this.onChanged,
     this.subtitle,
     this.leading,
+    this.autofocus = false,
   });
 
   final String title;
   final String? subtitle;
   final IconData? leading;
+  final bool autofocus;
   final bool value;
   final ValueChanged<bool> onChanged;
 
@@ -97,6 +99,7 @@ class TvSwitchTile extends StatelessWidget {
       title: title,
       subtitle: subtitle,
       leading: leading,
+      autofocus: autofocus,
       onSelect: () => onChanged(!value),
       trailing: ExcludeFocus(
         child: Switch(value: value, onChanged: onChanged),

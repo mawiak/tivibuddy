@@ -1,0 +1,62 @@
+/// How video is decoded (PLAY-2). Some chips render wrong colours in one
+/// mode and fine in another, so the user can switch per device.
+enum VideoDecoder {
+  /// The hardware decoder renders straight into the video surface: fastest.
+  hardware,
+
+  /// The hardware decoder copies its frames back for rendering.
+  hardwareCopy,
+
+  /// FFmpeg decodes on the CPU: slowest, but independent of the chip.
+  software,
+}
+
+/// Compressed audio formats sent unchanged to a receiver or soundbar over
+/// HDMI or S/PDIF instead of being decoded to PCM.
+enum AudioPassthrough {
+  ac3('ac3'),
+  eac3('eac3'),
+  dts('dts'),
+  dtsHd('dts-hd'),
+  trueHd('truehd');
+
+  const AudioPassthrough(this.mpvName);
+
+  /// Name in the `audio-spdif` option of mpv.
+  final String mpvName;
+}
+
+/// Player settings of this device (SET-1).
+class PlayerSettings {
+  const PlayerSettings({
+    this.decoder = VideoDecoder.hardware,
+    this.passthrough = const {},
+  });
+
+  static const defaults = PlayerSettings();
+
+  final VideoDecoder decoder;
+
+  /// Formats passed through; empty decodes all audio to PCM, which every
+  /// output understands.
+  final Set<AudioPassthrough> passthrough;
+
+  PlayerSettings copyWith({
+    VideoDecoder? decoder,
+    Set<AudioPassthrough>? passthrough,
+  }) => PlayerSettings(
+    decoder: decoder ?? this.decoder,
+    passthrough: passthrough ?? this.passthrough,
+  );
+
+  @override
+  bool operator ==(Object other) =>
+      other is PlayerSettings &&
+      other.decoder == decoder &&
+      other.passthrough.length == passthrough.length &&
+      other.passthrough.containsAll(passthrough);
+
+  @override
+  int get hashCode =>
+      Object.hash(decoder, Object.hashAllUnordered(passthrough));
+}

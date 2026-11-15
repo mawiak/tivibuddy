@@ -61,12 +61,17 @@ class TvChoice<T> {
 Future<T?> showTvChoiceDialog<T>(
   BuildContext context, {
   required String title,
+  String? message,
   required List<TvChoice<T>> choices,
 }) => showDialog<T>(
   context: context,
   builder: (context) => _TvDialog(
     title: title,
     children: [
+      if (message != null) ...[
+        Text(message, style: Theme.of(context).textTheme.bodyMedium),
+        const SizedBox(height: 16),
+      ],
       for (final (index, choice) in choices.indexed)
         Padding(
           padding: const EdgeInsets.only(bottom: 8),
@@ -79,6 +84,51 @@ Future<T?> showTvChoiceDialog<T>(
         ),
     ],
   ),
+);
+
+/// Shows options that are switched on and off independently. Every change
+/// is reported through [onChanged] right away; back closes the dialog.
+Future<void> showTvToggleDialog<T>(
+  BuildContext context, {
+  required String title,
+  String? message,
+  required List<TvChoice<T>> choices,
+  required Set<T> selected,
+  required ValueChanged<Set<T>> onChanged,
+}) => showDialog<void>(
+  context: context,
+  builder: (context) {
+    var current = {...selected};
+    return StatefulBuilder(
+      builder: (context, setState) => _TvDialog(
+        title: title,
+        children: [
+          if (message != null) ...[
+            Text(message, style: Theme.of(context).textTheme.bodyMedium),
+            const SizedBox(height: 16),
+          ],
+          for (final (index, choice) in choices.indexed)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: TvSwitchTile(
+                title: choice.label,
+                leading: choice.icon,
+                autofocus: index == 0,
+                value: current.contains(choice.value),
+                onChanged: (on) {
+                  setState(() {
+                    current = on
+                        ? {...current, choice.value}
+                        : ({...current}..remove(choice.value));
+                  });
+                  onChanged(current);
+                },
+              ),
+            ),
+        ],
+      ),
+    );
+  },
 );
 
 class _TvDialog extends StatelessWidget {

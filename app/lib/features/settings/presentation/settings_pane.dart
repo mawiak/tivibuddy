@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -7,6 +9,8 @@ import '../../../core/theme/app_colors.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/tv_dialogs.dart';
 import '../../../shared/widgets/tv_list_tile.dart';
+import '../../player/application/player_settings_providers.dart';
+import '../../player/domain/player_settings.dart';
 import '../../playlists/application/playlist_actions.dart';
 import '../../profiles/application/profile_providers.dart';
 import '../../profiles/domain/profile.dart';
@@ -27,6 +31,7 @@ class SettingsPane extends ConsumerWidget {
     final settings = ref.watch(activeProfileSettingsProvider).value;
     final startProfileId = ref.watch(defaultProfileIdProvider).value;
     final guideDays = ref.watch(guideDaysProvider).value ?? defaultGuideDays;
+    final player = ref.watch(playerSettingsControllerProvider);
     final playlistCount =
         ref.watch(activeProfilePlaylistsProvider).value?.length ?? 0;
 
@@ -116,6 +121,29 @@ class SettingsPane extends ConsumerWidget {
             },
           ),
         ),
+        _SectionHeader(l10n.settingsSectionPlayer),
+        _Entry(
+          TvListTile(
+            title: l10n.settingsDecoder,
+            subtitle: decoderLabel(l10n, player.decoder),
+            leading: Icons.memory,
+            onSelect: () => _chooseDecoder(context, ref),
+          ),
+        ),
+        _Entry(
+          TvListTile(
+            title: l10n.settingsPassthrough,
+            subtitle: player.passthrough.isEmpty
+                ? l10n.settingsPassthroughOff
+                : [
+                    for (final format in AudioPassthrough.values)
+                      if (player.passthrough.contains(format))
+                        audioFormatLabel(l10n, format),
+                  ].join(', '),
+            leading: Icons.surround_sound_outlined,
+            onSelect: () => _choosePassthrough(context, ref, player),
+          ),
+        ),
         _SectionHeader(l10n.settingsSectionGeneral),
         _Entry(
           TvListTile(
@@ -193,6 +221,43 @@ class SettingsPane extends ConsumerWidget {
     }
   }
 
+  Future<void> _chooseDecoder(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context);
+    final choice = await showTvChoiceDialog<VideoDecoder>(
+      context,
+      title: l10n.settingsDecoder,
+      message: l10n.settingsDecoderHint,
+      choices: [
+        for (final decoder in VideoDecoder.values)
+          TvChoice(decoder, decoderLabel(l10n, decoder)),
+      ],
+    );
+    if (choice == null) return;
+    await ref
+        .read(playerSettingsControllerProvider.notifier)
+        .setDecoder(choice);
+  }
+
+  Future<void> _choosePassthrough(
+    BuildContext context,
+    WidgetRef ref,
+    PlayerSettings current,
+  ) {
+    final l10n = AppLocalizations.of(context);
+    final controller = ref.read(playerSettingsControllerProvider.notifier);
+    return showTvToggleDialog<AudioPassthrough>(
+      context,
+      title: l10n.settingsPassthrough,
+      message: l10n.settingsPassthroughHint,
+      choices: [
+        for (final format in AudioPassthrough.values)
+          TvChoice(format, audioFormatLabel(l10n, format)),
+      ],
+      selected: current.passthrough,
+      onChanged: (formats) => unawaited(controller.setPassthrough(formats)),
+    );
+  }
+
   // Dialog results use sentinels because null means "dismissed".
   static const _system = '';
   static const _none = '';
@@ -200,6 +265,22 @@ class SettingsPane extends ConsumerWidget {
 
 String guideDaysLabel(AppLocalizations l10n, int days) =>
     days == 0 ? l10n.settingsGuideDaysOff : l10n.settingsGuideDaysValue(days);
+
+String decoderLabel(AppLocalizations l10n, VideoDecoder decoder) =>
+    switch (decoder) {
+      VideoDecoder.hardware => l10n.settingsDecoderHardware,
+      VideoDecoder.hardwareCopy => l10n.settingsDecoderHardwareCopy,
+      VideoDecoder.software => l10n.settingsDecoderSoftware,
+    };
+
+String audioFormatLabel(AppLocalizations l10n, AudioPassthrough format) =>
+    switch (format) {
+      AudioPassthrough.ac3 => l10n.audioFormatAc3,
+      AudioPassthrough.eac3 => l10n.audioFormatEac3,
+      AudioPassthrough.dts => l10n.audioFormatDts,
+      AudioPassthrough.dtsHd => l10n.audioFormatDtsHd,
+      AudioPassthrough.trueHd => l10n.audioFormatTrueHd,
+    };
 
 /// Display name of a stored language tag.
 String languageLabel(BuildContext context, String? languageCode) {

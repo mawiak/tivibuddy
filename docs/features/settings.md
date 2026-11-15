@@ -30,6 +30,24 @@ cleared value keeps a row with `deleted = true` so the change can be synchronize
 
 Device settings are stored in `device_setting_entries` and are never synchronized.
 
+## Player section (this installation only)
+
+| Setting           | Values                                                        | Default  |
+|-------------------|---------------------------------------------------------------|----------|
+| Video decoder     | Hardware, hardware copy mode, software                        | Hardware |
+| Audio passthrough | Any of Dolby Digital, Dolby Digital Plus, DTS, DTS-HD, TrueHD | Off      |
+
+The decoder applies from the next playback, because it is chosen when the player is created.
+Hardware renders straight into the video surface; copy mode is the media_kit default and
+helps on chips that show wrong colours with direct rendering (reported for the Nvidia
+Shield); software decoding works everywhere but needs much more CPU.
+
+Without passthrough all audio is decoded to PCM, which every output plays. Passthrough sends
+the selected formats unchanged over HDMI or S/PDIF (mpv `audio-spdif`), so a receiver or
+soundbar shows and decodes them itself; a format the receiver does not support stays silent.
+TrueHD (Atmos) is only played through passthrough, the bundled FFmpeg has no TrueHD decoder.
+Both are stored under the keys `player.decoder` and `player.passthrough`.
+
 ## General section
 
 About TiviBuddy: version, license, legal disclaimer and the licenses of the bundled open
@@ -37,6 +55,6 @@ source packages.
 
 ## Planned
 
-Player, decoder and buffer settings, preferred audio and subtitle languages, category order
+Buffer settings, preferred audio and subtitle languages, category order
 and hidden categories, and the sync server configuration are added together with the features
 they belong to.
