@@ -32,10 +32,14 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
       player.stream.buffering.listen((buffering) {
         // Start-up time and stalls are what testers notice as slow zapping
         // and stutter.
+        // A new player reports "not buffering" before it starts to buffer,
+        // so a start needs a buffering phase that ended.
         final sinceOpen = _openedAt;
-        if (!buffering && sinceOpen != null && !_started) {
+        if (buffering && !_started) {
+          _bufferedSinceOpen = true;
+        } else if (!buffering && _bufferedSinceOpen && !_started) {
           _started = true;
-          debugPrint('player started in ${sinceOpen.elapsedMilliseconds} ms');
+          debugPrint('player started in ${sinceOpen?.elapsedMilliseconds} ms');
         } else if (buffering && _started) {
           debugPrint('player stalled');
         }
@@ -93,26 +97,6 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
       'player created: decoder ${settings.decoder.name}, passthrough '
       '${settings.passthrough.map((format) => format.mpvName).join(',')}',
     );
-    // Playback details for diagnostic reports: shortly after a stream
-    // starts, again once the decoder settled (hardware decoding may only
-    // start with the video surface) and then every minute, so dropped
-    // frames and cache levels show up over time.
-    _subscriptions.add(
-      player.stream.playing.listen((playing) {
-        _statsTimer?.cancel();
-        if (!playing) return;
-        _statsTimer = Timer(const Duration(seconds: 3), () {
-          unawaited(_logStats());
-          _statsTimer = Timer(const Duration(seconds: 12), () {
-            unawaited(_logStats());
-            _statsTimer = Timer.periodic(
-              const Duration(minutes: 1),
-              (_) => unawaited(_logStats()),
-            );
-          });
-        });
-      }),
-    );
   }
 
   final Player player;
@@ -163,6 +147,25 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
   Timer? _statsTimer;
   Stopwatch? _openedAt;
   bool _started = false;
+  bool _bufferedSinceOpen = false;
+
+  /// Playback details for diagnostic reports: shortly after a stream opens,
+  /// again once the decoder settled (hardware decoding may only start with
+  /// the video surface) and then every minute, so dropped frames and cache
+  /// levels show up over time. Pausing or stalls do not restart the plan.
+  void _scheduleStats() {
+    _statsTimer?.cancel();
+    _statsTimer = Timer(const Duration(seconds: 3), () {
+      unawaited(_logStats());
+      _statsTimer = Timer(const Duration(seconds: 12), () {
+        unawaited(_logStats());
+        _statsTimer = Timer.periodic(
+          const Duration(minutes: 1),
+          (_) => unawaited(_logStats()),
+        );
+      });
+    });
+  }
 
   static const _statsProperties = [
     'video-codec',
@@ -183,7 +186,7 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
 
   Future<void> _logStats() async {
     final platform = player.platform;
-    if (platform is! NativePlayer) return;
+    if (platform is! NativePlayer || _state.stopped) return;
     final values = <String>[];
     for (final property in _statsProperties) {
       try {
@@ -248,6 +251,8 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
     debugPrint('player open: $url${start == null ? '' : ' at $start'}');
     _openedAt = Stopwatch()..start();
     _started = false;
+    _bufferedSinceOpen = false;
+    _scheduleStats();
     await player.open(Media(url));
   }
 
