@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Right in the live TV player jumps back to the channel played before.
 - "Send log to developer" in the settings of tester builds: sends device details and the
   recent app and player log, without playlist passwords.
 - Player settings: video decoder mode (hardware, hardware copy, software) and audio

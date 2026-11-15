@@ -121,6 +121,22 @@ class _LivePlayerScreenState extends ConsumerState<LivePlayerScreen> {
     );
   }
 
+  /// Jumps back to the channel played before, like common IPTV players do
+  /// with right. Only within the same channel list; otherwise, or without
+  /// one, it just shows the channel info.
+  void _tunePrevious() {
+    final previous = ref.read(nowPlayingProvider.notifier).previous;
+    final position = previous?.position;
+    if (position == null ||
+        position.playlistId != widget.args.playlistId ||
+        position.categoryId != widget.args.categoryId ||
+        position.index == _index) {
+      _showOsd();
+      return;
+    }
+    _tune(position.index, immediately: true);
+  }
+
   Future<void> _play(LiveChannel channel, {bool retry = false}) async {
     final nowPlaying = ref.read(nowPlayingProvider.notifier);
     // Coming from the guide preview, the channel already plays.
@@ -210,8 +226,10 @@ class _LivePlayerScreenState extends ConsumerState<LivePlayerScreen> {
       } else {
         _toggleList(true);
       }
+    } else if (key == LogicalKeyboardKey.arrowRight ||
+        key == LogicalKeyboardKey.mediaLast) {
+      _tunePrevious();
     } else if (key == LogicalKeyboardKey.arrowLeft ||
-        key == LogicalKeyboardKey.arrowRight ||
         key == LogicalKeyboardKey.info) {
       _showOsd();
     } else if (key == LogicalKeyboardKey.mediaPlayPause ||

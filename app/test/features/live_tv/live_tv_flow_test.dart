@@ -292,6 +292,30 @@ void main() {
     expect(engine.disposed, isTrue, reason: 'player resources are released');
   });
 
+  testWidgets('right jumps back to the previous channel', (tester) async {
+    await openLiveTv(tester);
+    await press(tester, LogicalKeyboardKey.select);
+    expect(engine.opened, ['http://stream/1001']);
+
+    await press(tester, LogicalKeyboardKey.arrowRight);
+    await settle(tester);
+    expect(engine.opened, hasLength(1), reason: 'no previous channel yet');
+
+    // Quick zapping over channel 2 counts only the channel where it stops.
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+    await settle(tester);
+    expect(engine.opened.last, 'http://stream/1003');
+
+    await press(tester, LogicalKeyboardKey.arrowRight);
+    await settle(tester);
+    expect(engine.opened.last, 'http://stream/1001');
+    await press(tester, LogicalKeyboardKey.arrowRight);
+    await settle(tester);
+    expect(engine.opened.last, 'http://stream/1003');
+    expect(engine.opened, hasLength(4));
+  });
+
   testWidgets('up and down move through the open channel list', (tester) async {
     await openLiveTv(tester);
     await press(tester, LogicalKeyboardKey.select);

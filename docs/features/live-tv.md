@@ -29,7 +29,8 @@ UI-3.
   |------------------------------|-------------------------------------------------|
   | Up / down, channel up / down | Previous / next channel of the list (wraps)     |
   | Select                       | Channel list overlay; retry after a failure     |
-  | Left / right / info          | Show the info bar                               |
+  | Right, last channel          | Back to the channel played before (same list)   |
+  | Left / info                  | Show the info bar                               |
   | Menu                         | Options: audio, subtitle and video track        |
   | Play / pause                 | Pause and resume                                |
   | Back                         | Close the overlay, otherwise leave the player   |

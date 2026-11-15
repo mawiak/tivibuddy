@@ -46,7 +46,7 @@ Live TV and player:
 - Buffer size as a device setting (SET-1); automatic software fallback when the hardware
   decoder fails (the decoder mode itself is a setting since 2026-11-15).
 - Favorites for channels and a favorites category; recently watched channels.
-- Channel number input with the remote; jump to the previous channel.
+- Channel number input with the remote; previous channel across channel lists.
 - Catch-up / timeshift (LIVE-3), past programmes in the guide.
 - Reminders and programme details for future programmes in the guide; guide search.
 - Category order and hidden categories per profile (SET-2); hidden channels.

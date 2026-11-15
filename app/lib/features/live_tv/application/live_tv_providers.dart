@@ -184,6 +184,12 @@ class NowPlaying extends _$NowPlaying {
   @override
   ({LivePosition position, LiveChannel channel})? build() => null;
 
-  void set(LivePosition position, LiveChannel channel) =>
-      state = (position: position, channel: channel);
+  /// Channel played before the current one, for jumping back to it.
+  ({LivePosition position, LiveChannel channel})? previous;
+
+  void set(LivePosition position, LiveChannel channel) {
+    final current = stateOrNull;
+    if (current != null && current.channel != channel) previous = current;
+    state = (position: position, channel: channel);
+  }
 }

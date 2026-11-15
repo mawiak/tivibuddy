@@ -657,7 +657,7 @@ final class NowPlayingProvider
   }
 }
 
-String _$nowPlayingHash() => r'859edb40d6a29927678532cdd61b3507867e9d1c';
+String _$nowPlayingHash() => r'0195383ee145a0e88df8c6ccd0feebd9a1703999';
 
 /// Channel the player opened last. The guide shows it in its preview after
 /// the full screen player closes, and the player does not open it again when
