@@ -279,6 +279,24 @@ void main() {
     expect(engine.disposed, isTrue, reason: 'player resources are released');
   });
 
+  testWidgets('up and down move through the open channel list', (tester) async {
+    await openLiveTv(tester);
+    await press(tester, LogicalKeyboardKey.select);
+    expect(engine.opened, ['http://stream/1001']);
+
+    await press(tester, LogicalKeyboardKey.select);
+    expect(find.text('Channels'), findsOneWidget);
+    await press(tester, LogicalKeyboardKey.arrowDown);
+    await press(tester, LogicalKeyboardKey.arrowDown);
+    await settle(tester);
+    expect(engine.opened, ['http://stream/1001'], reason: 'no zapping');
+
+    await press(tester, LogicalKeyboardKey.select);
+    await settle(tester);
+    expect(find.text('Channels'), findsNothing);
+    expect(engine.opened, ['http://stream/1001', 'http://stream/1003']);
+  });
+
   testWidgets('a playback failure is shown and select retries', (tester) async {
     await openLiveTv(tester);
     await press(tester, LogicalKeyboardKey.select);

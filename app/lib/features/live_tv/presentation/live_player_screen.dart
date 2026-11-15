@@ -169,6 +169,10 @@ class _LivePlayerScreenState extends ConsumerState<LivePlayerScreen> {
     // The options handle their keys themselves; unhandled ones go on to the
     // app-wide shortcuts, which move focus and select.
     if (_optionsOpen) return KeyEventResult.ignored;
+    // This handler sits above the channel list and sees its keys before the
+    // app-wide shortcuts do, so up and down would zap instead of moving the
+    // focus through the list.
+    if (_listVisible) return KeyEventResult.ignored;
     if (event is! KeyDownEvent && event is! KeyRepeatEvent) {
       return KeyEventResult.ignored;
     }

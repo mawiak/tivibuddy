@@ -56,6 +56,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Up and down in the open channel list of the player zapped instead of moving through the list.
 - Posters and the guide keep their size when the categories open; they shift to the right.
 - Green, striped video and stuttering sound on Fire TV: the hardware decoder now renders
   directly into the video surface.
