@@ -26,7 +26,8 @@ builds have no destination compiled in and do not show it.
 
 `redactCredentials` (`app/lib/core/logging/redact.dart`) replaces the account in Xtream stream
 paths (`/live/<user>/<password>/`) and `username=` / `password=` query parameters with `***`
-before a line is kept in memory or written to the platform log. The report is only built and
+before a line is kept in memory or written to the platform log. The provider's host name stays
+in the log on purpose, because providers differ in how their streams behave. The report is only built and
 sent when the tester selects send; nothing is uploaded in the background.
 
 ## Tester builds

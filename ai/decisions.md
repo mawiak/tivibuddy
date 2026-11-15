@@ -29,3 +29,4 @@ Decisions agreed with the project owner. Do not reopen them without the owner as
 | 2026-11-11 | Live TV layout      | The guide is the live TV view: details (preview while playing), grid; left or back from the current programme opens the categories column on the selected category, pushing the grid; back from the player returns to it |
 | 2026-11-15 | Tester logs         | Sent on request to the owner's Telegram bot; token and chat id only in tester builds (`--dart-define`) |
 | 2026-11-15 | Test device         | The owner's device is a Fire TV Stick 4K Max (32-bit Fire OS 7); the Lite stays the untested minimum |
+| 2026-11-15 | Log privacy         | Credentials are redacted; the provider host name stays in tester logs     |
