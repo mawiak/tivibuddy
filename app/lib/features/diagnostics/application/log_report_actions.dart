@@ -55,6 +55,9 @@ class LogReportActions {
       '',
       '--- log ---',
       ...appLog.lines,
+      '',
+      '--- platform log (warnings, errors, renderer) ---',
+      ...(await platformLogExcerpt()).map(redactCredentials),
     ];
     return lines.join('\n');
   }

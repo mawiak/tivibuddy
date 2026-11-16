@@ -20,7 +20,12 @@ builds have no destination compiled in and do not show it.
   took to start (`player started in ... ms`), stalls while playing (`player stalled`),
   failures, and lines of statistics 3 and 15 seconds after the start and then every minute:
   codec, hardware decoder in use, resolution, frame rates, bitrates, audio channels and output,
-  dropped frames and the seconds buffered.
+  the audio actually sent to the output (`audio-out-params`, `spdif-*` for passthrough),
+  dropped frames and the seconds buffered. Seeks, pause, resume and track changes are logged
+  too, so the rebuffering they cause is not mistaken for a stall.
+- On Android an excerpt of the app's own platform log (logcat, no extra permission needed):
+  the renderer Flutter uses, and warnings and errors, for example of the hardware decoder or
+  the audio output.
 
 ## Privacy
 

@@ -50,6 +50,39 @@ Future<List<String>> describeDevice() async {
   return lines;
 }
 
+/// Lines of the platform log (logcat) of this app that matter for playback
+/// problems: the renderer Flutter chose, warnings and errors, for example of
+/// the hardware decoder or the audio output. Apps may read their own log
+/// without extra permissions. Empty where there is no logcat.
+Future<List<String>> platformLogExcerpt({int maxLines = 200}) async {
+  if (kIsWeb || !Platform.isAndroid) return const [];
+  try {
+    final result = await Process.run('logcat', [
+      '-d',
+      '-v',
+      'time',
+      '--pid=$pid',
+    ]);
+    final renderer = RegExp(
+      'impeller|vulkan|opengl|skia|rendering backend',
+      caseSensitive: false,
+    );
+    final problem = RegExp(r'^\S+ \S+ [WEF]/');
+    final lines = [
+      for (final line in (result.stdout as String).split('\n'))
+        // Other Dart output is already in the app log.
+        if (renderer.hasMatch(line) ||
+            (problem.hasMatch(line) && !line.contains('/flutter')))
+          line.trim(),
+    ];
+    return lines.length > maxLines
+        ? lines.sublist(lines.length - maxLines)
+        : lines;
+  } on Object catch (error) {
+    return ['platform log unavailable: $error'];
+  }
+}
+
 /// Lines of a proc file starting with one of [keys], or all lines when
 /// [keys] is empty.
 Future<List<String>> _procLines(String path, List<String> keys) async {
