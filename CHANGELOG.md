@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Audio tracks in the player options name their codec, for example Dolby Digital (AC3) or DTS.
 - Right in the live TV player jumps back to the channel played before.
 - "Send log to developer" in the settings of tester builds: sends device details and the
   recent app and player log, without playlist passwords.

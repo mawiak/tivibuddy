@@ -29,7 +29,22 @@ String? _channelLayout(AppLocalizations l10n, int? channels) =>
       final count => l10n.playerChannelsCount(count),
     };
 
-/// Readable name of a track, for example "German, 5.1 surround sound".
+/// Name of an audio codec as players and receivers show it, so users see
+/// which tracks a receiver can take through passthrough.
+String? audioCodecName(AppLocalizations l10n, String? codec) =>
+    switch (codec?.toLowerCase()) {
+      null || '' => null,
+      'ac3' => l10n.audioFormatAc3,
+      'eac3' => l10n.audioFormatEac3,
+      'dts' || 'dca' => l10n.audioFormatDts,
+      'truehd' || 'mlp' => l10n.audioFormatTrueHd,
+      'mp2' || 'mp3' || 'aac' || 'opus' || 'flac' => codec!.toUpperCase(),
+      // Raw decoder names are unclear to users.
+      _ => null,
+    };
+
+/// Readable name of a track, for example "German, 5.1 surround sound,
+/// Dolby Digital (AC3)".
 String trackLabel(AppLocalizations l10n, MediaTrack track, int index) {
   final language =
       languageName(l10n, track.language) ?? track.language?.toUpperCase();
@@ -40,6 +55,7 @@ String trackLabel(AppLocalizations l10n, MediaTrack track, int index) {
       // Titles often repeat the language; they only help without one.
       if (language == null) ?title,
       ?_channelLayout(l10n, track.channels),
+      ?audioCodecName(l10n, track.codec),
     ],
     MediaTrackType.subtitle => [?language, ?title],
     MediaTrackType.video => [
