@@ -6,19 +6,22 @@ import 'package:media_kit_video/media_kit_video.dart';
 
 import '../domain/playback_engine.dart';
 import '../domain/player_settings.dart';
+import 'audio_output_capabilities.dart';
 
 /// libmpv with FFmpeg through media_kit: plays practically every container
 /// and codec, with hardware decoding where available (PLAY-1, PLAY-2).
 class MediaKitPlaybackEngine implements PlaybackEngine {
-  MediaKitPlaybackEngine([this.settings = PlayerSettings.defaults])
-    : player = Player(
-        configuration: const PlayerConfiguration(
-          title: 'TiviBuddy',
-          // The default demuxer cache of 32 MB is large enough for smooth
-          // live playback and small enough for 1 GB devices (RES-1).
-          logLevel: MPVLogLevel.warn,
-        ),
-      ) {
+  MediaKitPlaybackEngine([
+    this.settings = PlayerSettings.defaults,
+    this._capabilities = const AudioOutputCapabilities(),
+  ]) : player = Player(
+         configuration: const PlayerConfiguration(
+           title: 'TiviBuddy',
+           // The default demuxer cache of 32 MB is large enough for smooth
+           // live playback and small enough for 1 GB devices (RES-1).
+           logLevel: MPVLogLevel.warn,
+         ),
+       ) {
     controller = VideoController(
       player,
       configuration: _videoConfiguration(settings.decoder),
@@ -94,7 +97,9 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
         }
       }),
     ]);
-    unawaited(_configureMpv());
+    _configured = _configureMpv().catchError((Object error) {
+      debugPrint('player configuration failed: $error');
+    });
     debugPrint(
       'player created: decoder ${settings.decoder.name}, passthrough '
       '${settings.passthrough.map((format) => format.mpvName).join(',')}',
@@ -104,6 +109,10 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
   final Player player;
   late final VideoController controller;
   final PlayerSettings settings;
+  final AudioOutputCapabilities _capabilities;
+
+  /// Options apply before the first stream opens.
+  late final Future<void> _configured;
 
   static VideoControllerConfiguration _videoConfiguration(
     VideoDecoder decoder,
@@ -237,11 +246,22 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
     await platform.setProperty('subs-fallback', 'no');
     await platform.setProperty('subs-fallback-forced', 'yes');
     // Formats the receiver decodes itself; everything else becomes PCM.
+    // Only what the output accepts right now: anything else stalls playback.
     if (settings.passthrough.isNotEmpty) {
-      await platform.setProperty(
-        'audio-spdif',
-        settings.passthrough.map((format) => format.mpvName).join(','),
+      final support = await _capabilities.query();
+      final formats = support == null
+          ? settings.passthrough
+          : settings.passthrough.intersection(support.formats);
+      String names(Iterable<AudioPassthrough> formats) =>
+          formats.map((format) => format.mpvName).join(',');
+      debugPrint(
+        'player passthrough: chosen ${names(settings.passthrough)}, '
+        'output accepts ${support == null ? 'unknown' : names(support.formats)}'
+        ', using ${names(formats)}, details ${support?.details}',
       );
+      if (formats.isNotEmpty) {
+        await platform.setProperty('audio-spdif', names(formats));
+      }
     }
     // Reconnect on short network drops of live streams.
     await platform.setProperty(
@@ -253,6 +273,7 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
   @override
   Future<void> open(String url, {Duration? start}) async {
     _emit(const PlaybackState(status: PlaybackStatus.opening));
+    await _configured;
     final platform = player.platform;
     if (platform is NativePlayer) {
       // mpv starts the next file at this position; `none` resets it.

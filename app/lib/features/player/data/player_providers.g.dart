@@ -64,4 +64,52 @@ final class PlaybackEngineProvider
   }
 }
 
-String _$playbackEngineHash() => r'e344bcf0c6ec6e32c21826875b18d2045d97b6b9';
+String _$playbackEngineHash() => r'962967e54dc9072e822d0275dfe3ab2bee1fe73e';
+
+@ProviderFor(audioOutputCapabilities)
+final audioOutputCapabilitiesProvider = AudioOutputCapabilitiesProvider._();
+
+final class AudioOutputCapabilitiesProvider
+    extends
+        $FunctionalProvider<
+          AudioOutputCapabilities,
+          AudioOutputCapabilities,
+          AudioOutputCapabilities
+        >
+    with $Provider<AudioOutputCapabilities> {
+  AudioOutputCapabilitiesProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'audioOutputCapabilitiesProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$audioOutputCapabilitiesHash();
+
+  @$internal
+  @override
+  $ProviderElement<AudioOutputCapabilities> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  AudioOutputCapabilities create(Ref ref) {
+    return audioOutputCapabilities(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(AudioOutputCapabilities value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<AudioOutputCapabilities>(value),
+    );
+  }
+}
+
+String _$audioOutputCapabilitiesHash() =>
+    r'6bfc72039ee7ea8cd24faae464bb0140dab4b426';

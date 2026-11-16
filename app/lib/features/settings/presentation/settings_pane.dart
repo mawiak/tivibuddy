@@ -253,13 +253,28 @@ class SettingsPane extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     PlayerSettings current,
-  ) {
+  ) async {
     final l10n = AppLocalizations.of(context);
     final controller = ref.read(playerSettingsControllerProvider.notifier);
-    return showTvToggleDialog<AudioPassthrough>(
+    // Only formats the output accepts are passed through; the user sees
+    // which, so a silent receiver is not a riddle.
+    final support = await ref.read(passthroughSupportProvider.future);
+    if (!context.mounted) return;
+    final accepted = support?.formats;
+    final acceptedNote = switch (accepted) {
+      null => null,
+      final formats when formats.isEmpty => l10n.settingsPassthroughNone,
+      final formats => l10n.settingsPassthroughAccepted(
+        [
+          for (final format in AudioPassthrough.values)
+            if (formats.contains(format)) audioFormatLabel(l10n, format),
+        ].join(', '),
+      ),
+    };
+    await showTvToggleDialog<AudioPassthrough>(
       context,
       title: l10n.settingsPassthrough,
-      message: l10n.settingsPassthroughHint,
+      message: [l10n.settingsPassthroughHint, ?acceptedNote].join('\n\n'),
       choices: [
         for (final format in AudioPassthrough.values)
           TvChoice(format, audioFormatLabel(l10n, format)),

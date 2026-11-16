@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:tivibuddy/features/about/presentation/about_screen.dart';
 import 'package:tivibuddy/features/home/application/home_section.dart';
 import 'package:tivibuddy/features/player/application/player_settings_providers.dart';
+import 'package:tivibuddy/features/player/data/audio_output_capabilities.dart';
+import 'package:tivibuddy/features/player/data/player_providers.dart';
 import 'package:tivibuddy/features/player/domain/player_settings.dart';
 import 'package:tivibuddy/features/profiles/data/drift_profile_repository.dart';
 import 'package:tivibuddy/features/profiles/domain/profile.dart';
@@ -25,7 +27,15 @@ void main() {
       await profiles.create(name: 'Ben', avatar: const PresetAvatar(1));
       await DriftDeviceSettingsRepository(db).setDefaultProfileId(anna.id);
     });
-    container = await pumpFullApp(tester, database: db);
+    container = await pumpFullApp(
+      tester,
+      database: db,
+      overrides: [
+        audioOutputCapabilitiesProvider.overrideWithValue(
+          const _FakeCapabilities(),
+        ),
+      ],
+    );
     container
         .read(selectedHomeSectionProvider.notifier)
         .select(HomeSection.settings);
@@ -117,9 +127,18 @@ void main() {
 
     await tester.tap(find.text('Audio passthrough'));
     await settle(tester);
-    await tester.tap(find.text('DTS'));
-    await settle(tester);
-    await tester.tap(find.text('Dolby Digital Plus (E-AC3)'));
+    expect(
+      find.textContaining('currently passes through: Dolby Digital (AC3)'),
+      findsOneWidget,
+    );
+    // The message pushes options below the dialog's visible area; a tap
+    // there would hit the barrier and close the dialog.
+    for (final option in ['DTS', 'Dolby Digital Plus (E-AC3)']) {
+      await tester.ensureVisible(find.text(option));
+      await settle(tester);
+      await tester.tap(find.text(option));
+      await settle(tester);
+    }
     await settle(tester);
     await pressBack(tester);
     await settle(tester);
@@ -144,4 +163,12 @@ void main() {
     expect(find.text('Disclaimer'), findsOneWidget);
     expect(find.textContaining('GNU General Public License'), findsOneWidget);
   });
+}
+
+class _FakeCapabilities implements AudioOutputCapabilities {
+  const _FakeCapabilities();
+
+  @override
+  Future<PassthroughSupport?> query() async =>
+      const PassthroughSupport({AudioPassthrough.ac3});
 }

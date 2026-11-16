@@ -47,7 +47,12 @@ selects, which mixes everything down to stereo and cannot pass formats through.
 Without passthrough all audio is decoded to PCM (multichannel where the output supports it),
 which every output plays. Passthrough sends
 the selected formats unchanged over HDMI or S/PDIF (mpv `audio-spdif`), so a receiver or
-soundbar shows and decodes them itself; a format the receiver does not support stays silent.
+soundbar shows and decodes them itself. Only formats the output accepts right now are passed
+through (`AudioCapabilities.kt`, after ExoPlayer's checks): the Android setting for encoded
+surround output, the Fire TV switch for an external surround system and the encodings the HDMI
+sink reports. Sending a refused format stalls mpv (frozen picture, no sound), which is what a
+Fire TV with surround output switched off did. The passthrough dialog shows what the device
+accepts at the moment, and every player logs chosen, accepted and used formats.
 TrueHD (Atmos) is only played through passthrough, the bundled FFmpeg has no TrueHD decoder.
 Both are stored under the keys `player.decoder` and `player.passthrough`.
 

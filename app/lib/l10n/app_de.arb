@@ -150,6 +150,8 @@
   "settingsPassthrough": "Audio-Passthrough",
   "settingsPassthroughOff": "Aus",
   "settingsPassthroughHint": "Gibt diese Formate unverändert an einen Receiver oder eine Soundbar weiter. Schalte nur ein, was das Gerät selbst dekodiert, sonst bleibt der Ton stumm.",
+  "settingsPassthroughAccepted": "Dieses Gerät gibt zurzeit durch: {formats}.",
+  "settingsPassthroughNone": "Dieses Gerät gibt zurzeit nichts durch, daher wird jeder Ton dekodiert. Prüfe die Surround-Sound-Einstellung des Geräts und ob der Receiver eingeschaltet und angeschlossen ist.",
   "audioFormatAc3": "Dolby Digital (AC3)",
   "audioFormatEac3": "Dolby Digital Plus (E-AC3)",
   "audioFormatDts": "DTS",

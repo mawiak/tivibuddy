@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../settings/data/settings_data_providers.dart';
+import '../data/audio_output_capabilities.dart';
+import '../data/player_providers.dart';
 import '../domain/player_settings.dart';
 
 part 'player_settings_providers.g.dart';
@@ -78,3 +80,9 @@ class PlayerSettingsController extends _$PlayerSettingsController {
         );
   }
 }
+
+/// What the audio output accepts for passthrough right now; null where the
+/// platform does not tell.
+@riverpod
+Future<PassthroughSupport?> passthroughSupport(Ref ref) =>
+    ref.read(audioOutputCapabilitiesProvider).query();

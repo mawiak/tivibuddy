@@ -3,6 +3,7 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../application/player_settings_providers.dart';
 import '../domain/playback_engine.dart';
+import 'audio_output_capabilities.dart';
 import 'media_kit_playback_engine.dart';
 
 part 'player_providers.g.dart';
@@ -16,6 +17,7 @@ part 'player_providers.g.dart';
 PlaybackEngine playbackEngine(Ref ref) {
   final engine = MediaKitPlaybackEngine(
     ref.read(playerSettingsControllerProvider),
+    ref.read(audioOutputCapabilitiesProvider),
   );
   WakelockPlus.enable().ignore();
   ref.onDispose(() {
@@ -24,3 +26,7 @@ PlaybackEngine playbackEngine(Ref ref) {
   });
   return engine;
 }
+
+@Riverpod(keepAlive: true)
+AudioOutputCapabilities audioOutputCapabilities(Ref ref) =>
+    const AudioOutputCapabilities();

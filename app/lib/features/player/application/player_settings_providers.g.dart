@@ -74,3 +74,53 @@ abstract class _$PlayerSettingsController extends $Notifier<PlayerSettings> {
     return element.handleCreate(ref, build);
   }
 }
+
+/// What the audio output accepts for passthrough right now; null where the
+/// platform does not tell.
+
+@ProviderFor(passthroughSupport)
+final passthroughSupportProvider = PassthroughSupportProvider._();
+
+/// What the audio output accepts for passthrough right now; null where the
+/// platform does not tell.
+
+final class PassthroughSupportProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<PassthroughSupport?>,
+          PassthroughSupport?,
+          FutureOr<PassthroughSupport?>
+        >
+    with
+        $FutureModifier<PassthroughSupport?>,
+        $FutureProvider<PassthroughSupport?> {
+  /// What the audio output accepts for passthrough right now; null where the
+  /// platform does not tell.
+  PassthroughSupportProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'passthroughSupportProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$passthroughSupportHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<PassthroughSupport?> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<PassthroughSupport?> create(Ref ref) {
+    return passthroughSupport(ref);
+  }
+}
+
+String _$passthroughSupportHash() =>
+    r'47e1147eaf0dbd4dfadd4571190097fc300f2021';

@@ -289,6 +289,15 @@
   "settingsPassthrough": "Audio passthrough",
   "settingsPassthroughOff": "Off",
   "settingsPassthroughHint": "Sends these formats unchanged to a receiver or soundbar. Only switch on what it decodes itself, otherwise there is no sound.",
+  "settingsPassthroughAccepted": "This device currently passes through: {formats}.",
+  "@settingsPassthroughAccepted": {
+    "placeholders": {
+      "formats": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsPassthroughNone": "This device currently passes nothing through, so all audio is decoded. Check its surround sound setting and that the receiver is switched on and connected.",
   "audioFormatAc3": "Dolby Digital (AC3)",
   "audioFormatEac3": "Dolby Digital Plus (E-AC3)",
   "audioFormatDts": "DTS",
