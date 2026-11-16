@@ -176,8 +176,24 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
       return;
     }
     final codec = await platform.getProperty('audio-codec-name');
-    final output = await platform.getProperty('current-ao');
-    if (codec.isEmpty || output.isNotEmpty) return;
+    if (codec.isEmpty ||
+        (await platform.getProperty('current-ao')).isNotEmpty) {
+      return;
+    }
+    // Some outputs only take longer to start passthrough; a stall shows as
+    // a position that does not move while no audio output exists.
+    final before = player.state.position;
+    await Future<void>.delayed(const Duration(seconds: 2));
+    if (_url != url) return;
+    final moved = player.state.position - before;
+    if ((await platform.getProperty('current-ao')).isNotEmpty ||
+        moved > const Duration(milliseconds: 500)) {
+      debugPrint(
+        'player passthrough: audio output slow to start, playback moved '
+        '${moved.inMilliseconds} ms',
+      );
+      return;
+    }
     debugPrint('player passthrough failed: no audio output, decoding instead');
     _passthroughFailed = true;
     _passthroughActive = false;
