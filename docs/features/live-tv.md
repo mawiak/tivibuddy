@@ -116,9 +116,11 @@ the device was low on memory. Other chips, such as the one in the Nvidia Shield,
 colours with direct rendering, so the decoder can be changed in the player settings (see
 `settings.md`).
 
-Flutter draws with OpenGL ES (`ImpellerBackend=opengles` in the Android manifest): with Vulkan the
-Nvidia Shield showed the decoded video green (hardware) or black (copy mode). Android 9 devices
-such as the Fire TV Stick 4K Max fall back to the Skia renderer on their own. With direct rendering a 720p H.264 channel needs about 45 % of one of four
+Flutter draws with Skia on OpenGL ES (`EnableImpeller=false` in the Android manifest): with
+Impeller on Vulkan the Nvidia Shield showed the decoded video green (hardware) or black (copy
+mode), and the `ImpellerBackend=opengles` switch had no effect in release builds. Android 9
+devices such as the Fire TV Stick 4K Max use Skia on their own. Flutter deprecates the opt-out,
+so this needs another look once media_kit and Impeller on Vulkan work together. With direct rendering a 720p H.264 channel needs about 45 % of one of four
 cores on the 4K Max. mpv warnings and errors are written to the platform log with the prefix
 `mpv`.
 

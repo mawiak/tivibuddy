@@ -56,6 +56,12 @@ Live TV and player:
 - HLS output option and configurable user agent per playlist.
 - Gzip-compressed XMLTV, external XMLTV sources (PL-3).
 
+- Impeller is switched off on Android because the video texture shows green or black with
+  Impeller on Vulkan (Nvidia Shield); Flutter deprecates the opt-out, so check media_kit and
+  Impeller again with every Flutter upgrade.
+
+- Touch: tapping a programme in the guide does not play it yet (seen on the phone emulator).
+
 VOD and general:
 
 - Search: case-insensitive umlauts, search in plot and cast, recent searches.

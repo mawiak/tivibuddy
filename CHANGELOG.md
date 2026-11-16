@@ -68,7 +68,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   stream: the player falls back to decoded audio after three seconds.
 - Surround sound was mixed down to stereo and audio passthrough stayed silent: audio now
   plays through Android AudioTrack.
-- Green or black video on the Nvidia Shield: Flutter draws with OpenGL ES instead of Vulkan.
+- Green or black video on the Nvidia Shield: Flutter draws with Skia on OpenGL ES instead of
+  Impeller on Vulkan.
 - Tapping a category on touch screens showed the previously selected one.
 - Up and down in the open channel list of the player zapped instead of moving through the list.
 - Posters and the guide keep their size when the categories open; they shift to the right.
