@@ -13,7 +13,7 @@ builds have no destination compiled in and do not show it.
 
 - App version, time and the tester's description.
 - Device model, Android version and build, supported ABIs, whether it is a TV device.
-- Memory of the device and of the app (`/proc/meminfo`, `/proc/self/status`), load average.
+- Memory of the device and of the app (`/proc/meminfo`, `/proc/self/status`), load average on Linux (Android forbids it).
 - Player settings (decoder, audio passthrough).
 - The last 3000 log lines since the app started: app messages, mpv warnings and errors, and
   player events. The player logs when it is created, every stream it opens, how long a stream

@@ -332,10 +332,22 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
 
   @override
   Future<void> seek(Duration position) {
-    // Seeking rebuffers; logged so it is not mistaken for a stall.
-    debugPrint('player seek to $position');
+    // Seeking rebuffers; logged so it is not mistaken for a stall. A held
+    // key seeks many times a second, so a series becomes one line.
+    _seekSteps++;
+    _seekLog?.cancel();
+    _seekLog = Timer(const Duration(milliseconds: 500), () {
+      debugPrint(
+        'player seek to $position'
+        '${_seekSteps > 1 ? ' ($_seekSteps steps)' : ''}',
+      );
+      _seekSteps = 0;
+    });
     return player.seek(position);
   }
+
+  Timer? _seekLog;
+  int _seekSteps = 0;
 
   @override
   Stream<MediaTracks> get tracks => _tracks.stream;
@@ -452,6 +464,7 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
   @override
   Future<void> dispose() async {
     _statsTimer?.cancel();
+    _seekLog?.cancel();
     for (final subscription in _subscriptions) {
       await subscription.cancel();
     }

@@ -44,8 +44,11 @@ Future<List<String>> describeDevice() async {
           'SwapFree',
         ]),
       )
-      ..addAll(await _procLines('/proc/self/status', const ['VmRSS', 'VmHWM']))
-      ..addAll(await _procLines('/proc/loadavg', const []));
+      ..addAll(await _procLines('/proc/self/status', const ['VmRSS', 'VmHWM']));
+    // Android forbids apps to read the load average.
+    if (Platform.isLinux) {
+      lines.addAll(await _procLines('/proc/loadavg', const []));
+    }
   }
   return lines;
 }
@@ -71,7 +74,7 @@ Future<List<String>> platformLogExcerpt({int maxLines = 200}) async {
     // Harmless messages some systems print many times a second; they would
     // push the useful lines out.
     final noise = RegExp(
-      'Access denied finding property|updateAcquireFence|/flutter',
+      'Access denied finding property|updateAcquireFence|avc: denied|/flutter',
     );
     final renderers = <String>[];
     final problems = <String>[];
