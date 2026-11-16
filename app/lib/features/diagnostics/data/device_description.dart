@@ -68,16 +68,30 @@ Future<List<String>> platformLogExcerpt({int maxLines = 200}) async {
       caseSensitive: false,
     );
     final problem = RegExp(r'^\S+ \S+ [WEF]/');
-    final lines = [
-      for (final line in (result.stdout as String).split('\n'))
-        // Other Dart output is already in the app log.
-        if (renderer.hasMatch(line) ||
-            (problem.hasMatch(line) && !line.contains('/flutter')))
-          line.trim(),
+    // Harmless messages some systems print many times a second; they would
+    // push the useful lines out.
+    final noise = RegExp(
+      'Access denied finding property|updateAcquireFence|/flutter',
+    );
+    final renderers = <String>[];
+    final problems = <String>[];
+    for (final line in (result.stdout as String).split('\n')) {
+      if (renderer.hasMatch(line)) {
+        renderers.add(line.trim());
+      } else if (problem.hasMatch(line) && !noise.hasMatch(line)) {
+        problems.add(line.trim());
+      }
+    }
+    // The renderer is reported once at start; keep it even when many
+    // problems follow.
+    final kept = renderers.take(10).toList();
+    final room = maxLines - kept.length;
+    return [
+      ...kept,
+      ...problems.length > room
+          ? problems.sublist(problems.length - room)
+          : problems,
     ];
-    return lines.length > maxLines
-        ? lines.sublist(lines.length - maxLines)
-        : lines;
   } on Object catch (error) {
     return ['platform log unavailable: $error'];
   }
