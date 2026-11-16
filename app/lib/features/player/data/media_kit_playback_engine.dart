@@ -26,9 +26,11 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
     _subscriptions.addAll([
       // Warnings and errors of mpv end up in the platform log (logcat on
       // Android), which is the only way to diagnose streams on devices.
-      player.stream.log.listen(
-        (log) => debugPrint('mpv ${log.level} ${log.prefix}: ${log.text}'),
-      ),
+      player.stream.log.listen((log) {
+        // media_kit sets an option this mpv build lacks on every start.
+        if (log.text.contains('_setProperty(osc')) return;
+        debugPrint('mpv ${log.level} ${log.prefix}: ${log.text}');
+      }),
       player.stream.buffering.listen((buffering) {
         // Start-up time and stalls are what testers notice as slow zapping
         // and stutter.
@@ -178,6 +180,11 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
     'audio-codec-name',
     'audio-params/channel-count',
     'current-ao',
+    // What actually reaches the output: channels, and spdif-* formats for
+    // passthrough.
+    'audio-out-params/format',
+    'audio-out-params/channel-count',
+    'audio-out-params/samplerate',
     'audio-bitrate',
     'frame-drop-count',
     'decoder-frame-drop-count',
@@ -216,6 +223,12 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
     final platform = player.platform;
     if (platform is! NativePlayer) return;
     await platform.setProperty('network-timeout', '15');
+    if (_isAndroid) {
+      // media_kit picks OpenSL ES, which mixes everything down to stereo and
+      // cannot pass compressed formats through. AudioTrack plays multichannel
+      // PCM and passes Dolby and DTS to a receiver, like mpv-android.
+      await platform.setProperty('ao', 'audiotrack');
+    }
     // Live streams are buffered in memory only.
     await platform.setProperty('cache-on-disk', 'no');
     // Subtitles stay off unless a stream marks them forced (for example for
@@ -263,7 +276,11 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
   Duration get position => player.state.position;
 
   @override
-  Future<void> seek(Duration position) => player.seek(position);
+  Future<void> seek(Duration position) {
+    // Seeking rebuffers; logged so it is not mistaken for a stall.
+    debugPrint('player seek to $position');
+    return player.seek(position);
+  }
 
   @override
   Stream<MediaTracks> get tracks => _tracks.stream;
@@ -344,6 +361,7 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
 
   @override
   Future<void> selectTrack(MediaTrackType type, String? id) async {
+    debugPrint('player select ${type.name} track ${id ?? 'off'}');
     final available = player.state.tracks;
     switch (type) {
       case MediaTrackType.audio:
@@ -365,7 +383,10 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
   }
 
   @override
-  Future<void> togglePause() => player.playOrPause();
+  Future<void> togglePause() {
+    debugPrint(player.state.playing ? 'player pause' : 'player resume');
+    return player.playOrPause();
+  }
 
   @override
   Future<void> stop() async {

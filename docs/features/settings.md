@@ -42,7 +42,10 @@ Hardware renders straight into the video surface; copy mode is the media_kit def
 helps on chips that show wrong colours with direct rendering (reported for the Nvidia
 Shield); software decoding works everywhere but needs much more CPU.
 
-Without passthrough all audio is decoded to PCM, which every output plays. Passthrough sends
+Audio plays through Android AudioTrack (`ao=audiotrack`) instead of the OpenSL ES output media_kit
+selects, which mixes everything down to stereo and cannot pass formats through.
+Without passthrough all audio is decoded to PCM (multichannel where the output supports it),
+which every output plays. Passthrough sends
 the selected formats unchanged over HDMI or S/PDIF (mpv `audio-spdif`), so a receiver or
 soundbar shows and decodes them itself; a format the receiver does not support stays silent.
 TrueHD (Atmos) is only played through passthrough, the bundled FFmpeg has no TrueHD decoder.

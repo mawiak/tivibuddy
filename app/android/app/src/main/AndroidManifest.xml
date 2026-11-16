@@ -37,6 +37,12 @@
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER"/>
             </intent-filter>
         </activity>
+        <!-- Flutter draws with OpenGL ES instead of Vulkan. With Vulkan the
+             video texture of the player shows green or black frames on some
+             devices, for example the Nvidia Shield. -->
+        <meta-data
+            android:name="io.flutter.embedding.android.ImpellerBackend"
+            android:value="opengles" />
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data
