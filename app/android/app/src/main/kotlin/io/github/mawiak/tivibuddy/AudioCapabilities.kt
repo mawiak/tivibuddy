@@ -68,8 +68,16 @@ object AudioCapabilities {
         when (mode) {
             SURROUND_NEVER -> Unit
             SURROUND_ALWAYS -> formats += surroundFormats
-            SURROUND_MANUAL -> formats += manualFormats.orEmpty().split(',')
-                .mapNotNull { it.trim().toIntOrNull() }
+            SURROUND_MANUAL -> {
+                val manual = manualFormats.orEmpty().split(',')
+                    .mapNotNull { it.trim().toIntOrNull() }
+                // A connected sink knows better than a manual list.
+                formats += if (plugged && sinkEncodings.isNotEmpty()) {
+                    manual.filter { it in sinkEncodings }
+                } else {
+                    manual
+                }
+            }
             else -> {
                 if (vendorSwitch && externalSurround) {
                     formats += listOf(AudioFormat.ENCODING_AC3, AudioFormat.ENCODING_E_AC3)

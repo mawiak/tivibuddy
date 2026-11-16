@@ -53,6 +53,13 @@ surround output, the Fire TV switch for an external surround system and the enco
 sink reports. Sending a refused format stalls mpv (frozen picture, no sound), which is what a
 Fire TV with surround output switched off did. The passthrough dialog shows what the device
 accepts at the moment, and every player logs chosen, accepted and used formats.
+
+mpv passes formats through to AudioTrack only as IEC 61937. Some devices accept AC3 on paper
+but never play that stream; the Fire TV Stick 4K Max is one of them. When the audio output is
+still not open three seconds after a stream started with passthrough, the player switches
+passthrough off for the rest of the run and reopens the stream at the same position with
+decoded audio. Real passthrough on such devices needs a second playback engine such as
+ExoPlayer, which sends the compressed frames directly (backlog).
 TrueHD (Atmos) is only played through passthrough, the bundled FFmpeg has no TrueHD decoder.
 Both are stored under the keys `player.decoder` and `player.passthrough`.
 

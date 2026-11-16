@@ -159,6 +159,35 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
   Stopwatch? _openedAt;
   bool _started = false;
   bool _bufferedSinceOpen = false;
+  String? _url;
+  bool _passthroughActive = false;
+
+  /// Some outputs accept compressed formats on paper but never play mpv's
+  /// IEC 61937 stream (Fire TV): the audio output stays unopened and the
+  /// picture freezes. Remembered for the rest of the run.
+  static bool _passthroughFailed = false;
+
+  /// Falls back to decoded audio when passthrough left the stream without
+  /// an audio output.
+  Future<void> _checkPassthrough() async {
+    final platform = player.platform;
+    final url = _url;
+    if (!_passthroughActive || platform is! NativePlayer || url == null) {
+      return;
+    }
+    final codec = await platform.getProperty('audio-codec-name');
+    final output = await platform.getProperty('current-ao');
+    if (codec.isEmpty || output.isNotEmpty) return;
+    debugPrint('player passthrough failed: no audio output, decoding instead');
+    _passthroughFailed = true;
+    _passthroughActive = false;
+    await platform.setProperty('audio-spdif', '');
+    // Live streams have no duration; they restart at the live edge.
+    final position = player.state.duration > Duration.zero
+        ? player.state.position
+        : null;
+    await open(url, start: position);
+  }
 
   /// Playback details for diagnostic reports: shortly after a stream opens,
   /// again once the decoder settled (hardware decoding may only start with
@@ -167,6 +196,7 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
   void _scheduleStats() {
     _statsTimer?.cancel();
     _statsTimer = Timer(const Duration(seconds: 3), () {
+      unawaited(_checkPassthrough());
       unawaited(_logStats());
       _statsTimer = Timer(const Duration(seconds: 12), () {
         unawaited(_logStats());
@@ -259,8 +289,11 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
         'output accepts ${support == null ? 'unknown' : names(support.formats)}'
         ', using ${names(formats)}, details ${support?.details}',
       );
-      if (formats.isNotEmpty) {
+      if (_passthroughFailed) {
+        debugPrint('player passthrough: off, it failed earlier in this run');
+      } else if (formats.isNotEmpty) {
         await platform.setProperty('audio-spdif', names(formats));
+        _passthroughActive = true;
       }
     }
     // Reconnect on short network drops of live streams.
@@ -283,6 +316,7 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
       );
     }
     debugPrint('player open: $url${start == null ? '' : ' at $start'}');
+    _url = url;
     _openedAt = Stopwatch()..start();
     _started = false;
     _bufferedSinceOpen = false;

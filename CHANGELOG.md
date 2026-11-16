@@ -64,6 +64,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Frozen picture without sound when audio passthrough was on but the device did not accept
   it: only formats the audio output accepts are passed through.
+- Frozen picture without sound with passthrough on devices that do not play mpv's passthrough
+  stream: the player falls back to decoded audio after three seconds.
 - Surround sound was mixed down to stereo and audio passthrough stayed silent: audio now
   plays through Android AudioTrack.
 - Green or black video on the Nvidia Shield: Flutter draws with OpenGL ES instead of Vulkan.
