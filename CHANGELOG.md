@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Player choice on Android (automatic, Media3 only, media_kit only) and an automatic audio
+  output that shows which formats the connected device takes; decoder and passthrough
+  settings only appear for media_kit.
 - Android plays with Media3 (ExoPlayer) first, with real Dolby passthrough, and falls back to
   media_kit for streams Media3 cannot play.
 - Audio tracks in the player options name their codec, for example Dolby Digital (AC3) or DTS.

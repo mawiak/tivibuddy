@@ -1,4 +1,16 @@
-/// How video is decoded (PLAY-2). Some chips render wrong colours in one
+/// Which playback engines play streams on Android (PLAY-5).
+enum PlayerEngineChoice {
+  /// Media3 first, media_kit for what Media3 cannot play.
+  automatic,
+
+  /// Media3 only, to see whether a problem comes from it.
+  media3,
+
+  /// media_kit (libmpv) only; its decoder and passthrough settings apply.
+  mediaKit,
+}
+
+/// How media_kit decodes video (PLAY-2). Some chips render wrong colours in one
 /// mode and fine in another, so the user can switch per device.
 enum VideoDecoder {
   /// The hardware decoder renders straight into the video surface: fastest.
@@ -29,11 +41,14 @@ enum AudioPassthrough {
 /// Player settings of this device (SET-1).
 class PlayerSettings {
   const PlayerSettings({
+    this.engine = PlayerEngineChoice.automatic,
     this.decoder = VideoDecoder.hardware,
     this.passthrough = const {},
   });
 
   static const defaults = PlayerSettings();
+
+  final PlayerEngineChoice engine;
 
   final VideoDecoder decoder;
 
@@ -42,9 +57,11 @@ class PlayerSettings {
   final Set<AudioPassthrough> passthrough;
 
   PlayerSettings copyWith({
+    PlayerEngineChoice? engine,
     VideoDecoder? decoder,
     Set<AudioPassthrough>? passthrough,
   }) => PlayerSettings(
+    engine: engine ?? this.engine,
     decoder: decoder ?? this.decoder,
     passthrough: passthrough ?? this.passthrough,
   );
@@ -52,11 +69,12 @@ class PlayerSettings {
   @override
   bool operator ==(Object other) =>
       other is PlayerSettings &&
+      other.engine == engine &&
       other.decoder == decoder &&
       other.passthrough.length == passthrough.length &&
       other.passthrough.containsAll(passthrough);
 
   @override
   int get hashCode =>
-      Object.hash(decoder, Object.hashAllUnordered(passthrough));
+      Object.hash(engine, decoder, Object.hashAllUnordered(passthrough));
 }

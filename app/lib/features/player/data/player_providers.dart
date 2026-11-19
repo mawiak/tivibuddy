@@ -4,6 +4,7 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../application/player_settings_providers.dart';
 import '../domain/playback_engine.dart';
+import '../domain/player_settings.dart';
 import 'audio_output_capabilities.dart';
 import 'fallback_playback_engine.dart';
 import 'media3_playback_engine.dart';
@@ -25,12 +26,19 @@ PlaybackEngine playbackEngine(Ref ref) {
     create: () => MediaKitPlaybackEngine(settings, capabilities),
   );
   final android = !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
-  final engine = FallbackPlaybackEngine([
-    // Media3 passes Dolby through and uses the platform decoders; mpv
-    // plays what Media3 cannot (PLAY-5).
-    if (android) (name: 'Media3 (ExoPlayer)', create: Media3PlaybackEngine.new),
-    mediaKit,
-  ], platform: kIsWeb ? 'web' : defaultTargetPlatform.name);
+  const media3 = (name: 'Media3 (ExoPlayer)', create: Media3PlaybackEngine.new);
+  final engine = FallbackPlaybackEngine(
+    // Media3 passes Dolby through and uses the platform decoders; mpv plays
+    // what Media3 cannot (PLAY-5). The choice exists for finding problems.
+    android
+        ? switch (settings.engine) {
+            PlayerEngineChoice.automatic => [media3, mediaKit],
+            PlayerEngineChoice.media3 => [media3],
+            PlayerEngineChoice.mediaKit => [mediaKit],
+          }
+        : [mediaKit],
+    platform: kIsWeb ? 'web' : defaultTargetPlatform.name,
+  );
   WakelockPlus.enable().ignore();
   ref.onDispose(() {
     WakelockPlus.disable().ignore();

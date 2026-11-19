@@ -14,6 +14,7 @@ part 'player_settings_providers.g.dart';
 /// stored values when it is created.
 @Riverpod(keepAlive: true)
 class PlayerSettingsController extends _$PlayerSettingsController {
+  static const _engineKey = 'player.engine';
   static const _decoderKey = 'player.decoder';
   static const _passthroughKey = 'player.passthrough';
 
@@ -21,6 +22,15 @@ class PlayerSettingsController extends _$PlayerSettingsController {
   PlayerSettings build() {
     final settings = ref.watch(deviceSettingsRepositoryProvider);
     final subscriptions = [
+      settings.watchValue(_engineKey).listen((value) {
+        _update(
+          (current) => current.copyWith(
+            engine:
+                PlayerEngineChoice.values.asNameMap()[value] ??
+                PlayerSettings.defaults.engine,
+          ),
+        );
+      }),
       settings.watchValue(_decoderKey).listen((value) {
         _update(
           (current) => current.copyWith(
@@ -53,6 +63,15 @@ class PlayerSettingsController extends _$PlayerSettingsController {
     if (value == null || value.isEmpty) return const {};
     final byName = AudioPassthrough.values.asNameMap();
     return {for (final name in value.split(',')) ?byName[name]};
+  }
+
+  /// Takes effect with the next playback, because the engines are chosen
+  /// when the player is created.
+  Future<void> setEngine(PlayerEngineChoice engine) async {
+    _update((current) => current.copyWith(engine: engine));
+    await ref
+        .read(deviceSettingsRepositoryProvider)
+        .setValue(_engineKey, engine.name);
   }
 
   /// Takes effect with the next playback, because the decoder is chosen

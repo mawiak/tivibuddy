@@ -111,6 +111,28 @@ void main() {
     tester,
   ) async {
     await openSettings(tester);
+    await tester.scrollUntilVisible(find.text('Audio output'), 100);
+    await tester.ensureVisible(find.text('Audio output'));
+    await settle(tester);
+
+    // Android plays with Media3 and passes through what the output takes.
+    expect(find.text('Automatic (recommended)'), findsOneWidget);
+    expect(
+      find.text('Automatic, passes through: Dolby Digital (AC3)'),
+      findsOneWidget,
+    );
+    expect(find.text('Video decoder'), findsNothing);
+
+    // media_kit alone brings back its own settings.
+    // The section header is called Player too; tap the setting's value.
+    await tester.tap(find.text('Automatic (recommended)'));
+    await settle(tester);
+    await tester.tap(find.text('media_kit only').last);
+    await settle(tester);
+    expect(
+      container.read(playerSettingsControllerProvider).engine,
+      PlayerEngineChoice.mediaKit,
+    );
     await tester.scrollUntilVisible(find.text('Audio passthrough'), 100);
     await tester.ensureVisible(find.text('Audio passthrough'));
     await settle(tester);

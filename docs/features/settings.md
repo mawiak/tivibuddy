@@ -32,6 +32,20 @@ Device settings are stored in `device_setting_entries` and are never synchronize
 
 ## Player section (this installation only)
 
+On Android the section shows:
+
+| Setting      | Values                                                        | Default   |
+|--------------|---------------------------------------------------------------|-----------|
+| Player       | Automatic (Media3, then media_kit), Media3 only, media_kit only | Automatic |
+| Audio output | Information only: which formats the output passes through now | -         |
+
+With Media3 the audio output needs no setting: the connected TV, soundbar or receiver reports
+over HDMI which formats it decodes; those are passed through, everything else is decoded.
+Phones and tablets always decode. The video decoder and audio passthrough settings below
+belong to media_kit and appear on Android only with "media_kit only"; desktop platforms play
+with media_kit and always show them. The player choice is stored under `player.engine`.
+
+
 | Setting           | Values                                                        | Default  |
 |-------------------|---------------------------------------------------------------|----------|
 | Video decoder     | Hardware, hardware copy mode, software                        | Hardware |

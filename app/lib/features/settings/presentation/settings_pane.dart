@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -124,28 +125,58 @@ class SettingsPane extends ConsumerWidget {
           ),
         ),
         _SectionHeader(l10n.settingsSectionPlayer),
-        _Entry(
-          TvListTile(
-            title: l10n.settingsDecoder,
-            subtitle: decoderLabel(l10n, player.decoder),
-            leading: Icons.memory,
-            onSelect: () => _chooseDecoder(context, ref),
+        // Android picks between Media3 and media_kit (PLAY-5); media_kit's
+        // own settings only matter where it plays alone.
+        if (_android)
+          _Entry(
+            TvListTile(
+              title: l10n.settingsPlayerEngine,
+              subtitle: engineLabel(l10n, player.engine),
+              leading: Icons.play_circle_outline,
+              onSelect: () => _chooseEngine(context, ref),
+            ),
           ),
-        ),
-        _Entry(
-          TvListTile(
-            title: l10n.settingsPassthrough,
-            subtitle: player.passthrough.isEmpty
-                ? l10n.settingsPassthroughOff
-                : [
-                    for (final format in AudioPassthrough.values)
-                      if (player.passthrough.contains(format))
-                        audioFormatLabel(l10n, format),
-                  ].join(', '),
-            leading: Icons.surround_sound_outlined,
-            onSelect: () => _choosePassthrough(context, ref, player),
+        if (_android && player.engine != PlayerEngineChoice.mediaKit)
+          _Entry(
+            TvListTile(
+              title: l10n.settingsAudioOutput,
+              subtitle: _audioOutputLabel(
+                l10n,
+                ref.watch(passthroughSupportProvider).value?.formats,
+              ),
+              leading: Icons.surround_sound_outlined,
+              onSelect: () => showTvChoiceDialog<void>(
+                context,
+                title: l10n.settingsAudioOutput,
+                message: l10n.settingsAudioOutputHint,
+                choices: [TvChoice(null, l10n.commonDone)],
+              ),
+            ),
+          )
+        else ...[
+          _Entry(
+            TvListTile(
+              title: l10n.settingsDecoder,
+              subtitle: decoderLabel(l10n, player.decoder),
+              leading: Icons.memory,
+              onSelect: () => _chooseDecoder(context, ref),
+            ),
           ),
-        ),
+          _Entry(
+            TvListTile(
+              title: l10n.settingsPassthrough,
+              subtitle: player.passthrough.isEmpty
+                  ? l10n.settingsPassthroughOff
+                  : [
+                      for (final format in AudioPassthrough.values)
+                        if (player.passthrough.contains(format))
+                          audioFormatLabel(l10n, format),
+                    ].join(', '),
+              leading: Icons.surround_sound_outlined,
+              onSelect: () => _choosePassthrough(context, ref, player),
+            ),
+          ),
+        ],
         _SectionHeader(l10n.settingsSectionGeneral),
         if (ref.read(logReportActionsProvider).canSend)
           _Entry(
@@ -232,6 +263,36 @@ class SettingsPane extends ConsumerWidget {
     }
   }
 
+  static bool get _android =>
+      !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+
+  static String _audioOutputLabel(
+    AppLocalizations l10n,
+    Set<AudioPassthrough>? accepted,
+  ) => accepted == null || accepted.isEmpty
+      ? l10n.settingsAudioOutputDecoded
+      : l10n.settingsAudioOutputPassthrough(
+          [
+            for (final format in AudioPassthrough.values)
+              if (accepted.contains(format)) audioFormatLabel(l10n, format),
+          ].join(', '),
+        );
+
+  Future<void> _chooseEngine(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context);
+    final choice = await showTvChoiceDialog<PlayerEngineChoice>(
+      context,
+      title: l10n.settingsPlayerEngine,
+      message: l10n.settingsPlayerEngineHint,
+      choices: [
+        for (final engine in PlayerEngineChoice.values)
+          TvChoice(engine, engineLabel(l10n, engine)),
+      ],
+    );
+    if (choice == null) return;
+    await ref.read(playerSettingsControllerProvider.notifier).setEngine(choice);
+  }
+
   Future<void> _chooseDecoder(BuildContext context, WidgetRef ref) async {
     final l10n = AppLocalizations.of(context);
     final choice = await showTvChoiceDialog<VideoDecoder>(
@@ -291,6 +352,13 @@ class SettingsPane extends ConsumerWidget {
 
 String guideDaysLabel(AppLocalizations l10n, int days) =>
     days == 0 ? l10n.settingsGuideDaysOff : l10n.settingsGuideDaysValue(days);
+
+String engineLabel(AppLocalizations l10n, PlayerEngineChoice engine) =>
+    switch (engine) {
+      PlayerEngineChoice.automatic => l10n.settingsEngineAutomatic,
+      PlayerEngineChoice.media3 => l10n.settingsEngineMedia3,
+      PlayerEngineChoice.mediaKit => l10n.settingsEngineMediaKit,
+    };
 
 String decoderLabel(AppLocalizations l10n, VideoDecoder decoder) =>
     switch (decoder) {

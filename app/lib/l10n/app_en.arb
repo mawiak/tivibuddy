@@ -281,6 +281,22 @@
   "settingsGuideDays": "Programme guide",
   "settingsGuideDaysOff": "Do not load",
   "settingsSectionPlayer": "Player",
+  "settingsPlayerEngine": "Player",
+  "settingsPlayerEngineHint": "Automatic plays with Media3 and switches to media_kit for streams Media3 cannot play. The other options help to find out which player causes a problem. Applies to the next playback.",
+  "settingsEngineAutomatic": "Automatic (recommended)",
+  "settingsEngineMedia3": "Media3 only",
+  "settingsEngineMediaKit": "media_kit only",
+  "settingsAudioOutput": "Audio output",
+  "settingsAudioOutputPassthrough": "Automatic, passes through: {formats}",
+  "@settingsAudioOutputPassthrough": {
+    "placeholders": {
+      "formats": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsAudioOutputDecoded": "Automatic, all audio is decoded",
+  "settingsAudioOutputHint": "The connected TV, soundbar or receiver reports which formats it decodes itself. Those are passed through unchanged, all other audio is decoded by the player. Phones and tablets always decode.",
   "settingsDecoder": "Video decoder",
   "settingsDecoderHardware": "Hardware",
   "settingsDecoderHardwareCopy": "Hardware, copy mode",
