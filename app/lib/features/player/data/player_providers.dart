@@ -26,9 +26,9 @@ PlaybackEngine playbackEngine(Ref ref) {
   );
   final android = !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
   final engine = FallbackPlaybackEngine([
-    // Media3 passes Dolby through and uses the platform decoders; mpv
-    // plays what Media3 cannot (PLAY-5).
-    if (android)
+    // better_player never reports endless MPEG-TS live streams as ready,
+    // so it is left out until our own Media3 engine replaces it (PLAY-5).
+    if (android && _betterPlayer)
       (name: 'better_player (Media3)', create: BetterPlayerPlaybackEngine.new),
     mediaKit,
   ], platform: kIsWeb ? 'web' : defaultTargetPlatform.name);
@@ -43,3 +43,5 @@ PlaybackEngine playbackEngine(Ref ref) {
 @Riverpod(keepAlive: true)
 AudioOutputCapabilities audioOutputCapabilities(Ref ref) =>
     const AudioOutputCapabilities();
+
+const _betterPlayer = false;
