@@ -70,7 +70,11 @@ class Media3PlaybackEngine implements PlaybackEngine {
     final event = raw.cast<String, Object?>();
     switch (event['event']) {
       case 'state':
-        _onPlayerState(event['state'] as String?, event['playing'] == true);
+        _onPlayerState(
+          event['state'] as String?,
+          event['playing'] == true,
+          event['bufferedMs'] as int?,
+        );
       case 'error':
         final error = '${event['code']}: ${event['message']}';
         debugPrint('media3 failed: $error');
@@ -102,7 +106,7 @@ class Media3PlaybackEngine implements PlaybackEngine {
     }
   }
 
-  void _onPlayerState(String? state, bool playing) {
+  void _onPlayerState(String? state, bool playing, int? bufferedMs) {
     switch (state) {
       case 'ready' when playing:
         _seeking = false;
@@ -117,7 +121,7 @@ class Media3PlaybackEngine implements PlaybackEngine {
         // Seeking rebuffers on purpose; the native side also reports the
         // same state twice (state and isPlaying changes).
         if (!_seeking && _state.status != PlaybackStatus.buffering) {
-          debugPrint('media3 stalled');
+          debugPrint('media3 stalled, ${bufferedMs ?? '?'} ms buffered');
         }
         _emit(_state.copyWith(status: PlaybackStatus.buffering));
       case 'ended':

@@ -220,7 +220,15 @@ class Media3Player(
             Player.STATE_ENDED -> "ended"
             else -> "idle"
         }
-        send("state", mapOf("state" to state, "playing" to player.isPlaying))
+        send(
+            "state",
+            mapOf(
+                "state" to state,
+                "playing" to player.isPlaying,
+                // Empty at a stall means the network or provider did not deliver.
+                "bufferedMs" to player.totalBufferedDuration,
+            ),
+        )
     }
 
     private fun sendTracks(tracks: Tracks) {

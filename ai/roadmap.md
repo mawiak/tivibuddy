@@ -63,6 +63,9 @@ Live TV and player:
 
 - Touch: tapping a programme in the guide does not play it yet (seen on the phone emulator).
 
+- Watch live stalls with Media3 (ZDF stalled twice on 2026-11-19); raise the live buffer
+  (1 s to start, 2 s after a stall) if logs show empty buffers often.
+
 VOD and general:
 
 - Search: case-insensitive umlauts, search in plot and cast, recent searches.
