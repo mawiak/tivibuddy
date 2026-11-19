@@ -40,6 +40,7 @@ class Media3PlaybackEngine implements PlaybackEngine {
   Stopwatch? _openedAt;
   bool _started = false;
   bool _pausedByUser = false;
+  bool _seeking = false;
 
   Future<void> _create() async {
     final created = await _channel.invokeMapMethod<String, Object?>('create');
@@ -104,6 +105,7 @@ class Media3PlaybackEngine implements PlaybackEngine {
   void _onPlayerState(String? state, bool playing) {
     switch (state) {
       case 'ready' when playing:
+        _seeking = false;
         if (!_started) {
           _started = true;
           debugPrint('media3 started in ${_openedAt?.elapsedMilliseconds} ms');
@@ -112,7 +114,11 @@ class Media3PlaybackEngine implements PlaybackEngine {
       case 'ready' when _pausedByUser:
         _emit(_state.copyWith(status: PlaybackStatus.paused));
       case 'buffering' when _started:
-        debugPrint('media3 stalled');
+        // Seeking rebuffers on purpose; the native side also reports the
+        // same state twice (state and isPlaying changes).
+        if (!_seeking && _state.status != PlaybackStatus.buffering) {
+          debugPrint('media3 stalled');
+        }
         _emit(_state.copyWith(status: PlaybackStatus.buffering));
       case 'ended':
         debugPrint('media3 ended');
@@ -205,6 +211,7 @@ class Media3PlaybackEngine implements PlaybackEngine {
   @override
   Future<void> seek(Duration position) {
     debugPrint('media3 seek to $position');
+    _seeking = true;
     return _call('seek', {'positionMs': position.inMilliseconds});
   }
 
@@ -244,12 +251,13 @@ class Media3PlaybackEngine implements PlaybackEngine {
 
   @override
   Future<void> dispose() async {
+    // Unsubscribe while the native side still listens on the channel.
+    await _events?.cancel();
     try {
       await _call('dispose');
     } on Object catch (error) {
       debugPrint('media3 dispose failed: $error');
     }
-    await _events?.cancel();
     textureId.dispose();
     aspectRatio.dispose();
     subtitle.dispose();

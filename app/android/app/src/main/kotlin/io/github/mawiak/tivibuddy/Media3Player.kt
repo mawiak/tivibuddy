@@ -267,7 +267,10 @@ class Media3Player(
             eventTime: AnalyticsListener.EventTime,
             format: Format,
             decoderReuseEvaluation: DecoderReuseEvaluation?,
-        ) = log("video ${format.sampleMimeType} ${format.width}x${format.height} ${format.frameRate} fps")
+        ) = log(
+            "video ${format.sampleMimeType} ${format.width}x${format.height}" +
+                if (format.frameRate > 0) " ${format.frameRate} fps" else "",
+        )
 
         override fun onAudioInputFormatChanged(
             eventTime: AnalyticsListener.EventTime,
