@@ -30,3 +30,5 @@ Decisions agreed with the project owner. Do not reopen them without the owner as
 | 2026-11-15 | Tester logs         | Sent on request to the owner's Telegram bot; token and chat id only in tester builds (`--dart-define`) |
 | 2026-11-15 | Test device         | The owner's device is a Fire TV Stick 4K Max (32-bit Fire OS 7); the Lite stays the untested minimum |
 | 2026-11-15 | Log privacy         | Credentials are redacted; the provider host name stays in tester logs     |
+| 2026-11-19 | Player engines      | Engines behind `PlaybackEngine` with automatic fallback: Android better_player (Media3) first, then media_kit (libmpv); other platforms media_kit; every choice and fallback is logged |
+| 2026-11-19 | better_player       | Evaluated in a spike first (TS/MKV, passthrough, track switching, errors, performance); own Media3 plugin if it fails |

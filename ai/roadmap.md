@@ -14,6 +14,7 @@ Implementation order agreed with the project owner. Status values: `planned`, `i
 | 6  | EPG grid (TV guide) with XMLTV loading                                 | done        |
 | 7  | VOD movies: categories, grid, detail, playback, resume, favorites      | done        |
 | 8  | VOD series: seasons, episodes, progress, watched state                 | done        |
+| 8a | Player engines: better_player (Media3) on Android with media_kit fallback | in progress |
 | 9  | Metadata enrichment from key-less sources                              | planned     |
 | 10 | Sync server (Dart, PostgreSQL, Docker) and client sync                 | planned     |
 | 11 | CI and release builds for all platforms                                | planned     |

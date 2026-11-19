@@ -1,9 +1,12 @@
+import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../application/player_settings_providers.dart';
 import '../domain/playback_engine.dart';
 import 'audio_output_capabilities.dart';
+import 'better_player_playback_engine.dart';
+import 'fallback_playback_engine.dart';
 import 'media_kit_playback_engine.dart';
 
 part 'player_providers.g.dart';
@@ -15,10 +18,20 @@ part 'player_providers.g.dart';
 /// to the next engine.
 @riverpod
 PlaybackEngine playbackEngine(Ref ref) {
-  final engine = MediaKitPlaybackEngine(
-    ref.read(playerSettingsControllerProvider),
-    ref.read(audioOutputCapabilitiesProvider),
+  final settings = ref.read(playerSettingsControllerProvider);
+  final capabilities = ref.read(audioOutputCapabilitiesProvider);
+  final mediaKit = (
+    name: 'media_kit (libmpv)',
+    create: () => MediaKitPlaybackEngine(settings, capabilities),
   );
+  final android = !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+  final engine = FallbackPlaybackEngine([
+    // Media3 passes Dolby through and uses the platform decoders; mpv
+    // plays what Media3 cannot (PLAY-5).
+    if (android)
+      (name: 'better_player (Media3)', create: BetterPlayerPlaybackEngine.new),
+    mediaKit,
+  ], platform: kIsWeb ? 'web' : defaultTargetPlatform.name);
   WakelockPlus.enable().ignore();
   ref.onDispose(() {
     WakelockPlus.disable().ignore();

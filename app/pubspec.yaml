@@ -9,6 +9,7 @@ environment:
 resolution: workspace
 
 dependencies:
+  better_player: ^1.37.0
   crypto: ^3.0.8
   device_info_plus: ^13.3.0
   drift: ^2.35.4

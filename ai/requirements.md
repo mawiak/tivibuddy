@@ -97,6 +97,9 @@ All requirements must be re-checked at the end of every unit of work (see `workf
 - PLAY-3: The player is behind an interface so that alternative backends (for example
   ExoPlayer / Media3 on Android) can be added.
 - PLAY-4: Audio track and subtitle selection, resume playback for VOD.
+- PLAY-5: Each platform has an ordered list of playback engines. When an engine cannot play a
+  stream, the next one takes over automatically. The log shows the platform, the chosen
+  engine, every failure and every fallback.
 
 ## VOD - Movies and series
 

@@ -107,8 +107,18 @@ about one minute in the background, with the app at about 120 to 145 MB.
 
 ## Playback
 
-`PlaybackEngine` (`app/lib/features/player/domain/`) abstracts the player. The implementation
-uses media_kit (libmpv with FFmpeg). On Android the hardware decoder (MediaCodec) renders
+`PlaybackEngine` (`app/lib/features/player/domain/`) abstracts the player (PLAY-3).
+`FallbackPlaybackEngine` plays every stream with the first engine of the platform and moves on
+to the next one when an engine cannot start the stream (PLAY-5); only one engine exists at a
+time. On Android the order is better_player (Media3), then media_kit; elsewhere media_kit only.
+The log names the platform, the engines, the engine that opens each stream and every fallback.
+
+Media3 hands Dolby Digital and Dolby Digital Plus to a receiver where the HDMI output accepts
+them and uses the platform decoders. It cannot decode DTS or TrueHD itself and does not switch
+embedded subtitles of plain streams; those streams fall back to media_kit when Media3 fails.
+The decoder and passthrough settings apply to media_kit.
+
+media_kit uses libmpv with FFmpeg. On Android the hardware decoder (MediaCodec) renders
 straight into the video surface by default (`vo=mediacodec_embed`, `hwdec=mediacodec`). The
 copy mode reads decoded frames back, which costs more CPU and memory bandwidth: on the Fire TV
 Stick 4K Max (MediaTek) it stutters with 4K HEVC films and showed striped green frames while
