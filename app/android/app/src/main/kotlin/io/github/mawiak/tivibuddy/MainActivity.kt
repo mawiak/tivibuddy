@@ -7,6 +7,7 @@ import io.flutter.plugin.common.MethodChannel
 class MainActivity : FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        Media3Plugin(applicationContext, flutterEngine).register()
         MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
             "io.github.mawiak.tivibuddy/audio",

@@ -49,70 +49,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.13.1"
-  better_player:
-    dependency: transitive
-    description:
-      name: better_player
-      sha256: "0480d2e086413cad1b8cac7437f2bf59dc9cf74655b5cf255fb8c3cab5e8b539"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.37.0"
-  better_player_android:
-    dependency: transitive
-    description:
-      name: better_player_android
-      sha256: "24d3ce6c357186e0ec1eed63519e47a552bdc497ad48556f32593f5d6b406672"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.13.1"
-  better_player_ios:
-    dependency: transitive
-    description:
-      name: better_player_ios
-      sha256: "1cef0f866374217ebcb0c984a4a014c9a8f5bce6b219666b0d5b58fd4ec20bc1"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.14.0"
-  better_player_linux:
-    dependency: transitive
-    description:
-      name: better_player_linux
-      sha256: "97d9eb16a587df4d714c1906ef2c49b825c1483e7d4c9050d63e696e26998f6e"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.1"
-  better_player_macos:
-    dependency: transitive
-    description:
-      name: better_player_macos
-      sha256: "2831557fc4a8617e21631180bc1b60ac4f4535f383b918eb20ab1c14fd4e00ff"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.9.0"
-  better_player_platform_interface:
-    dependency: transitive
-    description:
-      name: better_player_platform_interface
-      sha256: e5218199dd12ffe6f43c01d5cdeecad0b53125926f8da8c3f4b90136d8b55ec1
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.8.0"
-  better_player_web:
-    dependency: transitive
-    description:
-      name: better_player_web
-      sha256: d7b365221f7724f22d3fef7840e45af2493a784e2429a30e980f807bcb7c9539
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.6.1"
-  better_player_windows:
-    dependency: transitive
-    description:
-      name: better_player_windows
-      sha256: eddc817dce6af08e74de456ad711ffd987a641c45f73998cbe9ccbf6ab5ebf22
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.5.1"
   boolean_selector:
     dependency: transitive
     description:
@@ -249,14 +185,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.8"
-  cupertino_icons:
-    dependency: transitive
-    description:
-      name: cupertino_icons
-      sha256: b7cc2390aac296c083bea762859413eb1cf5b630c70e0c7e4d831018f762a8b2
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.0"
   cupertino_ui:
     dependency: transitive
     description:
@@ -1170,14 +1098,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.4.4"
-  visibility_detector:
-    dependency: transitive
-    description:
-      name: visibility_detector
-      sha256: dd5cc11e13494f432d15939c3aa8ae76844c42b723398643ce9addb88a5ed420
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.4.0+2"
   vm_service:
     dependency: transitive
     description:

@@ -46,3 +46,10 @@ kotlin {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    // Playback engine on Android (PLAY-5), see Media3Player.kt.
+    val media3 = "1.11.1"
+    implementation("androidx.media3:media3-exoplayer:$media3")
+    implementation("androidx.media3:media3-exoplayer-hls:$media3")
+}

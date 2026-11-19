@@ -9,8 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Android plays with Media3 (better_player) first, with real Dolby passthrough, and falls
-  back to media_kit for streams Media3 cannot play.
+- Android plays with Media3 (ExoPlayer) first, with real Dolby passthrough, and falls back to
+  media_kit for streams Media3 cannot play.
 - Audio tracks in the player options name their codec, for example Dolby Digital (AC3) or DTS.
 - Right in the live TV player jumps back to the channel played before.
 - "Send log to developer" in the settings of tester builds: sends device details and the

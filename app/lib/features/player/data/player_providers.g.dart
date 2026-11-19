@@ -64,7 +64,7 @@ final class PlaybackEngineProvider
   }
 }
 
-String _$playbackEngineHash() => r'5b55f6318c3ec7742e08fa240587057c40b30d48';
+String _$playbackEngineHash() => r'626110164d2a67f38908d6fd1fd2b58418ea455b';
 
 @ProviderFor(audioOutputCapabilities)
 final audioOutputCapabilitiesProvider = AudioOutputCapabilitiesProvider._();

@@ -5,8 +5,8 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 import '../application/player_settings_providers.dart';
 import '../domain/playback_engine.dart';
 import 'audio_output_capabilities.dart';
-import 'better_player_playback_engine.dart';
 import 'fallback_playback_engine.dart';
+import 'media3_playback_engine.dart';
 import 'media_kit_playback_engine.dart';
 
 part 'player_providers.g.dart';
@@ -26,10 +26,9 @@ PlaybackEngine playbackEngine(Ref ref) {
   );
   final android = !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
   final engine = FallbackPlaybackEngine([
-    // better_player never reports endless MPEG-TS live streams as ready,
-    // so it is left out until our own Media3 engine replaces it (PLAY-5).
-    if (android && _betterPlayer)
-      (name: 'better_player (Media3)', create: BetterPlayerPlaybackEngine.new),
+    // Media3 passes Dolby through and uses the platform decoders; mpv
+    // plays what Media3 cannot (PLAY-5).
+    if (android) (name: 'Media3 (ExoPlayer)', create: Media3PlaybackEngine.new),
     mediaKit,
   ], platform: kIsWeb ? 'web' : defaultTargetPlatform.name);
   WakelockPlus.enable().ignore();
@@ -43,5 +42,3 @@ PlaybackEngine playbackEngine(Ref ref) {
 @Riverpod(keepAlive: true)
 AudioOutputCapabilities audioOutputCapabilities(Ref ref) =>
     const AudioOutputCapabilities();
-
-const _betterPlayer = false;

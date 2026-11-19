@@ -4,6 +4,16 @@ import 'package:tivibuddy/features/player/domain/playback_engine.dart';
 
 import '../../helpers/live_tv_fakes.dart';
 
+/// Never answers for streams whose URL contains `hang`.
+class _HangingEngine extends FakePlaybackEngine {
+  @override
+  Future<void> open(String url, {Duration? start}) async {
+    if (!url.contains('hang')) return super.open(url, start: start);
+    opened.add(url);
+    emit(const PlaybackState(status: PlaybackStatus.opening));
+  }
+}
+
 /// Fails every stream whose URL contains `bad` before it plays.
 class _PickyEngine extends FakePlaybackEngine {
   @override
@@ -78,5 +88,38 @@ void main() {
     await single.open('http://bad');
     await pumpEventQueue();
     expect(single.state.status, PlaybackStatus.failed);
+  });
+
+  test('an engine that hangs is replaced after the start timeout', () async {
+    final engines = <FakePlaybackEngine>[];
+    final hanging = FallbackPlaybackEngine(
+      [
+        (
+          name: 'hangs',
+          create: () {
+            final engine = _HangingEngine();
+            engines.add(engine);
+            return engine;
+          },
+        ),
+        (
+          name: 'works',
+          create: () {
+            final engine = FakePlaybackEngine();
+            engines.add(engine);
+            return engine;
+          },
+        ),
+      ],
+      platform: 'test',
+      startTimeout: const Duration(milliseconds: 100),
+    );
+    addTearDown(hanging.dispose);
+    await hanging.open('http://hang');
+    expect(engines, hasLength(1));
+    await Future<void>.delayed(const Duration(milliseconds: 200));
+    expect(engines, hasLength(2));
+    expect(engines.last.opened, ['http://hang']);
+    expect(hanging.state.status, PlaybackStatus.playing);
   });
 }

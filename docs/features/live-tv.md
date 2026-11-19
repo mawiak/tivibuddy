@@ -109,14 +109,19 @@ about one minute in the background, with the app at about 120 to 145 MB.
 
 `PlaybackEngine` (`app/lib/features/player/domain/`) abstracts the player (PLAY-3).
 `FallbackPlaybackEngine` plays every stream with the first engine of the platform and moves on
-to the next one when an engine cannot start the stream (PLAY-5); only one engine exists at a
-time. On Android the order is better_player (Media3), then media_kit; elsewhere media_kit only.
-The log names the platform, the engines, the engine that opens each stream and every fallback.
+to the next one when an engine fails to start the stream or neither plays nor fails within 20
+seconds (PLAY-5); only one engine exists at a time. On Android the order is Media3 (ExoPlayer),
+then media_kit; elsewhere media_kit only. The log names the platform, the engines, the engine
+that opens each stream and every fallback.
 
-Media3 hands Dolby Digital and Dolby Digital Plus to a receiver where the HDMI output accepts
-them and uses the platform decoders. It cannot decode DTS or TrueHD itself and does not switch
-embedded subtitles of plain streams; those streams fall back to media_kit when Media3 fails.
-The decoder and passthrough settings apply to media_kit.
+Media3 runs in our own plugin (`Media3Player.kt`, `Media3Plugin.kt`, `media3_playback_engine.dart`):
+it renders into a Flutter `SurfaceProducer` texture, plays endless MPEG-TS live streams, hands
+Dolby Digital and Dolby Digital Plus to a receiver where the HDMI output accepts them, and
+reports tracks, subtitles (as text) and diagnostics: decoders, the audio output encoding
+(`ac3 (passthrough)` or PCM), dropped frames and audio underruns. It cannot decode DTS or TrueHD
+itself; those streams fail and fall back to media_kit. better_player was evaluated first and
+dropped because it never reports endless TS streams as ready. The decoder and passthrough
+settings apply to media_kit.
 
 media_kit uses libmpv with FFmpeg. On Android the hardware decoder (MediaCodec) renders
 straight into the video surface by default (`vo=mediacodec_embed`, `hwdec=mediacodec`). The

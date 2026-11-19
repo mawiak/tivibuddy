@@ -1,9 +1,8 @@
-import 'package:better_player/better_player.dart';
 import 'package:flutter/material.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 
-import '../data/better_player_playback_engine.dart';
 import '../data/fallback_playback_engine.dart';
+import '../data/media3_playback_engine.dart';
 import '../data/media_kit_playback_engine.dart';
 import '../domain/playback_engine.dart';
 
@@ -30,9 +29,7 @@ class PlaybackSurface extends StatelessWidget {
           controller: mediaKit.controller,
           controls: _noControls,
         ),
-        final BetterPlayerPlaybackEngine betterPlayer => BetterPlayer(
-          controller: betterPlayer.controller,
-        ),
+        final Media3PlaybackEngine media3 => _Media3Surface(engine: media3),
         // Test doubles and engines without a video surface.
         _ => const SizedBox.expand(),
       },
@@ -41,3 +38,55 @@ class PlaybackSurface extends StatelessWidget {
 }
 
 Widget _noControls(VideoState state) => const SizedBox.shrink();
+
+class _Media3Surface extends StatelessWidget {
+  const _Media3Surface({required this.engine});
+
+  final Media3PlaybackEngine engine;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        ListenableBuilder(
+          listenable: Listenable.merge([engine.textureId, engine.aspectRatio]),
+          builder: (context, _) {
+            final texture = engine.textureId.value;
+            final ratio = engine.aspectRatio.value;
+            if (texture == null || ratio == null) return const SizedBox();
+            return Center(
+              child: AspectRatio(
+                aspectRatio: ratio,
+                child: Texture(textureId: texture),
+              ),
+            );
+          },
+        ),
+        // Media3 hands subtitles over as text; mpv draws its own.
+        Positioned(
+          left: 48,
+          right: 48,
+          bottom: 40,
+          child: ValueListenableBuilder(
+            valueListenable: engine.subtitle,
+            builder: (context, text, _) => text == null
+                ? const SizedBox.shrink()
+                : Text(
+                    text,
+                    textAlign: TextAlign.center,
+                    style: textTheme.titleLarge?.copyWith(
+                      color: Colors.white,
+                      shadows: const [
+                        Shadow(blurRadius: 4),
+                        Shadow(blurRadius: 8),
+                      ],
+                    ),
+                  ),
+          ),
+        ),
+      ],
+    );
+  }
+}

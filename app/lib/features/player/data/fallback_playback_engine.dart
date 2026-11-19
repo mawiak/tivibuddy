@@ -12,8 +12,11 @@ typedef EngineOption = ({String name, PlaybackEngine Function() create});
 /// fallback is logged, so a diagnostic report shows which engine played
 /// what. Only one engine exists at a time to save memory (RES-1).
 class FallbackPlaybackEngine implements PlaybackEngine {
-  FallbackPlaybackEngine(this.options, {required this.platform})
-    : assert(options.isNotEmpty, 'at least one engine') {
+  FallbackPlaybackEngine(
+    this.options, {
+    required this.platform,
+    this.startTimeout = const Duration(seconds: 20),
+  }) : assert(options.isNotEmpty, 'at least one engine') {
     debugPrint(
       'player engines for $platform: '
       '${options.map((option) => option.name).join(' -> ')}',
@@ -24,6 +27,11 @@ class FallbackPlaybackEngine implements PlaybackEngine {
 
   /// Platform name for the log, for example `android`.
   final String platform;
+
+  /// An engine that neither plays nor fails within this time counts as
+  /// failed, so a hanging engine does not leave the user at a spinner.
+  final Duration startTimeout;
+  Timer? _startTimer;
 
   /// The engine currently playing, for the video surface.
   final active = ValueNotifier<PlaybackEngine?>(null);
@@ -61,8 +69,21 @@ class FallbackPlaybackEngine implements PlaybackEngine {
     await previous?.dispose();
   }
 
+  void _watchStart() {
+    _startTimer?.cancel();
+    if (_index + 1 >= options.length) return;
+    _startTimer = Timer(startTimeout, () {
+      if (_played) return;
+      unawaited(_fallBack('no start within ${startTimeout.inSeconds} s'));
+      _emit(const PlaybackState(status: PlaybackStatus.opening));
+    });
+  }
+
   void _onState(PlaybackState state) {
-    if (state.status == PlaybackStatus.playing) _played = true;
+    if (state.status == PlaybackStatus.playing) {
+      _played = true;
+      _startTimer?.cancel();
+    }
     if (state.status == PlaybackStatus.failed &&
         !_played &&
         _index + 1 < options.length) {
@@ -83,6 +104,7 @@ class FallbackPlaybackEngine implements PlaybackEngine {
       'falling back to ${options[next].name}',
     );
     await _use(next);
+    _watchStart();
     await active.value!.open(url, start: _start);
   }
 
@@ -107,6 +129,7 @@ class FallbackPlaybackEngine implements PlaybackEngine {
       await _use(0);
     }
     debugPrint('player engine ${options.first.name} opens the stream');
+    _watchStart();
     await active.value!.open(url, start: start);
   }
 
@@ -145,6 +168,7 @@ class FallbackPlaybackEngine implements PlaybackEngine {
 
   @override
   Future<void> dispose() async {
+    _startTimer?.cancel();
     for (final subscription in _subscriptions) {
       await subscription.cancel();
     }
