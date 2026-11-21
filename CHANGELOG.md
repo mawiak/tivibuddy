@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-11-21
+
 ### Added
 
 - The about screen and the settings show the version with its commit id.
@@ -96,3 +98,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The first poster of a new grid could take the focus away from the side menu.
 - Moving right from the side menu focused the element at the same height instead of the last
   focused or first element of the content.
+
+[Unreleased]: https://github.com/mawiak/tivibuddy/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/mawiak/tivibuddy/releases/tag/v0.1.0
