@@ -64,10 +64,13 @@ void main() {
 
     await tester.enterText(find.byType(EditableText), 'ZDF stutters');
     await tester.tap(find.text('Send'));
-    // Device details come from platform plugins, outside the fake clock.
-    await tester.runAsync(
-      () => Future<void>.delayed(const Duration(milliseconds: 300)),
-    );
+    // Device details come from platform plugins and files, outside the
+    // fake clock; how long they take depends on the machine.
+    for (var i = 0; i < 100 && sender.sent.isEmpty; i++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 50)),
+      );
+    }
     await settle(tester);
 
     expect(find.text('Log sent. Thank you!'), findsOneWidget);
