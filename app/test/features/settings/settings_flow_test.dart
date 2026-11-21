@@ -123,6 +123,13 @@ void main() {
     );
     expect(find.text('Video decoder'), findsNothing);
 
+    await tester.tap(find.text('Match frame rate'));
+    await settle(tester);
+    expect(
+      container.read(playerSettingsControllerProvider).matchFrameRate,
+      isTrue,
+    );
+
     // media_kit alone brings back its own settings.
     // The section header is called Player too; tap the setting's value.
     await tester.tap(find.text('Automatic (recommended)'));

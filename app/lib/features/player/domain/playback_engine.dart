@@ -7,6 +7,7 @@ class PlaybackState {
     this.videoWidth,
     this.videoHeight,
     this.duration,
+    this.frameRate,
   });
 
   static const idle = PlaybackState();
@@ -18,6 +19,9 @@ class PlaybackState {
 
   /// Length of the media; null or zero for live streams.
   final Duration? duration;
+
+  /// Frames per second of the video, once known (see [standardFrameRate]).
+  final double? frameRate;
 
   /// Playback stopped by itself: an error, or the end of the media.
   bool get stopped =>
@@ -32,13 +36,25 @@ class PlaybackState {
     int? videoWidth,
     int? videoHeight,
     Duration? duration,
+    double? frameRate,
   }) => PlaybackState(
     status: status ?? this.status,
     error: error,
     videoWidth: videoWidth ?? this.videoWidth,
     videoHeight: videoHeight ?? this.videoHeight,
     duration: duration ?? this.duration,
+    frameRate: frameRate ?? this.frameRate,
   );
+}
+
+/// The broadcast or film frame rate closest to [measured], or [measured]
+/// itself when none is close: measurements and containers give values like
+/// 23.97602 or 49.99 for 23.976 and 50 fps.
+double standardFrameRate(double measured) {
+  const rates = [23.976, 24, 25, 29.97, 30, 47.952, 48, 50, 59.94, 60];
+  double deviation(num rate) => (measured - rate).abs() / rate;
+  final closest = rates.reduce((a, b) => deviation(a) <= deviation(b) ? a : b);
+  return deviation(closest) < 0.003 ? closest.toDouble() : measured;
 }
 
 enum MediaTrackType { audio, subtitle, video }

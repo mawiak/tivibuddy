@@ -212,6 +212,7 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
   void _scheduleStats() {
     _statsTimer?.cancel();
     _statsTimer = Timer(const Duration(seconds: 3), () {
+      unawaited(_reportFrameRate());
       unawaited(_checkPassthrough());
       unawaited(_logStats());
       _statsTimer = Timer(const Duration(seconds: 12), () {
@@ -245,6 +246,18 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
     'decoder-frame-drop-count',
     'demuxer-cache-duration',
   ];
+
+  Future<void> _reportFrameRate() async {
+    final platform = player.platform;
+    if (platform is! NativePlayer) return;
+    for (final property in ['container-fps', 'estimated-vf-fps']) {
+      final fps = double.tryParse(await platform.getProperty(property));
+      if (fps != null && fps > 0) {
+        _emit(_state.copyWith(frameRate: standardFrameRate(fps)));
+        return;
+      }
+    }
+  }
 
   Future<void> _logStats() async {
     final platform = player.platform;

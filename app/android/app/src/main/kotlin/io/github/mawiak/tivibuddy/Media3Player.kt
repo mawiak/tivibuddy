@@ -25,6 +25,7 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.analytics.AnalyticsListener
 import androidx.media3.exoplayer.audio.AudioSink
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
+import androidx.media3.exoplayer.video.VideoFrameMetadataListener
 import androidx.media3.extractor.DefaultExtractorsFactory
 import androidx.media3.extractor.ts.DefaultTsPayloadReaderFactory
 import io.flutter.plugin.common.EventChannel
@@ -121,7 +122,46 @@ class Media3Player(
 
     private fun log(message: String) = send("log", mapOf("message" to message))
 
+    /**
+     * Measures the frame rate from the timestamps of the first frames:
+     * containers such as MKV and endless TS streams often do not state it,
+     * and matching the display needs it.
+     */
+    private val frameRate = object : VideoFrameMetadataListener {
+        private val deltas = mutableListOf<Long>()
+        private var last = C.TIME_UNSET
+
+        fun reset() = synchronized(this) {
+            deltas.clear()
+            last = C.TIME_UNSET
+        }
+
+        override fun onVideoFrameAboutToBeRendered(
+            presentationTimeUs: Long,
+            releaseTimeNs: Long,
+            format: Format,
+            mediaFormat: android.media.MediaFormat?,
+        ) {
+            val fps = synchronized(this) {
+                if (deltas.size >= SAMPLES) return
+                if (last != C.TIME_UNSET && presentationTimeUs > last) {
+                    deltas += presentationTimeUs - last
+                }
+                last = presentationTimeUs
+                if (deltas.size < SAMPLES) return
+                // The median ignores gaps from dropped or repeated frames.
+                1_000_000.0 / deltas.sorted()[SAMPLES / 2]
+            }
+            handler.post { send("frameRate", mapOf("fps" to fps)) }
+        }
+    }
+
+    init {
+        player.setVideoFrameMetadataListener(frameRate)
+    }
+
     fun open(url: String, startMs: Long?) {
+        frameRate.reset()
         val item = MediaItem.Builder().setUri(url)
         if (url.contains(".m3u8")) item.setMimeType(MimeTypes.APPLICATION_M3U8)
         if (startMs != null && startMs > 0) {
@@ -138,6 +178,10 @@ class Media3Player(
     fun pause() = player.pause()
 
     fun seek(positionMs: Long) = player.seekTo(positionMs)
+
+    companion object {
+        private const val SAMPLES = 48
+    }
 
     fun stop() {
         player.stop()

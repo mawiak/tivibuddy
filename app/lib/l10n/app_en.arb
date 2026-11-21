@@ -283,6 +283,8 @@
   "settingsSectionPlayer": "Player",
   "settingsPlayerEngine": "Player",
   "settingsPlayerEngineHint": "Automatic plays with Media3 and switches to media_kit for streams Media3 cannot play. The other options help to find out which player causes a problem. Applies to the next playback.",
+  "settingsMatchFrameRate": "Match frame rate",
+  "settingsMatchFrameRateHint": "Switches the TV to the frame rate of the video, for example 24 Hz for films. The screen goes black for a moment.",
   "settingsEngineAutomatic": "Automatic (recommended)",
   "settingsEngineMedia3": "Media3 only",
   "settingsEngineMediaKit": "media_kit only",

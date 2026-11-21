@@ -136,6 +136,18 @@ class SettingsPane extends ConsumerWidget {
               onSelect: () => _chooseEngine(context, ref),
             ),
           ),
+        if (_android)
+          _Entry(
+            TvSwitchTile(
+              title: l10n.settingsMatchFrameRate,
+              subtitle: l10n.settingsMatchFrameRateHint,
+              leading: Icons.slow_motion_video,
+              value: player.matchFrameRate,
+              onChanged: (on) => ref
+                  .read(playerSettingsControllerProvider.notifier)
+                  .setMatchFrameRate(on),
+            ),
+          ),
         if (_android && player.engine != PlayerEngineChoice.mediaKit)
           _Entry(
             TvListTile(

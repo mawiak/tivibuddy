@@ -34,4 +34,12 @@ void main() {
       reason: 'unclear decoder names are left out',
     );
   });
+
+  test('measured frame rates snap to broadcast and film rates', () {
+    expect(standardFrameRate(23.97602), 23.976);
+    expect(standardFrameRate(24.02), 24);
+    expect(standardFrameRate(49.95), 50);
+    expect(standardFrameRate(59.94006), 59.94);
+    expect(standardFrameRate(12.5), 12.5, reason: 'unusual rates stay');
+  });
 }

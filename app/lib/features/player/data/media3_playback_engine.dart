@@ -101,6 +101,10 @@ class Media3PlaybackEngine implements PlaybackEngine {
         _onTracks(event);
       case 'cues':
         subtitle.value = event['text'] as String?;
+      case 'frameRate':
+        final fps = standardFrameRate((event['fps']! as num).toDouble());
+        debugPrint('media3 frame rate $fps fps');
+        _emit(_state.copyWith(frameRate: fps));
       case 'log':
         debugPrint('media3 ${event['message']}');
     }

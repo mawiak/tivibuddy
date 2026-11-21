@@ -6,6 +6,7 @@ import '../application/player_settings_providers.dart';
 import '../domain/playback_engine.dart';
 import '../domain/player_settings.dart';
 import 'audio_output_capabilities.dart';
+import 'display_frame_rate.dart';
 import 'fallback_playback_engine.dart';
 import 'media3_playback_engine.dart';
 import 'media_kit_playback_engine.dart';
@@ -39,6 +40,22 @@ PlaybackEngine playbackEngine(Ref ref) {
         : [mediaKit],
     platform: kIsWeb ? 'web' : defaultTargetPlatform.name,
   );
+  // The display follows the frame rate of each stream and goes back to its
+  // default when the player closes.
+  if (settings.matchFrameRate && DisplayFrameRate.supported) {
+    const display = DisplayFrameRate();
+    double? matched;
+    final subscription = engine.states.listen((state) {
+      final fps = state.frameRate;
+      if (fps == null || fps == matched) return;
+      matched = fps;
+      display.match(fps).ignore();
+    });
+    ref.onDispose(() {
+      subscription.cancel().ignore();
+      display.reset().ignore();
+    });
+  }
   WakelockPlus.enable().ignore();
   ref.onDispose(() {
     WakelockPlus.disable().ignore();

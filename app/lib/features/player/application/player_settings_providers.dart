@@ -15,6 +15,7 @@ part 'player_settings_providers.g.dart';
 @Riverpod(keepAlive: true)
 class PlayerSettingsController extends _$PlayerSettingsController {
   static const _engineKey = 'player.engine';
+  static const _frameRateKey = 'player.frameRate';
   static const _decoderKey = 'player.decoder';
   static const _passthroughKey = 'player.passthrough';
 
@@ -30,6 +31,9 @@ class PlayerSettingsController extends _$PlayerSettingsController {
                 PlayerSettings.defaults.engine,
           ),
         );
+      }),
+      settings.watchValue(_frameRateKey).listen((value) {
+        _update((current) => current.copyWith(matchFrameRate: value == 'on'));
       }),
       settings.watchValue(_decoderKey).listen((value) {
         _update(
@@ -72,6 +76,14 @@ class PlayerSettingsController extends _$PlayerSettingsController {
     await ref
         .read(deviceSettingsRepositoryProvider)
         .setValue(_engineKey, engine.name);
+  }
+
+  /// Takes effect with the next playback.
+  Future<void> setMatchFrameRate(bool on) async {
+    _update((current) => current.copyWith(matchFrameRate: on));
+    await ref
+        .read(deviceSettingsRepositoryProvider)
+        .setValue(_frameRateKey, on ? 'on' : null);
   }
 
   /// Takes effect with the next playback, because the decoder is chosen

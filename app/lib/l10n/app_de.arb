@@ -144,6 +144,8 @@
   "settingsSectionPlayer": "Player",
   "settingsPlayerEngine": "Player",
   "settingsPlayerEngineHint": "Automatisch spielt mit Media3 und wechselt zu media_kit, wenn Media3 einen Stream nicht abspielen kann. Die anderen Optionen helfen herauszufinden, welcher Player ein Problem verursacht. Gilt ab der nächsten Wiedergabe.",
+  "settingsMatchFrameRate": "Bildwiederholrate anpassen",
+  "settingsMatchFrameRateHint": "Stellt den Fernseher auf die Bildrate des Videos um, zum Beispiel 24 Hz bei Filmen. Der Bildschirm wird dabei kurz schwarz.",
   "settingsEngineAutomatic": "Automatisch (empfohlen)",
   "settingsEngineMedia3": "Nur Media3",
   "settingsEngineMediaKit": "Nur media_kit",

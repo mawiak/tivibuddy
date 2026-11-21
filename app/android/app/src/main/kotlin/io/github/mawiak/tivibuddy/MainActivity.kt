@@ -18,5 +18,16 @@ class MainActivity : FlutterActivity() {
                 else -> result.notImplemented()
             }
         }
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            "io.github.mawiak.tivibuddy/display",
+        ).setMethodCallHandler { call, result ->
+            when (call.method) {
+                "matchFrameRate" ->
+                    result.success(DisplayModes.match(this, call.argument<Double>("fps")!!))
+                "reset" -> result.success(DisplayModes.reset(this))
+                else -> result.notImplemented()
+            }
+        }
     }
 }
