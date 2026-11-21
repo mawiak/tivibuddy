@@ -133,8 +133,9 @@ abstract interface class PlaybackEngine {
 
   PlaybackState get state;
 
-  /// Plays [url], for media with a known length from [start] on.
-  Future<void> open(String url, {Duration? start});
+  /// Plays [url], for media with a known length from [start] on. [live]
+  /// marks TV channels as opposed to films and episodes.
+  Future<void> open(String url, {Duration? start, bool live = false});
 
   /// Playback position, updated while playing.
   Stream<Duration> get positions;
@@ -152,6 +153,10 @@ abstract interface class PlaybackEngine {
   Future<void> selectTrack(MediaTrackType type, String? id);
 
   Future<void> togglePause();
+
+  /// Rebuilds the audio output with what the output accepts now, for
+  /// example after HDMI renegotiated during a display mode switch.
+  Future<void> refreshAudioOutput();
 
   Future<void> stop();
 

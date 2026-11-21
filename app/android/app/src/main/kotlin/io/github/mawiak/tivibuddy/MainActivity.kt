@@ -23,9 +23,11 @@ class MainActivity : FlutterActivity() {
             "io.github.mawiak.tivibuddy/display",
         ).setMethodCallHandler { call, result ->
             when (call.method) {
-                "matchFrameRate" ->
-                    result.success(DisplayModes.match(this, call.argument<Double>("fps")!!))
-                "reset" -> result.success(DisplayModes.reset(this))
+                "find" -> result.success(DisplayModes.find(this, call.argument<Double>("fps")!!))
+                "apply" -> DisplayModes.apply(this, call.argument<Int>("modeId")!!) {
+                    result.success(it)
+                }
+                "isSwitched" -> result.success(DisplayModes.isSwitched(this))
                 else -> result.notImplemented()
             }
         }

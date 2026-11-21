@@ -9,8 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Match frame rate on Android: the TV switches to the frame rate of the video, for example
-  23.976 Hz for films and 50 Hz for TV.
+- Match frame rate on Android (off, films and series only, always): the TV switches to the
+  frame rate of the video, for example 23.976 Hz for films and 50 Hz for TV; playback waits
+  while the TV switches and keeps Dolby passthrough.
 - Player choice on Android (automatic, Media3 only, media_kit only) and an automatic audio
   output that shows which formats the connected device takes; decoder and passthrough
   settings only appear for media_kit.

@@ -1,23 +1,39 @@
 package io.github.mawiak.tivibuddy
 
 import android.app.Activity
+import android.content.Context
+import android.hardware.display.DisplayManager
+import android.os.Handler
+import android.os.Looper
 import android.view.Display
 import kotlin.math.abs
 
 /**
  * Switches the display to a refresh rate that fits the video, like the
  * "match frame rate" option of common players: 23.976 fps films at
- * 23.976 or 24 Hz instead of 60 Hz avoid uneven frame repeats (judder).
- * Only modes with the current resolution are considered; the window's
- * preferred mode is cleared again when playback ends.
+ * 23.976 Hz instead of 60 Hz avoid uneven frame repeats (judder). Only
+ * modes with the current resolution are considered.
+ *
+ * Finding and applying a mode are separate steps, so playback can pause
+ * while the TV resynchronises; HDMI also renegotiates audio then.
  */
 object DisplayModes {
     /** Relative deviation still counted as the same rate (23.976 vs 24 is 0.1 %). */
     private const val TOLERANCE = 0.0015
 
-    fun match(activity: Activity, fps: Double): String {
-        @Suppress("DEPRECATION")
-        val display: Display = activity.windowManager.defaultDisplay
+    /** The TV needs a moment after the switch before audio and picture settle. */
+    private const val SETTLE_MS = 1_000L
+    private const val TIMEOUT_MS = 5_000L
+
+    @Suppress("DEPRECATION")
+    private fun display(activity: Activity): Display = activity.windowManager.defaultDisplay
+
+    /**
+     * The mode for [fps]: `modeId` 0 when the current mode fits or none
+     * does, with a `message` for the log.
+     */
+    fun find(activity: Activity, fps: Double): Map<String, Any> {
+        val display = display(activity)
         val current = display.mode
         val best = display.supportedModes
             .filter {
@@ -27,24 +43,69 @@ object DisplayModes {
             .mapNotNull { mode -> score(mode.refreshRate.toDouble(), fps)?.let { mode to it } }
             .minByOrNull { it.second }
             ?.first
-            ?: return "display: no mode for $fps fps at ${describe(current)}, " +
-                "available ${display.supportedModes.joinToString { describe(it) }}"
-        if (best.modeId == current.modeId) {
-            return "display: ${describe(current)} already fits $fps fps"
+        return when {
+            best == null -> mapOf(
+                "modeId" to 0,
+                "message" to "display: no mode for $fps fps at ${describe(current)}, " +
+                    "available ${display.supportedModes.joinToString { describe(it) }}",
+            )
+            best.modeId == current.modeId -> mapOf(
+                "modeId" to 0,
+                "message" to "display: ${describe(current)} already fits $fps fps",
+            )
+            else -> mapOf(
+                "modeId" to best.modeId,
+                "message" to "display: switching from ${describe(current)} to ${describe(best)} for $fps fps",
+            )
         }
-        val attributes = activity.window.attributes
-        attributes.preferredDisplayModeId = best.modeId
-        activity.window.attributes = attributes
-        return "display: switched from ${describe(current)} to ${describe(best)} for $fps fps"
     }
 
-    fun reset(activity: Activity): String {
+    /**
+     * Applies [modeId], or the default mode for 0, and calls [done] once the
+     * display reports the change and has settled, or after a timeout.
+     */
+    fun apply(activity: Activity, modeId: Int, done: (String) -> Unit) {
         val attributes = activity.window.attributes
-        if (attributes.preferredDisplayModeId == 0) return "display: default mode"
-        attributes.preferredDisplayModeId = 0
+        if (attributes.preferredDisplayModeId == modeId) {
+            done("display: unchanged")
+            return
+        }
+        val manager = activity.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+        val handler = Handler(Looper.getMainLooper())
+        val displayId = display(activity).displayId
+        var finished = false
+        lateinit var listener: DisplayManager.DisplayListener
+        fun finish(message: String) {
+            if (finished) return
+            finished = true
+            manager.unregisterDisplayListener(listener)
+            handler.removeCallbacksAndMessages(null)
+            handler.postDelayed({ done(message) }, SETTLE_MS)
+        }
+        listener = object : DisplayManager.DisplayListener {
+            override fun onDisplayChanged(id: Int) {
+                if (id != displayId) return
+                val mode = display(activity).mode
+                if (modeId == 0 || mode.modeId == modeId) {
+                    finish("display: now ${describe(mode)}")
+                }
+            }
+
+            override fun onDisplayAdded(id: Int) = Unit
+
+            override fun onDisplayRemoved(id: Int) = Unit
+        }
+        manager.registerDisplayListener(listener, handler)
+        handler.postDelayed(
+            { finish("display: no change reported within $TIMEOUT_MS ms, now ${describe(display(activity).mode)}") },
+            TIMEOUT_MS,
+        )
+        attributes.preferredDisplayModeId = modeId
         activity.window.attributes = attributes
-        return "display: back to the default mode"
     }
+
+    /** Whether the window asks for a mode other than the default. */
+    fun isSwitched(activity: Activity) = activity.window.attributes.preferredDisplayModeId != 0
 
     /**
      * How well [rate] shows [fps], lower is better; null when the rate would

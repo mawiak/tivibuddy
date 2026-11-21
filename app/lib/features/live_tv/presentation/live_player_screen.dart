@@ -156,7 +156,7 @@ class _LivePlayerScreenState extends ConsumerState<LivePlayerScreen> {
       categoryId: widget.args.categoryId,
       index: _index,
     ), channel);
-    await _engine.open(url);
+    await _engine.open(url, live: true);
   }
 
   void _showOsd() {

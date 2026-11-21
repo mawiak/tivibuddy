@@ -10,6 +10,18 @@ enum PlayerEngineChoice {
   mediaKit,
 }
 
+/// When the display follows the frame rate of the video (PLAY-6). Each
+/// switch turns the TV black for a moment.
+enum FrameRateMatching {
+  off,
+
+  /// Films and episodes only; live TV keeps the display's default rate.
+  vodOnly,
+
+  /// Every stream, live TV included.
+  always,
+}
+
 /// How media_kit decodes video (PLAY-2). Some chips render wrong colours in one
 /// mode and fine in another, so the user can switch per device.
 enum VideoDecoder {
@@ -42,7 +54,7 @@ enum AudioPassthrough {
 class PlayerSettings {
   const PlayerSettings({
     this.engine = PlayerEngineChoice.automatic,
-    this.matchFrameRate = false,
+    this.frameRateMatching = FrameRateMatching.off,
     this.decoder = VideoDecoder.hardware,
     this.passthrough = const {},
   });
@@ -51,9 +63,7 @@ class PlayerSettings {
 
   final PlayerEngineChoice engine;
 
-  /// Switches the display to the refresh rate of the video. Off by default:
-  /// the TV shows black for a moment while it switches.
-  final bool matchFrameRate;
+  final FrameRateMatching frameRateMatching;
 
   final VideoDecoder decoder;
 
@@ -63,12 +73,12 @@ class PlayerSettings {
 
   PlayerSettings copyWith({
     PlayerEngineChoice? engine,
-    bool? matchFrameRate,
+    FrameRateMatching? frameRateMatching,
     VideoDecoder? decoder,
     Set<AudioPassthrough>? passthrough,
   }) => PlayerSettings(
     engine: engine ?? this.engine,
-    matchFrameRate: matchFrameRate ?? this.matchFrameRate,
+    frameRateMatching: frameRateMatching ?? this.frameRateMatching,
     decoder: decoder ?? this.decoder,
     passthrough: passthrough ?? this.passthrough,
   );
@@ -77,7 +87,7 @@ class PlayerSettings {
   bool operator ==(Object other) =>
       other is PlayerSettings &&
       other.engine == engine &&
-      other.matchFrameRate == matchFrameRate &&
+      other.frameRateMatching == frameRateMatching &&
       other.decoder == decoder &&
       other.passthrough.length == passthrough.length &&
       other.passthrough.containsAll(passthrough);
@@ -85,7 +95,7 @@ class PlayerSettings {
   @override
   int get hashCode => Object.hash(
     engine,
-    matchFrameRate,
+    frameRateMatching,
     decoder,
     Object.hashAllUnordered(passthrough),
   );

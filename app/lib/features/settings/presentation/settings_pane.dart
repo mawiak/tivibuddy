@@ -138,14 +138,11 @@ class SettingsPane extends ConsumerWidget {
           ),
         if (_android)
           _Entry(
-            TvSwitchTile(
+            TvListTile(
               title: l10n.settingsMatchFrameRate,
-              subtitle: l10n.settingsMatchFrameRateHint,
+              subtitle: frameRateMatchingLabel(l10n, player.frameRateMatching),
               leading: Icons.slow_motion_video,
-              value: player.matchFrameRate,
-              onChanged: (on) => ref
-                  .read(playerSettingsControllerProvider.notifier)
-                  .setMatchFrameRate(on),
+              onSelect: () => _chooseFrameRateMatching(context, ref),
             ),
           ),
         if (_android && player.engine != PlayerEngineChoice.mediaKit)
@@ -305,6 +302,26 @@ class SettingsPane extends ConsumerWidget {
     await ref.read(playerSettingsControllerProvider.notifier).setEngine(choice);
   }
 
+  Future<void> _chooseFrameRateMatching(
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
+    final l10n = AppLocalizations.of(context);
+    final choice = await showTvChoiceDialog<FrameRateMatching>(
+      context,
+      title: l10n.settingsMatchFrameRate,
+      message: l10n.settingsMatchFrameRateHint,
+      choices: [
+        for (final matching in FrameRateMatching.values)
+          TvChoice(matching, frameRateMatchingLabel(l10n, matching)),
+      ],
+    );
+    if (choice == null) return;
+    await ref
+        .read(playerSettingsControllerProvider.notifier)
+        .setFrameRateMatching(choice);
+  }
+
   Future<void> _chooseDecoder(BuildContext context, WidgetRef ref) async {
     final l10n = AppLocalizations.of(context);
     final choice = await showTvChoiceDialog<VideoDecoder>(
@@ -371,6 +388,15 @@ String engineLabel(AppLocalizations l10n, PlayerEngineChoice engine) =>
       PlayerEngineChoice.media3 => l10n.settingsEngineMedia3,
       PlayerEngineChoice.mediaKit => l10n.settingsEngineMediaKit,
     };
+
+String frameRateMatchingLabel(
+  AppLocalizations l10n,
+  FrameRateMatching matching,
+) => switch (matching) {
+  FrameRateMatching.off => l10n.frameRateMatchingOff,
+  FrameRateMatching.vodOnly => l10n.frameRateMatchingVodOnly,
+  FrameRateMatching.always => l10n.frameRateMatchingAlways,
+};
 
 String decoderLabel(AppLocalizations l10n, VideoDecoder decoder) =>
     switch (decoder) {

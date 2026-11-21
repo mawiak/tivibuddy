@@ -44,6 +44,10 @@ class FallbackPlaybackEngine implements PlaybackEngine {
 
   String? _url;
   Duration? _start;
+  bool _live = false;
+
+  /// Whether the current stream is a TV channel.
+  bool get live => _live;
 
   /// Whether the stream of the current open played already; failures after
   /// that are errors of the stream, not of the engine.
@@ -105,7 +109,7 @@ class FallbackPlaybackEngine implements PlaybackEngine {
     );
     await _use(next);
     _watchStart();
-    await active.value!.open(url, start: _start);
+    await active.value!.open(url, start: _start, live: _live);
   }
 
   void _emit(PlaybackState state) {
@@ -116,9 +120,10 @@ class FallbackPlaybackEngine implements PlaybackEngine {
   PlaybackState _state = PlaybackState.idle;
 
   @override
-  Future<void> open(String url, {Duration? start}) async {
+  Future<void> open(String url, {Duration? start, bool live = false}) async {
     _url = url;
     _start = start;
+    _live = live;
     _played = false;
     // Every stream gets the preferred engine first; a fallback for one
     // stream says nothing about the next.
@@ -130,7 +135,7 @@ class FallbackPlaybackEngine implements PlaybackEngine {
     }
     debugPrint('player engine ${options.first.name} opens the stream');
     _watchStart();
-    await active.value!.open(url, start: start);
+    await active.value!.open(url, start: start, live: live);
   }
 
   PlaybackEngine? get _engine => active.value;
@@ -162,6 +167,9 @@ class FallbackPlaybackEngine implements PlaybackEngine {
 
   @override
   Future<void> togglePause() async => _engine?.togglePause();
+
+  @override
+  Future<void> refreshAudioOutput() async => _engine?.refreshAudioOutput();
 
   @override
   Future<void> stop() async => _engine?.stop();

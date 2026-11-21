@@ -7,7 +7,7 @@ import '../../helpers/live_tv_fakes.dart';
 /// Never answers for streams whose URL contains `hang`.
 class _HangingEngine extends FakePlaybackEngine {
   @override
-  Future<void> open(String url, {Duration? start}) async {
+  Future<void> open(String url, {Duration? start, bool live = false}) async {
     if (!url.contains('hang')) return super.open(url, start: start);
     opened.add(url);
     emit(const PlaybackState(status: PlaybackStatus.opening));
@@ -17,7 +17,7 @@ class _HangingEngine extends FakePlaybackEngine {
 /// Fails every stream whose URL contains `bad` before it plays.
 class _PickyEngine extends FakePlaybackEngine {
   @override
-  Future<void> open(String url, {Duration? start}) async {
+  Future<void> open(String url, {Duration? start, bool live = false}) async {
     if (!url.contains('bad')) return super.open(url, start: start);
     opened.add(url);
     emit(const PlaybackState(status: PlaybackStatus.failed, error: 'codec'));

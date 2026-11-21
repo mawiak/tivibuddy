@@ -183,6 +183,21 @@ class Media3Player(
 
     fun seek(positionMs: Long) = player.seekTo(positionMs)
 
+    /**
+     * Rebuilds the audio output with the capabilities the output reports
+     * now: after HDMI renegotiated (a display mode switch) the old output
+     * may have fallen back to PCM. Switching audio off and on again also
+     * works for live streams, which cannot seek.
+     */
+    fun refreshAudio() {
+        val parameters = player.trackSelectionParameters
+        if (parameters.disabledTrackTypes.contains(C.TRACK_TYPE_AUDIO)) return
+        player.trackSelectionParameters = parameters.buildUpon()
+            .setTrackTypeDisabled(C.TRACK_TYPE_AUDIO, true)
+            .build()
+        handler.post { player.trackSelectionParameters = parameters }
+    }
+
     companion object {
         private const val SAMPLES = 48
     }

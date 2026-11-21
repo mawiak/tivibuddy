@@ -38,7 +38,7 @@ On Android the section shows:
 |--------------|---------------------------------------------------------------|-----------|
 | Player       | Automatic (Media3, then media_kit), Media3 only, media_kit only | Automatic |
 | Audio output | Information only: which formats the output passes through now | -         |
-| Match frame rate | Off, on                                                   | Off       |
+| Match frame rate | Off, films and series only, always                       | Off       |
 
 With Media3 the audio output needs no setting: the connected TV, soundbar or receiver reports
 over HDMI which formats it decodes; those are passed through, everything else is decoded.
@@ -48,8 +48,12 @@ Match frame rate switches the display to a mode with the current resolution whos
 is the highest whole multiple of the video frame rate (`DisplayModes.kt`): 23.976 fps films at
 23.976 Hz, 25 fps TV at 50 Hz, 29.97 fps at 59.94 Hz. Media3 measures the frame rate from the
 timestamps of the first 48 frames, because MKV files and TS streams often do not state it;
-media_kit reports `container-fps`. The display returns to its default mode when the player
-closes. Every switch, and a missing fitting mode, is logged with `display:`.
+media_kit reports `container-fps`. `FrameRateFollower` pauses playback while the TV switches,
+waits until the display reports the new mode and has settled, then rebuilds the audio output:
+HDMI renegotiates audio during the switch, and without the rebuild Media3 sometimes kept
+decoded PCM instead of passthrough. The display stays at the last rate when the player closes,
+which saves a switch when the next stream fits. With "films and series only" live TV switches
+the display back to its default mode. Every step is logged with `display:`.
 
 Fire TV devices only offer other display modes to apps when their video resolution is set to
 automatic and their own "Match original frame rate" option is on; with a fixed resolution such

@@ -41,6 +41,7 @@ class Media3Plugin(private val context: Context, private val engine: FlutterEngi
             "seek" -> player.seek(call.argument<Number>("positionMs")!!.toLong())
             "selectAudio" -> player.selectTrack(C.TRACK_TYPE_AUDIO, call.argument("track"))
             "selectText" -> player.selectTrack(C.TRACK_TYPE_TEXT, call.argument("track"))
+            "refreshAudio" -> player.refreshAudio()
             "stop" -> player.stop()
             "dispose" -> {
                 players.remove(id)?.release()

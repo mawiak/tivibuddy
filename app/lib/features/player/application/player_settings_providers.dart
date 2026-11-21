@@ -33,7 +33,18 @@ class PlayerSettingsController extends _$PlayerSettingsController {
         );
       }),
       settings.watchValue(_frameRateKey).listen((value) {
-        _update((current) => current.copyWith(matchFrameRate: value == 'on'));
+        _update(
+          (current) => current.copyWith(
+            frameRateMatching: switch (value) {
+              // Stored by the first version, which only knew on and off.
+              'on' => FrameRateMatching.always,
+              final name? =>
+                FrameRateMatching.values.asNameMap()[name] ??
+                    FrameRateMatching.off,
+              null => FrameRateMatching.off,
+            },
+          ),
+        );
       }),
       settings.watchValue(_decoderKey).listen((value) {
         _update(
@@ -79,11 +90,14 @@ class PlayerSettingsController extends _$PlayerSettingsController {
   }
 
   /// Takes effect with the next playback.
-  Future<void> setMatchFrameRate(bool on) async {
-    _update((current) => current.copyWith(matchFrameRate: on));
+  Future<void> setFrameRateMatching(FrameRateMatching matching) async {
+    _update((current) => current.copyWith(frameRateMatching: matching));
     await ref
         .read(deviceSettingsRepositoryProvider)
-        .setValue(_frameRateKey, on ? 'on' : null);
+        .setValue(
+          _frameRateKey,
+          matching == FrameRateMatching.off ? null : matching.name,
+        );
   }
 
   /// Takes effect with the next playback, because the decoder is chosen

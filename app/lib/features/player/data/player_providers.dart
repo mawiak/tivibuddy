@@ -40,21 +40,11 @@ PlaybackEngine playbackEngine(Ref ref) {
         : [mediaKit],
     platform: kIsWeb ? 'web' : defaultTargetPlatform.name,
   );
-  // The display follows the frame rate of each stream and goes back to its
-  // default when the player closes.
-  if (settings.matchFrameRate && DisplayFrameRate.supported) {
-    const display = DisplayFrameRate();
-    double? matched;
-    final subscription = engine.states.listen((state) {
-      final fps = state.frameRate;
-      if (fps == null || fps == matched) return;
-      matched = fps;
-      display.match(fps).ignore();
-    });
-    ref.onDispose(() {
-      subscription.cancel().ignore();
-      display.reset().ignore();
-    });
+  if (settings.frameRateMatching != FrameRateMatching.off &&
+      DisplayModeSwitcher.supported) {
+    final follower = FrameRateFollower(engine, settings.frameRateMatching)
+      ..start();
+    ref.onDispose(() => follower.stop().ignore());
   }
   WakelockPlus.enable().ignore();
   ref.onDispose(() {

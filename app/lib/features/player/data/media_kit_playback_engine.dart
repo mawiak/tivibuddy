@@ -160,6 +160,7 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
   bool _started = false;
   bool _bufferedSinceOpen = false;
   String? _url;
+  bool _live = false;
   bool _passthroughActive = false;
 
   /// Some outputs accept compressed formats on paper but never play mpv's
@@ -202,7 +203,7 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
     final position = player.state.duration > Duration.zero
         ? player.state.position
         : null;
-    await open(url, start: position);
+    await open(url, start: position, live: _live);
   }
 
   /// Playback details for diagnostic reports: shortly after a stream opens,
@@ -333,7 +334,8 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
   }
 
   @override
-  Future<void> open(String url, {Duration? start}) async {
+  Future<void> open(String url, {Duration? start, bool live = false}) async {
+    _live = live;
     _emit(const PlaybackState(status: PlaybackStatus.opening));
     await _configured;
     final platform = player.platform;
@@ -482,6 +484,14 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
   Future<void> togglePause() {
     debugPrint(player.state.playing ? 'player pause' : 'player resume');
     return player.playOrPause();
+  }
+
+  @override
+  Future<void> refreshAudioOutput() async {
+    final platform = player.platform;
+    if (platform is! NativePlayer) return;
+    debugPrint('player refresh audio output');
+    await platform.command(['ao-reload']);
   }
 
   @override

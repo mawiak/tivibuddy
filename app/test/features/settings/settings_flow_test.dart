@@ -125,9 +125,11 @@ void main() {
 
     await tester.tap(find.text('Match frame rate'));
     await settle(tester);
+    await tester.tap(find.text('Films and series only').last);
+    await settle(tester);
     expect(
-      container.read(playerSettingsControllerProvider).matchFrameRate,
-      isTrue,
+      container.read(playerSettingsControllerProvider).frameRateMatching,
+      FrameRateMatching.vodOnly,
     );
 
     // media_kit alone brings back its own settings.

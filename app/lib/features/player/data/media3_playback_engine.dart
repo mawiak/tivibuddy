@@ -179,7 +179,7 @@ class Media3PlaybackEngine implements PlaybackEngine {
   };
 
   @override
-  Future<void> open(String url, {Duration? start}) async {
+  Future<void> open(String url, {Duration? start, bool live = false}) async {
     _emit(const PlaybackState(status: PlaybackStatus.opening));
     _openedAt = Stopwatch()..start();
     _started = false;
@@ -249,6 +249,12 @@ class Media3PlaybackEngine implements PlaybackEngine {
       await _call('pause');
       _emit(_state.copyWith(status: PlaybackStatus.paused));
     }
+  }
+
+  @override
+  Future<void> refreshAudioOutput() async {
+    debugPrint('media3 refresh audio output');
+    await _call('refreshAudio');
   }
 
   @override

@@ -111,7 +111,7 @@ class FakePlaybackEngine implements PlaybackEngine {
   }
 
   @override
-  Future<void> open(String url, {Duration? start}) async {
+  Future<void> open(String url, {Duration? start, bool live = false}) async {
     opened.add(url);
     starts.add(start);
     _position = start ?? Duration.zero;
@@ -163,10 +163,34 @@ class FakePlaybackEngine implements PlaybackEngine {
   }
 
   @override
-  Future<void> togglePause() async {}
+  Future<void> togglePause() async {
+    switch (_state.status) {
+      case PlaybackStatus.playing:
+        emit(
+          PlaybackState(
+            status: PlaybackStatus.paused,
+            frameRate: _state.frameRate,
+          ),
+        );
+      case PlaybackStatus.paused:
+        emit(
+          PlaybackState(
+            status: PlaybackStatus.playing,
+            frameRate: _state.frameRate,
+          ),
+        );
+      default:
+        break;
+    }
+  }
 
   @override
   Future<void> stop() async {}
+
+  int audioRefreshes = 0;
+
+  @override
+  Future<void> refreshAudioOutput() async => audioRefreshes++;
 
   @override
   Future<void> dispose() async {
