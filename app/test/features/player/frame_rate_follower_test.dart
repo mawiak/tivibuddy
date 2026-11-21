@@ -8,6 +8,10 @@ import '../../helpers/live_tv_fakes.dart';
 
 /// Offers mode 24 for 23.976 fps and mode 50 for 50 fps; the default is 0.
 class _FakeDisplay implements DisplayModeSwitcher {
+  _FakeDisplay([this.duringSwitch]);
+
+  /// Runs while the TV switches, like an engine reporting a stall then.
+  final void Function()? duringSwitch;
   final applied = <int>[];
   int current = 0;
 
@@ -23,6 +27,7 @@ class _FakeDisplay implements DisplayModeSwitcher {
 
   @override
   Future<String> apply(int modeId) async {
+    duringSwitch?.call();
     applied.add(modeId);
     current = modeId;
     return 'apply $modeId';
@@ -84,4 +89,17 @@ void main() {
     await play(live: true, fps: 25);
     expect(display.applied, [24, 0]);
   });
+
+  test(
+    'resumes even when the engine reports a stall during the switch',
+    () async {
+      display = _FakeDisplay(
+        () => inner.emit(const PlaybackState(status: PlaybackStatus.buffering)),
+      );
+      FrameRateFollower(engine, FrameRateMatching.always, display).start();
+      await play(live: false, fps: 23.976);
+      expect(display.applied, [24]);
+      expect(engine.state.status, PlaybackStatus.playing);
+    },
+  );
 }

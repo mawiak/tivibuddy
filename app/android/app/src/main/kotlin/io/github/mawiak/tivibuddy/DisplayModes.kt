@@ -1,9 +1,7 @@
 package io.github.mawiak.tivibuddy
 
 import android.app.Activity
-import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.Intent
 import android.content.IntentFilter
 import android.media.AudioManager
 import android.hardware.display.DisplayManager
@@ -29,12 +27,9 @@ object DisplayModes {
     private const val SETTLE_MS = 500L
     private const val TIMEOUT_MS = 5_000L
 
-    /**
-     * HDMI renegotiates audio after the picture; until the sink reports its
-     * formats again the output only takes PCM, and a player starting then
-     * stays without passthrough.
-     */
-    private const val AUDIO_TIMEOUT_MS = 4_000L
+    /** How long to wait for the HDMI audio formats after the picture switched. */
+    private const val AUDIO_TIMEOUT_MS = 8_000L
+    private const val AUDIO_POLL_MS = 250L
 
     @Suppress("DEPRECATION")
     private fun display(activity: Activity): Display = activity.windowManager.defaultDisplay
@@ -73,8 +68,11 @@ object DisplayModes {
 
     /**
      * Applies [modeId], or the default mode for 0, and calls [done] once the
-     * display reports the new mode and HDMI audio is back, each with a
-     * timeout, plus a moment to settle.
+     * display reports the new mode and HDMI audio reports the same formats
+     * as before the switch, each with a timeout, plus a moment to settle.
+     * HDMI renegotiates audio after the picture; until the sink reports its
+     * formats again the output only takes PCM, and a player starting its
+     * audio then stays without passthrough.
      */
     fun apply(activity: Activity, modeId: Int, done: (String) -> Unit) {
         val attributes = activity.window.attributes
@@ -86,25 +84,31 @@ object DisplayModes {
         val handler = Handler(Looper.getMainLooper())
         val displayId = display(activity).displayId
         val started = System.currentTimeMillis()
+        val formatsBefore = hdmiEncodings(activity)
         var displayReport: String? = null
-        var audioReport: String? = null
         var finished = false
         lateinit var listener: DisplayManager.DisplayListener
-        lateinit var receiver: BroadcastReceiver
 
-        fun finish() {
+        fun finish(message: String) {
             if (finished) return
             finished = true
             manager.unregisterDisplayListener(listener)
-            activity.unregisterReceiver(receiver)
             handler.removeCallbacksAndMessages(null)
-            val message = "${displayReport ?: "display: no change reported"}, " +
-                (audioReport ?: "no hdmi audio event")
             handler.postDelayed({ done(message) }, SETTLE_MS)
         }
 
-        fun check() {
-            if (displayReport != null && audioReport != null) finish()
+        val audioCheck = object : Runnable {
+            override fun run() {
+                val elapsed = System.currentTimeMillis() - started
+                val formats = hdmiEncodings(activity)
+                when {
+                    formats != null && formats.containsAll(formatsBefore.orEmpty()) ->
+                        finish("$displayReport, hdmi audio formats back after $elapsed ms")
+                    elapsed > AUDIO_TIMEOUT_MS ->
+                        finish("$displayReport, hdmi audio formats $formats instead of $formatsBefore after $elapsed ms")
+                    else -> handler.postDelayed(this, AUDIO_POLL_MS)
+                }
+            }
         }
 
         listener = object : DisplayManager.DisplayListener {
@@ -114,9 +118,9 @@ object DisplayModes {
                 if (modeId == 0 || mode.modeId == modeId) {
                     displayReport = "display: now ${describe(mode)} " +
                         "after ${System.currentTimeMillis() - started} ms"
-                    // Waiting for audio starts with the new picture.
-                    handler.postDelayed(::finish, AUDIO_TIMEOUT_MS)
-                    check()
+                    handler.removeCallbacksAndMessages(null)
+                    // The sink drops out briefly after the picture changed.
+                    handler.postDelayed(audioCheck, AUDIO_POLL_MS * 4)
                 }
             }
 
@@ -124,23 +128,21 @@ object DisplayModes {
 
             override fun onDisplayRemoved(id: Int) = Unit
         }
-        // Listening from the start, as HDMI audio may return before the
-        // display reports its new mode.
-        receiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context, intent: Intent) {
-                // The sticky last state arrives first; only news count.
-                if (isInitialStickyBroadcast) return
-                if (intent.getIntExtra(AudioManager.EXTRA_AUDIO_PLUG_STATE, 0) == 1) {
-                    audioReport = "hdmi audio back after ${System.currentTimeMillis() - started} ms"
-                    check()
-                }
-            }
-        }
         manager.registerDisplayListener(listener, handler)
-        activity.registerReceiver(receiver, IntentFilter(AudioManager.ACTION_HDMI_AUDIO_PLUG))
-        handler.postDelayed(::finish, TIMEOUT_MS)
+        handler.postDelayed(
+            { finish("display: no change reported within $TIMEOUT_MS ms") },
+            TIMEOUT_MS,
+        )
         attributes.preferredDisplayModeId = modeId
         activity.window.attributes = attributes
+    }
+
+    /** Encodings the HDMI sink reports now, null while it is not connected. */
+    private fun hdmiEncodings(activity: Activity): Set<Int>? {
+        val plug = activity.registerReceiver(null, IntentFilter(AudioManager.ACTION_HDMI_AUDIO_PLUG))
+            ?: return emptySet()
+        if (plug.getIntExtra(AudioManager.EXTRA_AUDIO_PLUG_STATE, 0) != 1) return null
+        return plug.getIntArrayExtra(AudioManager.EXTRA_ENCODINGS)?.toSet().orEmpty()
     }
 
     /** Whether the window asks for a mode other than the default. */

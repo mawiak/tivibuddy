@@ -154,6 +154,10 @@ abstract interface class PlaybackEngine {
 
   Future<void> togglePause();
 
+  /// Pauses or resumes regardless of the current state, for example while
+  /// buffering.
+  Future<void> setPaused(bool paused);
+
   /// Rebuilds the audio output with what the output accepts now, for
   /// example after HDMI renegotiated during a display mode switch.
   Future<void> refreshAudioOutput();

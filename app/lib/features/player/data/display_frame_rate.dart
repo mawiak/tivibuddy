@@ -89,10 +89,12 @@ class FrameRateFollower {
   }
 
   Future<void> _switch(int modeId) async {
+    // Explicit pause and resume: during the switch the engine reports
+    // buffering rather than paused, so toggling would pause again.
     final wasPlaying = engine.state.status == PlaybackStatus.playing;
-    if (wasPlaying) await engine.togglePause();
+    if (wasPlaying) await engine.setPaused(true);
     debugPrint(await display.apply(modeId));
     await engine.refreshAudioOutput();
-    if (wasPlaying) await engine.togglePause();
+    if (wasPlaying) await engine.setPaused(false);
   }
 }

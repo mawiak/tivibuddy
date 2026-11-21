@@ -252,6 +252,18 @@ class Media3PlaybackEngine implements PlaybackEngine {
   }
 
   @override
+  Future<void> setPaused(bool paused) async {
+    debugPrint(paused ? 'media3 pause' : 'media3 resume');
+    _pausedByUser = paused;
+    if (paused) {
+      await _call('pause');
+      _emit(_state.copyWith(status: PlaybackStatus.paused));
+    } else {
+      await _call('play');
+    }
+  }
+
+  @override
   Future<void> refreshAudioOutput() async {
     debugPrint('media3 refresh audio output');
     await _call('refreshAudio');

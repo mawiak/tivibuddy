@@ -169,6 +169,9 @@ class FallbackPlaybackEngine implements PlaybackEngine {
   Future<void> togglePause() async => _engine?.togglePause();
 
   @override
+  Future<void> setPaused(bool paused) async => _engine?.setPaused(paused);
+
+  @override
   Future<void> refreshAudioOutput() async => _engine?.refreshAudioOutput();
 
   @override

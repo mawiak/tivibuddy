@@ -487,6 +487,12 @@ class MediaKitPlaybackEngine implements PlaybackEngine {
   }
 
   @override
+  Future<void> setPaused(bool paused) async {
+    debugPrint(paused ? 'player pause' : 'player resume');
+    await (paused ? player.pause() : player.play());
+  }
+
+  @override
   Future<void> refreshAudioOutput() async {
     final platform = player.platform;
     if (platform is! NativePlayer) return;
