@@ -171,6 +171,34 @@ class FallbackPlaybackEngine implements PlaybackEngine {
   @override
   Future<void> setPaused(bool paused) async => _engine?.setPaused(paused);
 
+  bool _suspendedLive = false;
+
+  /// The app went to the background: native engines would keep playing
+  /// sound. Live TV stops and starts again at the live edge on [resume];
+  /// films and episodes pause where they are.
+  Future<void> suspend() async {
+    final playing =
+        _state.status == PlaybackStatus.playing ||
+        _state.status == PlaybackStatus.buffering;
+    if (!playing) return;
+    debugPrint('player suspended in the background');
+    if (_live) {
+      _suspendedLive = true;
+      await _engine?.stop();
+    } else {
+      await _engine?.setPaused(true);
+    }
+  }
+
+  /// The app is visible again.
+  Future<void> resume() async {
+    final url = _url;
+    if (!_suspendedLive || url == null) return;
+    _suspendedLive = false;
+    debugPrint('player resumes live TV');
+    await open(url, live: true);
+  }
+
   @override
   Future<void> refreshAudioOutput() async => _engine?.refreshAudioOutput();
 

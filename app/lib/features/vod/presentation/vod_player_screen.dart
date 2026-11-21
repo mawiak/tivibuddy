@@ -282,7 +282,7 @@ class _VodPlayerScreenState extends ConsumerState<VodPlayerScreen> {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                PlaybackSurface(engine: _engine, direct: true),
+                PlaybackSurface(engine: _engine),
                 DelayedBusy(
                   busy: _playback.isBusy,
                   child: const Center(

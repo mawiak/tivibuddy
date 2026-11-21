@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/painting.dart';
 import 'package:flutter/services.dart';
 
+import '../../../shared/widgets/video_hole.dart';
 import '../domain/playback_engine.dart';
 
 /// Media3 (ExoPlayer) on Android through our own plugin (`Media3Player.kt`,
@@ -31,25 +33,28 @@ class Media3PlaybackEngine implements PlaybackEngine {
   final subtitle = ValueNotifier<String?>(null);
 
   /// Widgets showing this engine; the latest decides where the video goes.
-  /// Full screen players use the native video layer (exact frame timing,
-  /// HDR), the guide preview the texture.
-  final _outputs = <({Object owner, bool direct, Rect? rect})>[];
-  Object? _shown;
+  /// Media3 always draws into its native video layer below the transparent
+  /// Flutter view (exact frame timing, HDR); only its position changes
+  /// between the guide preview and full screen. Switching the decoder
+  /// output to a texture and back fails on some devices (Nvidia Shield).
+  final _outputs = <({Object owner, Rect? rect, RRect? hole})>[];
 
-  void attachOutput(Object owner, {required bool direct}) {
+  void attachOutput(Object owner) {
     _outputs
       ..removeWhere((output) => output.owner == owner)
-      ..add((owner: owner, direct: direct, rect: null));
+      ..add((owner: owner, rect: null, hole: null));
     _applyOutput();
   }
 
-  /// Where [owner] shows the video, in physical pixels of the window.
-  void updateOutputRect(Object owner, Rect rect) {
+  /// Where [owner] shows the video: [rect] in physical pixels for the
+  /// native layer, [hole] in logical pixels for the Flutter background.
+  void updateOutputRect(Object owner, Rect rect, RRect hole) {
     final index = _outputs.indexWhere((output) => output.owner == owner);
-    if (index < 0 || _outputs[index].rect == rect) return;
+    if (index < 0) return;
     final output = _outputs[index];
-    _outputs[index] = (owner: owner, direct: output.direct, rect: rect);
-    _applyOutput();
+    if (output.rect == rect && output.hole == hole) return;
+    _outputs[index] = (owner: owner, rect: rect, hole: hole);
+    if (index == _outputs.length - 1) _applyOutput();
   }
 
   void detachOutput(Object owner) {
@@ -60,20 +65,16 @@ class Media3PlaybackEngine implements PlaybackEngine {
   void _applyOutput() {
     final output = _outputs.lastOrNull;
     final rect = output?.rect;
-    if (output != null && output.direct && rect != null) {
-      _shown = rect;
-      unawaited(
-        _call('showInView', {
-          'left': rect.left.round(),
-          'top': rect.top.round(),
-          'width': rect.width.round(),
-          'height': rect.height.round(),
-        }),
-      );
-    } else if (output != null && !output.direct && _shown != null) {
-      _shown = null;
-      unawaited(_call('showInTexture'));
-    }
+    videoHole.value = output?.hole;
+    if (rect == null) return;
+    unawaited(
+      _call('showInView', {
+        'left': rect.left.round(),
+        'top': rect.top.round(),
+        'width': rect.width.round(),
+        'height': rect.height.round(),
+      }),
+    );
   }
 
   final _states = StreamController<PlaybackState>.broadcast();
@@ -323,6 +324,7 @@ class Media3PlaybackEngine implements PlaybackEngine {
 
   @override
   Future<void> dispose() async {
+    if (_outputs.isNotEmpty) videoHole.value = null;
     // Unsubscribe while the native side still listens on the channel.
     await _events?.cancel();
     try {

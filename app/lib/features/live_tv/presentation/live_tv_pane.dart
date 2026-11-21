@@ -309,7 +309,8 @@ class _Preview extends StatelessWidget {
   @override
   Widget build(BuildContext context) => GestureDetector(
     onTap: onSelect,
-    child: PlaybackSurface(engine: engine),
+    // Rounded like the preview frame in the guide header.
+    child: PlaybackSurface(engine: engine, cornerRadius: 8),
   );
 }
 

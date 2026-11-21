@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
@@ -46,6 +47,11 @@ PlaybackEngine playbackEngine(Ref ref) {
       ..start();
     ref.onDispose(() => follower.stop().ignore());
   }
+  final lifecycle = AppLifecycleListener(
+    onHide: () => engine.suspend().ignore(),
+    onShow: () => engine.resume().ignore(),
+  );
+  ref.onDispose(lifecycle.dispose);
   WakelockPlus.enable().ignore();
   ref.onDispose(() {
     WakelockPlus.disable().ignore();

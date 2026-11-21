@@ -122,4 +122,26 @@ void main() {
     expect(engines.last.opened, ['http://hang']);
     expect(hanging.state.status, PlaybackStatus.playing);
   });
+
+  test('in the background live TV stops and restarts, films pause', () async {
+    await chain.open('http://good/live', live: true);
+    await pumpEventQueue();
+    await chain.suspend();
+    expect(created.single.opened, ['http://good/live']);
+    expect(chain.state.status, isNot(PlaybackStatus.playing));
+
+    await chain.resume();
+    await pumpEventQueue();
+    expect(created.last.opened.last, 'http://good/live');
+    expect(chain.state.status, PlaybackStatus.playing);
+
+    await chain.open('http://good/film');
+    await pumpEventQueue();
+    await chain.suspend();
+    expect(chain.state.status, PlaybackStatus.paused);
+    final opens = created.last.opened.length;
+    await chain.resume();
+    expect(created.last.opened, hasLength(opens), reason: 'films stay paused');
+    expect(chain.state.status, PlaybackStatus.paused);
+  });
 }

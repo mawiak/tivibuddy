@@ -272,7 +272,7 @@ class _LivePlayerScreenState extends ConsumerState<LivePlayerScreen> {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                PlaybackSurface(engine: _engine, direct: true),
+                PlaybackSurface(engine: _engine),
                 Positioned(
                   top: 24,
                   right: 24,

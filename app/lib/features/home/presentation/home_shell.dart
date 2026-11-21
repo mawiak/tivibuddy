@@ -4,9 +4,11 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/layout/screen_class.dart';
 import '../../../core/router/app_routes.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/content_hooks.dart';
 import '../../../shared/widgets/focus_memory_scope.dart';
+import '../../../shared/widgets/video_hole.dart';
 import '../../live_tv/presentation/live_tv_pane.dart';
 import '../../movies/presentation/movies_pane.dart';
 import '../../profiles/application/profile_providers.dart';
@@ -119,31 +121,37 @@ class _HomeShellState extends ConsumerState<HomeShell> {
         if (!didPop && !_contentHooks.back()) _focusMenu();
       },
       child: Scaffold(
-        body: Row(
-          children: [
-            SideMenu(
-              selected: selected,
-              onSelect: _open,
-              itemFocusNodes: _menuFocusNodes,
-              profile: profile,
-              onProfileSelect: _switchProfile,
-              onFocusChange: (hasFocus) =>
-                  setState(() => _menuHasFocus = hasFocus),
-              onExitRight: _enterContent,
-            ),
-            Expanded(
-              child: LeaveLeft(
-                onLeftEdge: _focusMenu,
-                child: ContentHooks(
-                  controller: _contentHooks,
-                  child: FocusScope(
-                    node: _contentScope,
-                    child: FocusTraversalGroup(child: content),
+        // The guide preview of Media3 shows the video layer below the
+        // transparent Flutter view; the background leaves its area open.
+        backgroundColor: Colors.transparent,
+        body: VideoHoleBackground(
+          color: AppColors.background,
+          child: Row(
+            children: [
+              SideMenu(
+                selected: selected,
+                onSelect: _open,
+                itemFocusNodes: _menuFocusNodes,
+                profile: profile,
+                onProfileSelect: _switchProfile,
+                onFocusChange: (hasFocus) =>
+                    setState(() => _menuHasFocus = hasFocus),
+                onExitRight: _enterContent,
+              ),
+              Expanded(
+                child: LeaveLeft(
+                  onLeftEdge: _focusMenu,
+                  child: ContentHooks(
+                    controller: _contentHooks,
+                    child: FocusScope(
+                      node: _contentScope,
+                      child: FocusTraversalGroup(child: content),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

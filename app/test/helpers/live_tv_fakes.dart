@@ -185,7 +185,7 @@ class FakePlaybackEngine implements PlaybackEngine {
   }
 
   @override
-  Future<void> stop() async {}
+  Future<void> stop() async => emit(PlaybackState.idle);
 
   @override
   Future<void> setPaused(bool paused) async => emit(
