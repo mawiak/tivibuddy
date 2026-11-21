@@ -17,7 +17,7 @@ Implementation order agreed with the project owner. Status values: `planned`, `i
 | 8a | Player engines: better_player (Media3) on Android with media_kit fallback | in progress |
 | 9  | Metadata enrichment from key-less sources                              | planned     |
 | 10 | Sync server (Dart, PostgreSQL, Docker) and client sync                 | planned     |
-| 11 | CI and release builds for all platforms                                | planned     |
+| 11 | CI and release builds for all platforms (Android done, others later)   | in progress |
 | 12 | M3U playlists, external XMLTV, catch-up, keyed metadata sources        | planned     |
 
 Notes:
@@ -67,6 +67,9 @@ Live TV and player:
   (1 s to start, 2 s after a stall) if logs show empty buffers often.
 
 VOD and general:
+
+- Export and import of profiles, playlists, settings and progress (file in Download and
+  transfer over the local network), agreed 2026-11-21.
 
 - Search: case-insensitive umlauts, search in plot and cast, recent searches.
 - Series: automatic next episode at the end, mark episodes or seasons watched by hand,

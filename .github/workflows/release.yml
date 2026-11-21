@@ -1,0 +1,115 @@
+name: Release
+
+# A tag vX.Y.Z builds signed Android APKs and publishes them as a GitHub
+# release. The universal APK is also attached as tivibuddy.apk, so
+# https://github.com/mawiak/tivibuddy/releases/latest/download/tivibuddy.apk
+# always points to the newest version (one Downloader code for all releases).
+# Started by hand, the workflow only builds and keeps the APKs as artifacts.
+
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.9
+          channel: stable
+          cache: true
+      - run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev
+      - run: flutter pub get
+
+      - name: Analyze and test
+        working-directory: app
+        run: |
+          dart analyze --fatal-infos
+          flutter test
+
+      - name: Version
+        id: version
+        run: |
+          pubspec="$(sed -n 's/^version: \([^+]*\).*/\1/p' app/pubspec.yaml)"
+          if [[ "${GITHUB_REF_TYPE}" == tag ]]; then
+            name="${GITHUB_REF_NAME#v}"
+            [[ "${name}" == "${pubspec}" ]] || {
+              echo "Tag ${GITHUB_REF_NAME} does not match version ${pubspec} in app/pubspec.yaml" >&2
+              exit 1
+            }
+          else
+            name="${pubspec}"
+          fi
+          echo "name=${name}" >> "${GITHUB_OUTPUT}"
+          echo "code=$(tool/build_number.sh)" >> "${GITHUB_OUTPUT}"
+
+      - name: Build
+        working-directory: app
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          args=(
+            --release
+            "--build-name=${{ steps.version.outputs.name }}"
+            "--build-number=${{ steps.version.outputs.code }}"
+            "--dart-define=TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}"
+            "--dart-define=TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}"
+          )
+          flutter build apk "${args[@]}"
+          flutter build apk "${args[@]}" --split-per-abi
+
+      - name: Sign
+        env:
+          RELEASE_KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
+          LEGACY_KEYSTORE_BASE64: ${{ secrets.LEGACY_KEYSTORE_BASE64 }}
+          ROTATION_LINEAGE_BASE64: ${{ secrets.ROTATION_LINEAGE_BASE64 }}
+          RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
+          LEGACY_STORE_PASSWORD: ${{ secrets.LEGACY_STORE_PASSWORD }}
+        run: |
+          keys="${RUNNER_TEMP}/keys"
+          mkdir -p "${keys}"
+          echo "${RELEASE_KEYSTORE_BASE64}" | base64 -d > "${keys}/release.jks"
+          echo "${LEGACY_KEYSTORE_BASE64}" | base64 -d > "${keys}/legacy.p12"
+          echo "${ROTATION_LINEAGE_BASE64}" | base64 -d > "${keys}/lineage.bin"
+          export RELEASE_KEYSTORE="${keys}/release.jks"
+          export LEGACY_KEYSTORE="${keys}/legacy.p12"
+          export ROTATION_LINEAGE="${keys}/lineage.bin"
+
+          version="${{ steps.version.outputs.name }}"
+          out=app/build/app/outputs/flutter-apk
+          mkdir -p dist
+          tool/sign_release_apk.sh "${out}/app-release.apk" "dist/tivibuddy-${version}-universal.apk"
+          cp "dist/tivibuddy-${version}-universal.apk" dist/tivibuddy.apk
+          for abi in armeabi-v7a arm64-v8a x86_64; do
+            tool/sign_release_apk.sh "${out}/app-${abi}-release.apk" "dist/tivibuddy-${version}-${abi}.apk"
+          done
+          rm -rf "${keys}"
+
+      - name: Keep the APKs
+        if: github.ref_type != 'tag'
+        uses: actions/upload-artifact@v4
+        with:
+          name: tivibuddy-${{ steps.version.outputs.name }}
+          path: dist/
+
+      - name: Publish the release
+        if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="${{ steps.version.outputs.name }}"
+          tool/changelog_section.sh "${version}" > notes.md
+          gh release create "${GITHUB_REF_NAME}" dist/*.apk \
+            --title "TiviBuddy ${version}" \
+            --notes-file notes.md

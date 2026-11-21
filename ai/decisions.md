@@ -33,3 +33,7 @@ Decisions agreed with the project owner. Do not reopen them without the owner as
 | 2026-11-19 | Player engines      | Engines behind `PlaybackEngine` with automatic fallback: Android better_player (Media3) first, then media_kit (libmpv); other platforms media_kit; every choice and fallback is logged |
 | 2026-11-19 | better_player       | Evaluated in a spike first (TS/MKV, passthrough, track switching, errors, performance); own Media3 plugin if it fails |
 | 2026-11-19 | Media3 engine       | Own Media3 plugin in the app; better_player dropped (never reports endless MPEG-TS live streams as ready, hides codec details) |
+| 2026-11-21 | Hosting             | Repository public (author e-mail in the history kept as is)                |
+| 2026-11-21 | Signing             | New release key `CN=TiviBuddy` with v3 key rotation from the development key, so installed apps update |
+| 2026-11-21 | Release builds      | GitHub Actions on tags `vX.Y.Z`, releases on GitHub, stable `releases/latest/download/tivibuddy.apk` for one Downloader code |
+| 2026-11-21 | Backup              | Settings export and import as an own feature after the pipeline (file and network transfer) |

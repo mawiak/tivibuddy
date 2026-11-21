@@ -58,11 +58,21 @@ if [[ "${build}" == true ]]; then
       "--dart-define=TELEGRAM_CHAT_ID=$(sed -n 2p "${secrets}")"
     )
   fi
-  (cd "${APP_DIR}" && flutter build apk "--${mode}" --split-per-abi ${defines[@]+"${defines[@]}"})
+  (cd "${APP_DIR}" && flutter build apk "--${mode}" --split-per-abi \
+    "--build-number=$("${REPO_ROOT}/tool/build_number.sh")" \
+    ${defines[@]+"${defines[@]}"})
 fi
 
 apk="${APP_DIR}/build/app/outputs/flutter-apk/app-${abi}-${mode}.apk"
 [[ -f "${apk}" ]] || { echo "APK not found: ${apk}" >&2; exit 1; }
+
+# Installed apps carry the release key since the key rotation; an APK with
+# only the development key would be refused.
+if [[ -f "${HOME}/.tivibuddy-release/release.jks" || -n "${RELEASE_KEYSTORE:-}" ]]; then
+  signed="${apk%.apk}-signed.apk"
+  "${REPO_ROOT}/tool/sign_release_apk.sh" "${apk}" "${signed}" >/dev/null
+  apk="${signed}"
+fi
 
 echo "Installing $(basename "${apk}") ($(du -h "${apk}" | cut -f1))"
 adb -s "${device}" install -r "${apk}"

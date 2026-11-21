@@ -27,9 +27,11 @@ commit="$(git -C "${REPO_ROOT}" rev-parse --short HEAD)"
 
 cd "${APP_DIR}"
 flutter build apk --release \
+  "--build-number=$("${REPO_ROOT}/tool/build_number.sh")" \
   --dart-define="TELEGRAM_BOT_TOKEN=${token}" \
   --dart-define="TELEGRAM_CHAT_ID=${chat}"
 
 out="build/app/outputs/flutter-apk/tivibuddy-${version}-${commit}-universal.apk"
-cp build/app/outputs/flutter-apk/app-release.apk "${out}"
+# Signed like releases (key rotation), so it updates installed apps.
+"${REPO_ROOT}/tool/sign_release_apk.sh" build/app/outputs/flutter-apk/app-release.apk "${out}" >/dev/null
 echo "Tester APK: ${APP_DIR}/${out}"
