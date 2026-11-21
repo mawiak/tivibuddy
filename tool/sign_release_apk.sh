@@ -39,6 +39,7 @@ build_tools="$(ls -d "${sdk}"/build-tools/* | sort -V | tail -1)"
   --ks "${release_ks}" --ks-key-alias tivibuddy --ks-pass env:RELEASE_STORE_PASSWORD \
   --lineage "${lineage}" \
   --rotation-min-sdk-version 28 \
+  --v4-signing-enabled false \
   --out "${output}" "${input}"
 
 "${build_tools}/apksigner" verify --print-certs --verbose "${output}" \
