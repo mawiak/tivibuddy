@@ -49,7 +49,11 @@ is the highest whole multiple of the video frame rate (`DisplayModes.kt`): 23.97
 23.976 Hz, 25 fps TV at 50 Hz, 29.97 fps at 59.94 Hz. Media3 measures the frame rate from the
 timestamps of the first 48 frames, because MKV files and TS streams often do not state it;
 media_kit reports `container-fps`. The display returns to its default mode when the player
-closes. Every switch, and a missing fitting mode, is logged with `display:`. The video decoder and audio passthrough settings below
+closes. Every switch, and a missing fitting mode, is logged with `display:`.
+
+Fire TV devices only offer other display modes to apps when their video resolution is set to
+automatic and their own "Match original frame rate" option is on; with a fixed resolution such
+as 2160p 50 Hz the app sees that single mode and logs that no mode fits. The video decoder and audio passthrough settings below
 belong to media_kit and appear on Android only with "media_kit only"; desktop platforms play
 with media_kit and always show them. The player choice is stored under `player.engine`.
 

@@ -149,8 +149,12 @@ class Media3Player(
                 }
                 last = presentationTimeUs
                 if (deltas.size < SAMPLES) return
-                // The median ignores gaps from dropped or repeated frames.
-                1_000_000.0 / deltas.sorted()[SAMPLES / 2]
+                // The mean, because containers round timestamps (MKV to
+                // whole milliseconds: 41 and 42 ms for 23.976 fps); gaps from
+                // dropped or repeated frames are left out.
+                val median = deltas.sorted()[SAMPLES / 2]
+                val regular = deltas.filter { it < median * 3 / 2 && it > median / 2 }
+                1_000_000.0 / regular.average()
             }
             handler.post { send("frameRate", mapOf("fps" to fps)) }
         }
