@@ -256,7 +256,8 @@ class _LivePlayerScreenState extends ConsumerState<LivePlayerScreen> {
         }
       },
       child: Scaffold(
-        backgroundColor: Colors.black,
+        // The video layer of Media3 shows through (PlaybackSurface).
+        backgroundColor: Colors.transparent,
         body: Focus(
           focusNode: _keyFocus,
           autofocus: true,
@@ -271,7 +272,7 @@ class _LivePlayerScreenState extends ConsumerState<LivePlayerScreen> {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                PlaybackSurface(engine: _engine),
+                PlaybackSurface(engine: _engine, direct: true),
                 Positioned(
                   top: 24,
                   right: 24,

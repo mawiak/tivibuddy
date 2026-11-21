@@ -1,13 +1,30 @@
 package io.github.mawiak.tivibuddy
 
 import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.android.TransparencyMode
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
+    /**
+     * Flutter draws on a transparent surface above the window, so the video
+     * layer of Media3Plugin below it shows wherever Flutter leaves the
+     * screen transparent (full screen playback).
+     */
+    override fun getTransparencyMode() = TransparencyMode.transparent
+
+    private var media3: Media3Plugin? = null
+
+    override fun onStart() {
+        super.onStart()
+        // The black layer exists from the start, so nothing undefined shows
+        // where Flutter leaves the screen transparent.
+        media3?.videoContainer()
+    }
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
-        Media3Plugin(applicationContext, flutterEngine).register()
+        media3 = Media3Plugin(this, flutterEngine).also { it.register() }
         MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
             "io.github.mawiak.tivibuddy/audio",

@@ -30,6 +30,52 @@ class Media3PlaybackEngine implements PlaybackEngine {
   /// Text of the subtitle shown right now.
   final subtitle = ValueNotifier<String?>(null);
 
+  /// Widgets showing this engine; the latest decides where the video goes.
+  /// Full screen players use the native video layer (exact frame timing,
+  /// HDR), the guide preview the texture.
+  final _outputs = <({Object owner, bool direct, Rect? rect})>[];
+  Object? _shown;
+
+  void attachOutput(Object owner, {required bool direct}) {
+    _outputs
+      ..removeWhere((output) => output.owner == owner)
+      ..add((owner: owner, direct: direct, rect: null));
+    _applyOutput();
+  }
+
+  /// Where [owner] shows the video, in physical pixels of the window.
+  void updateOutputRect(Object owner, Rect rect) {
+    final index = _outputs.indexWhere((output) => output.owner == owner);
+    if (index < 0 || _outputs[index].rect == rect) return;
+    final output = _outputs[index];
+    _outputs[index] = (owner: owner, direct: output.direct, rect: rect);
+    _applyOutput();
+  }
+
+  void detachOutput(Object owner) {
+    _outputs.removeWhere((output) => output.owner == owner);
+    _applyOutput();
+  }
+
+  void _applyOutput() {
+    final output = _outputs.lastOrNull;
+    final rect = output?.rect;
+    if (output != null && output.direct && rect != null) {
+      _shown = rect;
+      unawaited(
+        _call('showInView', {
+          'left': rect.left.round(),
+          'top': rect.top.round(),
+          'width': rect.width.round(),
+          'height': rect.height.round(),
+        }),
+      );
+    } else if (output != null && !output.direct && _shown != null) {
+      _shown = null;
+      unawaited(_call('showInTexture'));
+    }
+  }
+
   final _states = StreamController<PlaybackState>.broadcast();
   final _positions = StreamController<Duration>.broadcast();
   final _tracks = StreamController<MediaTracks>.broadcast();

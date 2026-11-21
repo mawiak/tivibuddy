@@ -3,6 +3,9 @@ package io.github.mawiak.tivibuddy
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
+import android.view.SurfaceView
+import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.annotation.OptIn
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
@@ -52,6 +55,14 @@ class Media3Player(
     private lateinit var player: ExoPlayer
     private var url: String? = null
 
+    /**
+     * Video layer below the transparent Flutter view, used for full screen
+     * playback: frames reach the display at their exact time and HDR
+     * metadata stays intact, which a Flutter texture loses. Null while the
+     * texture is used (the guide preview).
+     */
+    private var view: SurfaceView? = null
+
     private fun build(): ExoPlayer {
         // Hardware decoders first; a software decoder when one fails.
         val renderers = DefaultRenderersFactory(context).setEnableDecoderFallback(true)
@@ -92,8 +103,41 @@ class Media3Player(
         player.addListener(PlayerEvents())
         player.addAnalyticsListener(Diagnostics())
         player.setVideoFrameMetadataListener(frameRate)
-        player.setVideoSurface(producer.surface)
+        attachOutput(player)
         return player
+    }
+
+    private fun attachOutput(player: ExoPlayer) {
+        val view = view
+        if (view != null) player.setVideoSurfaceView(view) else player.setVideoSurface(producer.surface)
+    }
+
+    /** Shows the video in its own layer in [container] at this rectangle (pixels). */
+    fun showInView(container: ViewGroup, left: Int, top: Int, width: Int, height: Int) {
+        val params = FrameLayout.LayoutParams(width, height).apply {
+            leftMargin = left
+            topMargin = top
+        }
+        val existing = view
+        if (existing != null) {
+            existing.layoutParams = params
+            return
+        }
+        val created = SurfaceView(context)
+        container.addView(created, params)
+        view = created
+        player.setVideoSurfaceView(created)
+        log("output: video layer ${width}x$height")
+    }
+
+    /** Shows the video in the Flutter texture again. */
+    fun showInTexture() {
+        val existing = view ?: return
+        view = null
+        player.clearVideoSurfaceView(existing)
+        (existing.parent as? ViewGroup)?.removeView(existing)
+        player.setVideoSurface(producer.surface)
+        log("output: texture")
     }
 
     val textureId: Long get() = producer.id()
@@ -157,11 +201,11 @@ class Media3Player(
         player = build()
         producer.setCallback(object : TextureRegistry.SurfaceProducer.Callback {
             override fun onSurfaceAvailable() {
-                player.setVideoSurface(producer.surface)
+                if (view == null) player.setVideoSurface(producer.surface)
             }
 
             override fun onSurfaceCleanup() {
-                player.setVideoSurface(null)
+                if (view == null) player.setVideoSurface(null)
             }
         })
     }
@@ -232,6 +276,8 @@ class Media3Player(
 
     fun release() {
         handler.removeCallbacksAndMessages(null)
+        view?.let { (it.parent as? ViewGroup)?.removeView(it) }
+        view = null
         player.release()
         producer.release()
         sink?.endOfStream()

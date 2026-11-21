@@ -1,6 +1,9 @@
 package io.github.mawiak.tivibuddy
 
-import android.content.Context
+import android.app.Activity
+import android.graphics.Color
+import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.media3.common.C
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.EventChannel
@@ -11,7 +14,7 @@ import io.flutter.plugin.common.MethodChannel
  * Method channel for [Media3Player] instances. Each player gets its own
  * event channel `io.github.mawiak.tivibuddy/media3/<id>`.
  */
-class Media3Plugin(private val context: Context, private val engine: FlutterEngine) :
+class Media3Plugin(private val activity: Activity, private val engine: FlutterEngine) :
     MethodChannel.MethodCallHandler {
     private val players = mutableMapOf<Long, Media3Player>()
     private var nextId = 1L
@@ -23,7 +26,7 @@ class Media3Plugin(private val context: Context, private val engine: FlutterEngi
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         if (call.method == "create") {
             val id = nextId++
-            val player = Media3Player(context, engine.renderer.createSurfaceProducer())
+            val player = Media3Player(activity.applicationContext, engine.renderer.createSurfaceProducer())
             EventChannel(engine.dartExecutor.binaryMessenger, "$CHANNEL/$id").setStreamHandler(player)
             players[id] = player
             result.success(mapOf("id" to id, "textureId" to player.textureId))
@@ -42,6 +45,14 @@ class Media3Plugin(private val context: Context, private val engine: FlutterEngi
             "selectAudio" -> player.selectTrack(C.TRACK_TYPE_AUDIO, call.argument("track"))
             "selectText" -> player.selectTrack(C.TRACK_TYPE_TEXT, call.argument("track"))
             "refreshAudio" -> player.refreshAudio()
+            "showInView" -> player.showInView(
+                videoContainer(),
+                call.argument<Number>("left")!!.toInt(),
+                call.argument<Number>("top")!!.toInt(),
+                call.argument<Number>("width")!!.toInt(),
+                call.argument<Number>("height")!!.toInt(),
+            )
+            "showInTexture" -> player.showInTexture()
             "stop" -> player.stop()
             "dispose" -> {
                 players.remove(id)?.release()
@@ -52,7 +63,30 @@ class Media3Plugin(private val context: Context, private val engine: FlutterEngi
         result.success(null)
     }
 
+    /**
+     * Black layer behind the Flutter view that holds the video layers; the
+     * Flutter view is transparent where the video shows (see MainActivity).
+     */
+    fun videoContainer(): ViewGroup {
+        val content = activity.findViewById<FrameLayout>(android.R.id.content)
+        content.findViewWithTag<FrameLayout>(VIDEO_TAG)?.let { return it }
+        val container = FrameLayout(activity).apply {
+            tag = VIDEO_TAG
+            setBackgroundColor(Color.BLACK)
+        }
+        content.addView(
+            container,
+            0,
+            FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT,
+            ),
+        )
+        return container
+    }
+
     companion object {
         const val CHANNEL = "io.github.mawiak.tivibuddy/media3"
+        private const val VIDEO_TAG = "tivibuddy-video"
     }
 }

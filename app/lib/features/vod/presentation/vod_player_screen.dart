@@ -265,7 +265,8 @@ class _VodPlayerScreenState extends ConsumerState<VodPlayerScreen> {
         if (!didPop) _optionsKey.currentState?.back();
       },
       child: Scaffold(
-        backgroundColor: Colors.black,
+        // The video layer of Media3 shows through (PlaybackSurface).
+        backgroundColor: Colors.transparent,
         body: Focus(
           focusNode: _keyFocus,
           autofocus: true,
@@ -281,7 +282,7 @@ class _VodPlayerScreenState extends ConsumerState<VodPlayerScreen> {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                PlaybackSurface(engine: _engine),
+                PlaybackSurface(engine: _engine, direct: true),
                 DelayedBusy(
                   busy: _playback.isBusy,
                   child: const Center(
