@@ -50,9 +50,11 @@ is the highest whole multiple of the video frame rate (`DisplayModes.kt`): 23.97
 timestamps of the first 48 frames, because MKV files and TS streams often do not state it;
 media_kit reports `container-fps`. `FrameRateFollower` pauses playback while the TV switches,
 waits until the display reports the new mode and the HDMI sink reports the same audio formats
-as before (at most eight seconds), then rebuilds the audio output and resumes:
-HDMI renegotiates audio during the switch, and without the rebuild Media3 sometimes kept
-decoded PCM instead of passthrough. The display stays at the last rate when the player closes,
+as before (at most eight seconds), then replaces the Media3 player with a new one at the same
+position and resumes:
+HDMI renegotiates audio during the switch, and a running Media3 player keeps the PCM-only
+capabilities it saw meanwhile, even through later seeks; only a new player passes through
+again. media_kit reloads its audio output instead. The display stays at the last rate when the player closes,
 which saves a switch when the next stream fits. With "films and series only" live TV switches
 the display back to its default mode. Every step is logged with `display:`.
 

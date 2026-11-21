@@ -42,16 +42,17 @@ import io.flutter.view.TextureRegistry
  */
 @OptIn(UnstableApi::class)
 class Media3Player(
-    context: Context,
+    private val context: Context,
     private val producer: TextureRegistry.SurfaceProducer,
 ) : EventChannel.StreamHandler {
     private var sink: EventChannel.EventSink? = null
     private val pending = mutableListOf<Map<String, Any?>>()
     private val handler = Handler(Looper.getMainLooper())
 
-    private val player: ExoPlayer
+    private lateinit var player: ExoPlayer
+    private var url: String? = null
 
-    init {
+    private fun build(): ExoPlayer {
         // Hardware decoders first; a software decoder when one fails.
         val renderers = DefaultRenderersFactory(context).setEnableDecoderFallback(true)
         val extractors = DefaultExtractorsFactory()
@@ -72,7 +73,7 @@ class Media3Player(
         val load = DefaultLoadControl.Builder()
             .setBufferDurationsMs(15_000, 40_000, 1_000, 2_000)
             .build()
-        player = ExoPlayer.Builder(context, renderers)
+        val player = ExoPlayer.Builder(context, renderers)
             .setMediaSourceFactory(sources)
             .setLoadControl(load)
             .setAudioAttributes(
@@ -90,17 +91,9 @@ class Media3Player(
         player.playWhenReady = true
         player.addListener(PlayerEvents())
         player.addAnalyticsListener(Diagnostics())
-
-        producer.setCallback(object : TextureRegistry.SurfaceProducer.Callback {
-            override fun onSurfaceAvailable() {
-                player.setVideoSurface(producer.surface)
-            }
-
-            override fun onSurfaceCleanup() {
-                player.setVideoSurface(null)
-            }
-        })
+        player.setVideoFrameMetadataListener(frameRate)
         player.setVideoSurface(producer.surface)
+        return player
     }
 
     val textureId: Long get() = producer.id()
@@ -161,10 +154,20 @@ class Media3Player(
     }
 
     init {
-        player.setVideoFrameMetadataListener(frameRate)
+        player = build()
+        producer.setCallback(object : TextureRegistry.SurfaceProducer.Callback {
+            override fun onSurfaceAvailable() {
+                player.setVideoSurface(producer.surface)
+            }
+
+            override fun onSurfaceCleanup() {
+                player.setVideoSurface(null)
+            }
+        })
     }
 
     fun open(url: String, startMs: Long?) {
+        this.url = url
         frameRate.reset()
         val item = MediaItem.Builder().setUri(url)
         if (url.contains(".m3u8")) item.setMimeType(MimeTypes.APPLICATION_M3U8)
@@ -184,18 +187,24 @@ class Media3Player(
     fun seek(positionMs: Long) = player.seekTo(positionMs)
 
     /**
-     * Rebuilds the audio output with the capabilities the output reports
-     * now: after HDMI renegotiated (a display mode switch) the old output
-     * may have fallen back to PCM. Switching audio off and on again also
-     * works for live streams, which cannot seek.
+     * Replaces the player with a new one at the same position, so the audio
+     * output starts with what the output reports now. After HDMI
+     * renegotiated (a display mode switch) a running player keeps the PCM
+     * only capabilities it saw meanwhile, even through later seeks; only a
+     * new player picks passthrough again. Live streams restart at the live
+     * edge.
      */
     fun refreshAudio() {
+        val url = url ?: return
+        val position = if (player.isCurrentMediaItemSeekable) player.currentPosition else null
         val parameters = player.trackSelectionParameters
-        if (parameters.disabledTrackTypes.contains(C.TRACK_TYPE_AUDIO)) return
-        player.trackSelectionParameters = parameters.buildUpon()
-            .setTrackTypeDisabled(C.TRACK_TYPE_AUDIO, true)
-            .build()
-        handler.post { player.trackSelectionParameters = parameters }
+        val playWhenReady = player.playWhenReady
+        player.release()
+        player = build()
+        player.trackSelectionParameters = parameters
+        open(url, position)
+        player.playWhenReady = playWhenReady
+        log("player rebuilt for the audio output")
     }
 
     companion object {
