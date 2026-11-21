@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- The about screen and the settings show the version with its commit id.
 - HDR10 output and judder-free frame timing for full screen playback with Media3 on Android:
   the video gets its own layer below the interface.
 - Match frame rate on Android (off, films and series only, always): the TV switches to the

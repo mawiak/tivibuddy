@@ -151,5 +151,5 @@ All requirements must be re-checked at the end of every unit of work (see `workf
 - REL-1: Conventional Commits (feat, fix, chore, docs, refactor, test, ci, perf, build).
 - REL-2: Semantic Versioning, tags `vX.Y.Z`, `CHANGELOG.md` in Keep a Changelog format.
 - REL-3: GitHub Actions build binaries for every platform for each release (later milestone).
-- REL-4: Until the first release all work goes to `develop`. Afterwards `main` is the release
-  branch and features are developed in feature branches.
+- REL-4: Until release 1.0.0 all work goes to `develop`, and 0.x releases are tagged there.
+  From 1.0.0 on `main` is the release branch and features are developed in feature branches.

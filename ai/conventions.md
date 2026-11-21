@@ -45,8 +45,9 @@ The repository is a Dart pub workspace so shared packages resolve without publis
 - Conventional Commits, English, small and focused, imperative mood, lower-case summary,
   max 72 characters in the subject. Example: `feat(profiles): add avatar picker`.
 - Author `mawiak`. No references to AI tools, no co-author trailers.
-- Branching: `develop` until the first release. After that `main` holds releases only, work
-  happens in `feat/<name>`, `fix/<name>` branches merged into `develop`.
+- Branching: `develop` until release 1.0.0, 0.x releases are tagged there. From 1.0.0 `main`
+  holds releases only, work happens in `feat/<name>`, `fix/<name>` branches merged into
+  `develop`.
 
 ## Releases
 

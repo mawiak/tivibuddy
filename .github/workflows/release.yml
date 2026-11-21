@@ -63,6 +63,7 @@ jobs:
             --release
             "--build-name=${{ steps.version.outputs.name }}"
             "--build-number=${{ steps.version.outputs.code }}"
+            "--dart-define=GIT_COMMIT=${GITHUB_SHA::7}"
             "--dart-define=TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}"
             "--dart-define=TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}"
           )

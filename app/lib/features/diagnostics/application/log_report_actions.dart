@@ -3,6 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/logging/app_log.dart';
 import '../../../core/logging/redact.dart';
+import '../../about/application/app_version_providers.dart';
 import '../../player/application/player_settings_providers.dart';
 import '../data/device_description.dart';
 import '../data/diagnostics_data_providers.dart';
@@ -46,7 +47,8 @@ class LogReportActions {
     final package = await PackageInfo.fromPlatform();
     final player = _ref.read(playerSettingsControllerProvider);
     final lines = [
-      'TiviBuddy ${package.version}+${package.buildNumber}',
+      'TiviBuddy ${package.version}+${package.buildNumber}, '
+          'commit ${gitCommit.isEmpty ? 'unknown' : gitCommit}',
       'time: ${DateTime.now().toIso8601String()}',
       'description: ${redactCredentials(description.trim())}',
       ...await describeDevice(),

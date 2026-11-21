@@ -21,8 +21,8 @@ while below 1.0.0).
 
 ## Branches
 
-- Before the first release: all work on `develop`.
-- After the first release: `main` contains released versions only. Work happens in
+- Until 1.0.0: all work on `develop`; 0.x releases are tagged there.
+- From 1.0.0: `main` contains released versions only. Work happens in
   `feat/<name>` or `fix/<name>` branches merged into `develop`. A release merges `develop` into
   `main`.
 
@@ -52,7 +52,10 @@ always downloads the newest release. One Downloader code for that address serves
 (created by hand at aftv.news; there is no API). Started by hand, the workflow builds the same
 APKs and keeps them as workflow artifacts without a release.
 
-Releases carry the "Send log to developer" Telegram configuration from repository secrets.
+Releases carry the "Send log to developer" Telegram configuration from repository secrets and
+the short commit id (`--dart-define=GIT_COMMIT`), which the about screen, the settings and
+diagnostic reports show next to the version. Local builds pass `tool/git_commit.sh`, which adds
+`-dirty` when the working tree has uncommitted changes.
 
 Version codes are the seconds since 2026-01-01 (`tool/build_number.sh`), so every build, local
 or CI, installs over older ones. Split APKs add up to 4000 for their ABI.

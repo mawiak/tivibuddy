@@ -37,3 +37,5 @@ Decisions agreed with the project owner. Do not reopen them without the owner as
 | 2026-11-21 | Signing             | New release key `CN=TiviBuddy` with v3 key rotation from the development key, so installed apps update |
 | 2026-11-21 | Release builds      | GitHub Actions on tags `vX.Y.Z`, releases on GitHub, stable `releases/latest/download/tivibuddy.apk` for one Downloader code |
 | 2026-11-21 | Backup              | Settings export and import as an own feature after the pipeline (file and network transfer) |
+| 2026-11-21 | Branching           | `develop` only until 1.0.0, 0.x releases tagged there; `main` and feature branches from 1.0.0 |
+| 2026-11-21 | Version display     | About screen, settings and diagnostic reports show version and short commit id (`-dirty` for local changes) |

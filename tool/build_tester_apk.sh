@@ -28,6 +28,7 @@ commit="$(git -C "${REPO_ROOT}" rev-parse --short HEAD)"
 cd "${APP_DIR}"
 flutter build apk --release \
   "--build-number=$("${REPO_ROOT}/tool/build_number.sh")" \
+  "--dart-define=GIT_COMMIT=$("${REPO_ROOT}/tool/git_commit.sh")" \
   --dart-define="TELEGRAM_BOT_TOKEN=${token}" \
   --dart-define="TELEGRAM_CHAT_ID=${chat}"
 

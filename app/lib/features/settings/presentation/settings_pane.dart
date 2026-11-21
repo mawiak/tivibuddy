@@ -10,6 +10,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/tv_dialogs.dart';
 import '../../../shared/widgets/tv_list_tile.dart';
+import '../../about/application/app_version_providers.dart';
 import '../../diagnostics/application/log_report_actions.dart';
 import '../../diagnostics/presentation/send_log_dialog.dart';
 import '../../player/application/player_settings_providers.dart';
@@ -199,6 +200,9 @@ class SettingsPane extends ConsumerWidget {
         _Entry(
           TvListTile(
             title: l10n.settingsAbout,
+            subtitle: l10n.aboutVersion(
+              ref.watch(appVersionProvider).value ?? '',
+            ),
             leading: Icons.info_outline,
             onSelect: () => context.push(AppRoutes.about),
           ),

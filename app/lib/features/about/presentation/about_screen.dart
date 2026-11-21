@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:package_info_plus/package_info_plus.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/tv_button.dart';
 import '../../../shared/widgets/tv_focusable.dart';
+import '../application/app_version_providers.dart';
 
 /// Version, license and legal disclaimer.
-class AboutScreen extends StatelessWidget {
+class AboutScreen extends ConsumerWidget {
   const AboutScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final textTheme = Theme.of(context).textTheme;
 
@@ -25,14 +26,9 @@ class AboutScreen extends StatelessWidget {
               children: [
                 Text(l10n.appTitle, style: textTheme.headlineSmall),
                 const SizedBox(height: 4),
-                FutureBuilder<PackageInfo>(
-                  future: PackageInfo.fromPlatform(),
-                  builder: (context, snapshot) => Text(
-                    // The build number is not shown: split APKs add an ABI
-                    // offset to it, which would only confuse users.
-                    l10n.aboutVersion(snapshot.data?.version ?? ''),
-                    style: textTheme.bodySmall,
-                  ),
+                Text(
+                  l10n.aboutVersion(ref.watch(appVersionProvider).value ?? ''),
+                  style: textTheme.bodySmall,
                 ),
                 const SizedBox(height: 24),
                 _Paragraph(

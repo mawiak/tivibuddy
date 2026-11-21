@@ -60,6 +60,7 @@ if [[ "${build}" == true ]]; then
   fi
   (cd "${APP_DIR}" && flutter build apk "--${mode}" --split-per-abi \
     "--build-number=$("${REPO_ROOT}/tool/build_number.sh")" \
+    "--dart-define=GIT_COMMIT=$("${REPO_ROOT}/tool/git_commit.sh")" \
     ${defines[@]+"${defines[@]}"})
 fi
 
