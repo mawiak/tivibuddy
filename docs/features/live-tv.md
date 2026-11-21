@@ -119,7 +119,17 @@ it renders into a Flutter `SurfaceProducer` texture, plays endless MPEG-TS live 
 Dolby Digital and Dolby Digital Plus to a receiver where the HDMI output accepts them, and
 reports tracks, subtitles (as text) and diagnostics: decoders, the audio output encoding
 (`ac3 (passthrough)` or PCM), dropped frames and audio underruns. It cannot decode DTS or TrueHD
-itself; those streams fail and fall back to media_kit. better_player was evaluated first and
+itself; those streams fail and fall back to media_kit.
+
+Full screen players show Media3 video in its own Android layer (`SurfaceView`) below the
+Flutter view, which draws on a transparent surface (`TransparencyMode.transparent` in
+`MainActivity`) and leaves the video area transparent; a black layer behind both covers the rest.
+`PlaybackSurface(direct: true)` reports the letterboxed video rectangle after every frame, and
+the native layer follows it. Frames reach the display at their exact time, which removed the
+micro judder of the texture, and HDR metadata reaches the display: on the Fire TV Stick 4K Max
+the video layer shows `BT2020 SMPTE 2084` (HDR10) for a Dolby Vision film with an HDR10 base.
+The guide preview keeps the Flutter texture; the same player switches between both outputs
+without reloading. media_kit always renders into a texture. better_player was evaluated first and
 dropped because it never reports endless TS streams as ready. The decoder and passthrough
 settings apply to media_kit.
 

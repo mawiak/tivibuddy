@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- HDR10 output and judder-free frame timing for full screen playback with Media3 on Android:
+  the video gets its own layer below the interface.
 - Match frame rate on Android (off, films and series only, always): the TV switches to the
   frame rate of the video, for example 23.976 Hz for films and 50 Hz for TV; playback waits
   while the TV switches and keeps Dolby passthrough.
