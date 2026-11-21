@@ -76,7 +76,12 @@ if [[ -f "${HOME}/.tivibuddy-release/release.jks" || -n "${RELEASE_KEYSTORE:-}" 
 fi
 
 echo "Installing $(basename "${apk}") ($(du -h "${apk}" | cut -f1))"
-adb -s "${device}" install -r "${apk}"
+# Copy first, then install on the device: adb's streamed install stalls on
+# some Fire OS devices without an error.
+remote=/data/local/tmp/tivibuddy.apk
+adb -s "${device}" push "${apk}" "${remote}" >/dev/null
+adb -s "${device}" shell pm install -r "${remote}"
+adb -s "${device}" shell rm -f "${remote}"
 
 echo "Starting ${APP_ID}"
 adb -s "${device}" shell am start -n "${APP_ID}/.MainActivity" >/dev/null
