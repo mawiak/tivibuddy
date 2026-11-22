@@ -20,8 +20,11 @@ UI-3.
   the menu returns to them.
 - **Select or right on "Live TV"** in the menu starts in the categories, focused on the
   selected one.
+- **Select on a channel** in the guide plays it in the preview and leaves the guide open;
+  select on the channel the preview shows opens it full screen without opening the stream
+  again (`LivePreviewActions`). Phones have no preview and go full screen right away.
 - **Back from the player** returns to the guide on the channel played last, which continues
-  in the preview. Select on it returns to full screen without opening the stream again.
+  in the preview.
   Leaving the live TV section stops playback. The screen stays on while a stream plays.
 - **Player:** full screen.
 

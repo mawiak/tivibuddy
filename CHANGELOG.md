@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Select on a channel in the guide plays it in the preview first; select on the channel in the
+  preview opens it full screen, like common IPTV players.
+
 ## [0.1.1] - 2026-11-22
 
 ### Fixed

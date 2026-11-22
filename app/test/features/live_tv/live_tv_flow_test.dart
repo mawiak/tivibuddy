@@ -130,6 +130,13 @@ void main() {
     await settle(tester);
   }
 
+  /// Select plays the focused channel in the preview, select again opens it
+  /// full screen.
+  Future<void> openPlayer(WidgetTester tester) async {
+    await press(tester, LogicalKeyboardKey.select);
+    await press(tester, LogicalKeyboardKey.select);
+  }
+
   testWidgets('without playlist offers to add one', (tester) async {
     await openLiveTv(tester, withPlaylist: false);
 
@@ -238,12 +245,34 @@ void main() {
     expect(find.text('Channel 11'), findsWidgets);
   });
 
-  testWidgets('player zaps and back keeps the channel in the preview', (
+  testWidgets('select plays in the preview first and opens full screen next', (
     tester,
   ) async {
     await openLiveTv(tester);
 
     await press(tester, LogicalKeyboardKey.select);
+    expect(find.byType(LivePlayerScreen), findsNothing);
+    expect(engine.opened, ['http://stream/1001']);
+
+    // Another channel replaces the preview, still without full screen.
+    await press(tester, LogicalKeyboardKey.arrowDown);
+    await press(tester, LogicalKeyboardKey.select);
+    expect(find.byType(LivePlayerScreen), findsNothing);
+    expect(engine.opened, ['http://stream/1001', 'http://stream/1002']);
+
+    // Select on the channel in the preview goes full screen without
+    // opening the stream again.
+    await press(tester, LogicalKeyboardKey.select);
+    expect(find.byType(LivePlayerScreen), findsOneWidget);
+    expect(engine.opened, hasLength(2));
+  });
+
+  testWidgets('player zaps and back keeps the channel in the preview', (
+    tester,
+  ) async {
+    await openLiveTv(tester);
+
+    await openPlayer(tester);
     expect(find.byType(LivePlayerScreen), findsOneWidget);
     expect(engine.opened, ['http://stream/1001']);
     expect(find.text('Show on Channel 1'), findsOneWidget);
@@ -294,7 +323,7 @@ void main() {
 
   testWidgets('right jumps back to the previous channel', (tester) async {
     await openLiveTv(tester);
-    await press(tester, LogicalKeyboardKey.select);
+    await openPlayer(tester);
     expect(engine.opened, ['http://stream/1001']);
 
     await press(tester, LogicalKeyboardKey.arrowRight);
@@ -318,7 +347,7 @@ void main() {
 
   testWidgets('up and down move through the open channel list', (tester) async {
     await openLiveTv(tester);
-    await press(tester, LogicalKeyboardKey.select);
+    await openPlayer(tester);
     expect(engine.opened, ['http://stream/1001']);
 
     await press(tester, LogicalKeyboardKey.select);
@@ -336,7 +365,7 @@ void main() {
 
   testWidgets('a playback failure is shown and select retries', (tester) async {
     await openLiveTv(tester);
-    await press(tester, LogicalKeyboardKey.select);
+    await openPlayer(tester);
 
     engine.emit(const PlaybackState(status: PlaybackStatus.failed, error: 'x'));
     // The fake engine was created outside the fake async zone, so its events
@@ -350,7 +379,7 @@ void main() {
 
   testWidgets('the menu key opens the options in live tv', (tester) async {
     await openLiveTv(tester);
-    await press(tester, LogicalKeyboardKey.select);
+    await openPlayer(tester);
     engine.emitTracks(
       const MediaTracks(
         audio: [

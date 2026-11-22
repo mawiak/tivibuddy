@@ -21,6 +21,7 @@ import '../../playlists/application/playlist_actions.dart';
 import '../../playlists/domain/playlist.dart';
 import '../../playlists/presentation/catalog_views.dart';
 import '../application/live_catalog_controller.dart';
+import '../application/live_preview_actions.dart';
 import '../application/live_tv_providers.dart';
 import 'guide_grid.dart';
 import 'live_player_screen.dart';
@@ -102,6 +103,34 @@ class _LiveTvPaneState extends ConsumerState<LiveTvPane> {
     _preview?.close();
     _categoryScope.dispose();
     super.dispose();
+  }
+
+  /// Select on a channel: the preview plays it first, select on the
+  /// channel the preview shows opens the full screen player. Phones have no
+  /// preview and go full screen right away.
+  Future<void> _select(
+    Playlist playlist,
+    String? categoryId,
+    int index, {
+    required bool hasPreview,
+  }) async {
+    final position = (
+      playlistId: playlist.id,
+      categoryId: categoryId,
+      index: index,
+    );
+    final actions = ref.read(livePreviewActionsProvider);
+    if (hasPreview &&
+        !(_preview != null && await actions.isPlaying(position))) {
+      if (!mounted) return;
+      // Listening keeps the auto-disposed engine alive for the preview.
+      setState(() {
+        _preview ??= ref.listenManual(playbackEngineProvider, (_, _) {});
+      });
+      await actions.play(position);
+      return;
+    }
+    await _play(playlist, categoryId, index);
   }
 
   Future<void> _play(Playlist playlist, String? categoryId, int index) async {
@@ -248,7 +277,8 @@ class _LiveTvPaneState extends ConsumerState<LiveTvPane> {
             headerAction: isPhone
                 ? _CategoryButton(playlistId: playlist.id, title: categoryName)
                 : null,
-            onPlay: (index) => _play(playlist, categoryId, index),
+            onPlay: (index) =>
+                _select(playlist, categoryId, index, hasPreview: !isPhone),
           );
 
     if (isPhone) return grid;
