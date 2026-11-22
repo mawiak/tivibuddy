@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../player/application/full_screen_playback.dart';
 import '../../player/data/player_providers.dart';
 import '../../player/domain/playback_engine.dart';
 import '../../player/presentation/delayed_busy.dart';
@@ -54,6 +55,7 @@ class _VodPlayerScreenState extends ConsumerState<VodPlayerScreen> {
   static const _saveEvery = Duration(seconds: 15);
 
   late final ProviderSubscription<PlaybackEngine> _engineSubscription;
+  late final FullScreenPlayback _fullScreen;
   final _subscriptions = <StreamSubscription<Object?>>[];
 
   PlaybackEngine get _engine => _engineSubscription.read();
@@ -73,6 +75,10 @@ class _VodPlayerScreenState extends ConsumerState<VodPlayerScreen> {
     // Listening keeps the auto-disposed engine alive while this screen is
     // open; closing the subscription releases it.
     _engineSubscription = ref.listenManual(playbackEngineProvider, (_, _) {});
+    // Read here: ref must not be used in dispose. Providers must not change
+    // while the tree builds, so the change waits for a microtask.
+    _fullScreen = ref.read(fullScreenPlaybackProvider.notifier);
+    Future.microtask(_fullScreen.opened);
     _playback = _engine.state;
     _subscriptions.addAll([
       _engine.states.listen(_onState),
@@ -98,6 +104,7 @@ class _VodPlayerScreenState extends ConsumerState<VodPlayerScreen> {
       unawaited(subscription.cancel());
     }
     _engineSubscription.close();
+    Future.microtask(_fullScreen.closed);
     _keyFocus.dispose();
     unawaited(SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge));
     super.dispose();

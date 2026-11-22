@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/data/paged_list.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../player/application/full_screen_playback.dart';
 import '../../player/data/player_providers.dart';
 import '../../player/domain/playback_engine.dart';
 import '../../player/presentation/delayed_busy.dart';
@@ -48,6 +49,7 @@ class _LivePlayerScreenState extends ConsumerState<LivePlayerScreen> {
   static const _osdDuration = Duration(seconds: 5);
 
   late final ProviderSubscription<PlaybackEngine> _engineSubscription;
+  late final FullScreenPlayback _fullScreen;
   late final ProviderSubscription<AsyncValue<PagedList<LiveChannel>>>
   _listSubscription;
   StreamSubscription<PlaybackState>? _stateSubscription;
@@ -71,6 +73,10 @@ class _LivePlayerScreenState extends ConsumerState<LivePlayerScreen> {
     // Listening keeps the auto-disposed engine alive while this screen is
     // open; closing the subscription releases it.
     _engineSubscription = ref.listenManual(playbackEngineProvider, (_, _) {});
+    // Read here: ref must not be used in dispose. Providers must not change
+    // while the tree builds, so the change waits for a microtask.
+    _fullScreen = ref.read(fullScreenPlaybackProvider.notifier);
+    Future.microtask(_fullScreen.opened);
     _playback = _engine.state;
     _stateSubscription = _engine.states.listen(
       (state) => setState(() => _playback = state),
@@ -99,6 +105,7 @@ class _LivePlayerScreenState extends ConsumerState<LivePlayerScreen> {
     _stateSubscription?.cancel();
     _listSubscription.close();
     _engineSubscription.close();
+    Future.microtask(_fullScreen.closed);
     _keyFocus.dispose();
     unawaited(SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge));
     super.dispose();

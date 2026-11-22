@@ -41,9 +41,11 @@ void main() {
   late FakePlaybackEngine inner;
   late FallbackPlaybackEngine engine;
   late _FakeDisplay display;
+  var fullScreen = true;
   final steps = <String>[];
 
   setUp(() {
+    fullScreen = true;
     steps.clear();
     display = _FakeDisplay();
     inner = FakePlaybackEngine();
@@ -62,7 +64,12 @@ void main() {
   }
 
   test('pauses, switches, rebuilds the audio output and resumes', () async {
-    FrameRateFollower(engine, FrameRateMatching.always, display).start();
+    FrameRateFollower(
+      engine,
+      FrameRateMatching.always,
+      fullScreen: () => fullScreen,
+      display: display,
+    ).start();
     await play(live: false, fps: 23.976);
 
     expect(display.applied, [24]);
@@ -78,7 +85,12 @@ void main() {
   });
 
   test('films and series only: live TV goes back to the default', () async {
-    FrameRateFollower(engine, FrameRateMatching.vodOnly, display).start();
+    FrameRateFollower(
+      engine,
+      FrameRateMatching.vodOnly,
+      fullScreen: () => fullScreen,
+      display: display,
+    ).start();
     await play(live: false, fps: 23.976);
     expect(display.applied, [24]);
 
@@ -96,10 +108,32 @@ void main() {
       display = _FakeDisplay(
         () => inner.emit(const PlaybackState(status: PlaybackStatus.buffering)),
       );
-      FrameRateFollower(engine, FrameRateMatching.always, display).start();
+      FrameRateFollower(
+        engine,
+        FrameRateMatching.always,
+        fullScreen: () => fullScreen,
+        display: display,
+      ).start();
       await play(live: false, fps: 23.976);
       expect(display.applied, [24]);
       expect(engine.state.status, PlaybackStatus.playing);
     },
   );
+
+  test('switches only in full screen, then with the known rate', () async {
+    fullScreen = false;
+    final follower = FrameRateFollower(
+      engine,
+      FrameRateMatching.always,
+      fullScreen: () => fullScreen,
+      display: display,
+    )..start();
+    await play(live: true, fps: 50);
+    expect(display.applied, isEmpty, reason: 'the guide preview');
+
+    fullScreen = true;
+    follower.update();
+    await pumpEventQueue();
+    expect(display.applied, [50]);
+  });
 }

@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Match frame rate only switches the TV in full screen, not for the guide preview.
 - Select on a channel in the guide plays it in the preview first; select on the channel in the
   preview opens it full screen, like common IPTV players.
 

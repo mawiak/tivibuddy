@@ -37,7 +37,9 @@ class DisplayModeSwitcher {
       await _channel.invokeMethod<bool>('isSwitched') ?? false;
 }
 
-/// Lets the display follow the frame rate of what [engine] plays (PLAY-6).
+/// Lets the display follow the frame rate of what [engine] plays (PLAY-6),
+/// only while [fullScreen] says a full screen player is open; [update]
+/// applies the known rate when that changes.
 ///
 /// Playback pauses while the TV switches: picture and sound would stall
 /// anyway, and HDMI renegotiates audio, so the audio output is rebuilt
@@ -46,13 +48,18 @@ class DisplayModeSwitcher {
 class FrameRateFollower {
   FrameRateFollower(
     this.engine,
-    this.matching, [
+    this.matching, {
+    required this.fullScreen,
     this.display = const DisplayModeSwitcher(),
-  ]);
+  });
 
   final FallbackPlaybackEngine engine;
   final FrameRateMatching matching;
+  final bool Function() fullScreen;
   final DisplayModeSwitcher display;
+
+  /// Re-checks the current stream, for example when full screen opened.
+  void update() => unawaited(_onState(engine.state));
 
   StreamSubscription<PlaybackState>? _subscription;
   double? _matched;
@@ -63,7 +70,9 @@ class FrameRateFollower {
   Future<void> stop() async => _subscription?.cancel();
 
   Future<void> _onState(PlaybackState state) async {
-    if (_busy || state.status != PlaybackStatus.playing) return;
+    if (_busy || state.status != PlaybackStatus.playing || !fullScreen()) {
+      return;
+    }
     _busy = true;
     try {
       if (matching == FrameRateMatching.vodOnly && engine.live) {

@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
+import '../application/full_screen_playback.dart';
 import '../application/player_settings_providers.dart';
 import '../domain/playback_engine.dart';
 import '../domain/player_settings.dart';
@@ -43,9 +44,14 @@ PlaybackEngine playbackEngine(Ref ref) {
   );
   if (settings.frameRateMatching != FrameRateMatching.off &&
       DisplayModeSwitcher.supported) {
-    final follower = FrameRateFollower(engine, settings.frameRateMatching)
-      ..start();
-    ref.onDispose(() => follower.stop().ignore());
+    final follower = FrameRateFollower(
+      engine,
+      settings.frameRateMatching,
+      fullScreen: () => ref.read(fullScreenPlaybackProvider),
+    )..start();
+    ref
+      ..listen(fullScreenPlaybackProvider, (_, _) => follower.update())
+      ..onDispose(() => follower.stop().ignore());
   }
   final lifecycle = AppLifecycleListener(
     onHide: () => engine.suspend().ignore(),

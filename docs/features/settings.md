@@ -44,7 +44,9 @@ With Media3 the audio output needs no setting: the connected TV, soundbar or rec
 over HDMI which formats it decodes; those are passed through, everything else is decoded.
 Phones and tablets always decode.
 
-Match frame rate switches the display to a mode with the current resolution whose refresh rate
+Match frame rate applies to full screen playback only (`FullScreenPlayback`), so browsing
+channels in the guide preview does not turn the TV black; opening full screen applies the
+rate already measured. It switches the display to a mode with the current resolution whose refresh rate
 is the highest whole multiple of the video frame rate (`DisplayModes.kt`): 23.976 fps films at
 23.976 Hz, 25 fps TV at 50 Hz, 29.97 fps at 59.94 Hz. Media3 measures the frame rate from the
 timestamps of the first 48 frames, because MKV files and TS streams often do not state it;
