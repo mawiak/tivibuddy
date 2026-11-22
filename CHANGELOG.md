@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-11-22
+
+### Fixed
+
+- Black guide preview after full screen playback on some devices (Nvidia Shield): Media3 keeps
+  drawing into its own video layer, the preview included, which also brings HDR and exact frame
+  timing to the preview.
+- Sound kept playing after leaving the app: live TV stops in the background and starts again at
+  the live edge on return, films and episodes pause.
+
 ## [0.1.0] - 2026-11-21
 
 ### Added
@@ -99,5 +109,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Moving right from the side menu focused the element at the same height instead of the last
   focused or first element of the content.
 
-[Unreleased]: https://github.com/mawiak/tivibuddy/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/mawiak/tivibuddy/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/mawiak/tivibuddy/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/mawiak/tivibuddy/releases/tag/v0.1.0

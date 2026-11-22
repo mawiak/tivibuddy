@@ -128,8 +128,10 @@ Flutter view, which draws on a transparent surface (`TransparencyMode.transparen
 the native layer follows it. Frames reach the display at their exact time, which removed the
 micro judder of the texture, and HDR metadata reaches the display: on the Fire TV Stick 4K Max
 the video layer shows `BT2020 SMPTE 2084` (HDR10) for a Dolby Vision film with an HDR10 base.
-The guide preview keeps the Flutter texture; the same player switches between both outputs
-without reloading. media_kit always renders into a texture. better_player was evaluated first and
+The guide preview uses the same layer: switching the decoder output between the layer and a
+texture failed on the Nvidia Shield, so only the position changes. `VideoHoleBackground` in the
+home screen leaves the preview area open with rounded corners (`videoHole`). When the app goes
+to the background, live TV stops and restarts at the live edge on return, films pause. media_kit always renders into a texture. better_player was evaluated first and
 dropped because it never reports endless TS streams as ready. The decoder and passthrough
 settings apply to media_kit.
 
