@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-11-22
+
 ### Added
 
 - In-app updates on Android: TiviBuddy finds new versions on GitHub, downloads the APK for
@@ -121,6 +123,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Moving right from the side menu focused the element at the same height instead of the last
   focused or first element of the content.
 
-[Unreleased]: https://github.com/mawiak/tivibuddy/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/mawiak/tivibuddy/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/mawiak/tivibuddy/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/mawiak/tivibuddy/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/mawiak/tivibuddy/releases/tag/v0.1.0
