@@ -39,3 +39,5 @@ Decisions agreed with the project owner. Do not reopen them without the owner as
 | 2026-11-21 | Backup              | Settings export and import as an own feature after the pipeline (file and network transfer) |
 | 2026-11-21 | Branching           | `develop` only until 1.0.0, 0.x releases tagged there; `main` and feature branches from 1.0.0 |
 | 2026-11-21 | Version display     | About screen, settings and diagnostic reports show version and short commit id (`-dirty` for local changes) |
+| 2026-11-22 | Guide selection     | Select plays a channel in the preview; select on the channel in the preview opens full screen |
+| 2026-11-22 | In-app updates      | Android first: check GitHub releases, download the APK for the device ABI, open the system installer; other platforms later (see roadmap) |

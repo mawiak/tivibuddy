@@ -68,6 +68,11 @@ Live TV and player:
 
 VOD and general:
 
+- In-app updates for other platforms once they have releases (agreed 2026-11-22): iOS only
+  through TestFlight or the App Store (Apple forbids self-updates), macOS with Sparkle,
+  Windows with WinSparkle (both need installer packages), Linux as an "update available"
+  notice with a link.
+
 - Export and import of profiles, playlists, settings and progress (file in Download and
   transfer over the local network), agreed 2026-11-21.
 
