@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- In-app updates on Android: TiviBuddy finds new versions on GitHub, downloads the APK for
+  the device and opens the installer; automatic check on start (setting) or by hand in the
+  settings.
+
 ### Changed
 
 - Match frame rate only switches the TV in full screen, not for the guide preview.

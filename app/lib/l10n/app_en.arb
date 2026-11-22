@@ -209,6 +209,49 @@
   "settingsResetDeviceMessage": "All settings of this device return to their defaults. Profiles and playlists are kept.",
   "settingsReset": "Reset",
   "settingsAbout": "About TiviBuddy",
+  "updateAvailableTitle": "TiviBuddy {version} is available",
+  "@updateAvailableTitle": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "updateInstalledVersion": "Installed: {version}",
+  "@updateInstalledVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "updateNow": "Update now",
+  "updateLater": "Later",
+  "updateDownloading": "Downloading … {percent} %",
+  "@updateDownloading": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "updateNeedsPermission": "To install updates, TiviBuddy needs permission to install apps. Allow it in the settings, then select Install. On Fire TV: Settings, My Fire TV, Developer options, Install unknown apps.",
+  "updateOpenSettings": "Open settings",
+  "updateInstall": "Install",
+  "updateInstalling": "The installer is open. Confirm the update there.",
+  "updateFailed": "The update could not be loaded. Please try again later.",
+  "updateChecking": "Checking for updates …",
+  "updateUpToDate": "TiviBuddy {version} is up to date.",
+  "@updateUpToDate": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsUpdates": "Check for updates",
+  "settingsAutoUpdate": "Check for updates automatically",
+  "settingsAutoUpdateHint": "Looks for a new version when the app starts, at most every six hours.",
   "settingsSendLog": "Send log to developer",
   "settingsSendLogSubtitle": "Helps to find problems on this device",
   "sendLogDescription": "What happened?",

@@ -37,6 +37,23 @@ class MainActivity : FlutterActivity() {
         }
         MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
+            "io.github.mawiak.tivibuddy/updates",
+        ).setMethodCallHandler { call, result ->
+            when (call.method) {
+                "canInstall" -> result.success(UpdateInstaller.canInstall(this))
+                "openInstallPermission" -> {
+                    UpdateInstaller.openInstallPermission(this)
+                    result.success(null)
+                }
+                "install" -> {
+                    UpdateInstaller.install(this, call.argument<String>("path")!!)
+                    result.success(null)
+                }
+                else -> result.notImplemented()
+            }
+        }
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
             "io.github.mawiak.tivibuddy/display",
         ).setMethodCallHandler { call, result ->
             when (call.method) {

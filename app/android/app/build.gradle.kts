@@ -52,4 +52,6 @@ dependencies {
     val media3 = "1.11.1"
     implementation("androidx.media3:media3-exoplayer:$media3")
     implementation("androidx.media3:media3-exoplayer-hls:$media3")
+    // FileProvider for handing in-app updates to the package installer.
+    implementation("androidx.core:core:1.13.1")
 }

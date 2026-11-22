@@ -18,6 +18,8 @@ import '../../player/domain/player_settings.dart';
 import '../../playlists/application/playlist_actions.dart';
 import '../../profiles/application/profile_providers.dart';
 import '../../profiles/domain/profile.dart';
+import '../../updates/application/update_controller.dart';
+import '../../updates/presentation/update_dialog.dart';
 import '../application/settings_actions.dart';
 import '../application/settings_providers.dart';
 
@@ -188,6 +190,26 @@ class SettingsPane extends ConsumerWidget {
           ),
         ],
         _SectionHeader(l10n.settingsSectionGeneral),
+        if (UpdateController.supported) ...[
+          _Entry(
+            TvListTile(
+              title: l10n.settingsUpdates,
+              subtitle: switch (ref.watch(updateControllerProvider)) {
+                UpdateAvailable(:final release) => l10n.updateAvailableTitle(
+                  release.version,
+                ),
+                UpdateChecking() => l10n.updateChecking,
+                _ => null,
+              },
+              leading: Icons.system_update,
+              onSelect: () {
+                ref.read(updateControllerProvider.notifier).check();
+                showUpdateDialog(context);
+              },
+            ),
+          ),
+          _Entry(_AutoUpdateSwitch(title: l10n.settingsAutoUpdate)),
+        ],
         if (ref.read(logReportActionsProvider).canSend)
           _Entry(
             TvListTile(
@@ -456,4 +478,38 @@ class _Entry extends StatelessWidget {
   @override
   Widget build(BuildContext context) =>
       Padding(padding: const EdgeInsets.only(bottom: 8), child: child);
+}
+
+/// Switch for the automatic update check, read from the device settings.
+class _AutoUpdateSwitch extends ConsumerStatefulWidget {
+  const _AutoUpdateSwitch({required this.title});
+
+  final String title;
+
+  @override
+  ConsumerState<_AutoUpdateSwitch> createState() => _AutoUpdateSwitchState();
+}
+
+class _AutoUpdateSwitchState extends ConsumerState<_AutoUpdateSwitch> {
+  bool _on = true;
+
+  @override
+  void initState() {
+    super.initState();
+    ref.read(updateControllerProvider.notifier).autoCheckEnabled().then((on) {
+      if (mounted) setState(() => _on = on);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) => TvSwitchTile(
+    title: widget.title,
+    subtitle: AppLocalizations.of(context).settingsAutoUpdateHint,
+    leading: Icons.update,
+    value: _on,
+    onChanged: (on) {
+      setState(() => _on = on);
+      ref.read(updateControllerProvider.notifier).setAutoCheck(on);
+    },
+  );
 }

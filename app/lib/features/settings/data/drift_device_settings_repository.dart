@@ -33,6 +33,9 @@ class DriftDeviceSettingsRepository implements DeviceSettingsRepository {
   Future<void> setGuideDays(int? days) => _set(_guideDaysKey, days?.toString());
 
   @override
+  Future<String?> getValue(String key) => _get(key);
+
+  @override
   Stream<String?> watchValue(String key) => _watch(key);
 
   @override

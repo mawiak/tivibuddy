@@ -17,6 +17,8 @@ import '../../profiles/presentation/profile_avatar_view.dart';
 import '../../search/presentation/search_pane.dart';
 import '../../series/presentation/series_pane.dart';
 import '../../settings/presentation/settings_pane.dart';
+import '../../updates/application/update_controller.dart';
+import '../../updates/presentation/update_dialog.dart';
 import '../application/home_section.dart';
 import 'home_section_display.dart';
 import 'side_menu.dart';
@@ -50,6 +52,24 @@ class _HomeShellState extends ConsumerState<HomeShell> {
     debugLabel: 'content',
     allowAutofocus: () => !_menuHasFocus,
   );
+
+  @override
+  void initState() {
+    super.initState();
+    // Looks for a new version once the home screen shows (Android only)
+    // and offers it in a dialog.
+    ref.listenManual(updateControllerProvider, (previous, next) {
+      if (next is UpdateAvailable &&
+          next.automatic &&
+          previous is! UpdateAvailable &&
+          mounted) {
+        showUpdateDialog(context);
+      }
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) ref.read(updateControllerProvider.notifier).autoCheck();
+    });
+  }
 
   @override
   void dispose() {

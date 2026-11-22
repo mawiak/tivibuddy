@@ -20,6 +20,8 @@ abstract interface class DeviceSettingsRepository {
   /// a section; null when not set.
   Stream<String?> watchValue(String key);
 
+  Future<String?> getValue(String key);
+
   Future<void> setValue(String key, String? value);
 
   /// Restores the defaults of all device settings.

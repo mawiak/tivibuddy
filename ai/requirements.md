@@ -132,6 +132,12 @@ All requirements must be re-checked at the end of every unit of work (see `workf
 - DIAG-2: Reports never contain playlist credentials. The transport secrets are compiled into
   tester builds only and are never stored in the repository.
 
+## UPD - Updates
+
+- UPD-1: On Android the app finds new releases, downloads the APK for the device and opens the
+  system installer; the automatic check can be switched off. Other platforms follow (TestFlight
+  for iOS, Sparkle / WinSparkle for macOS and Windows, a notice on Linux).
+
 ## CODE - Code quality
 
 - CODE-1: Clean, modular, readable code. Strict separation of UI (widgets), state/actions

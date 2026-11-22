@@ -9,6 +9,9 @@ import 'package:tivibuddy/core/database/app_database.dart';
 import 'package:tivibuddy/core/input/tv_shortcuts.dart';
 import 'package:tivibuddy/core/theme/app_theme.dart';
 import 'package:tivibuddy/features/playlists/data/playlist_data_providers.dart';
+import 'package:tivibuddy/features/updates/data/update_data_providers.dart';
+import 'package:tivibuddy/features/updates/domain/app_release.dart';
+import 'package:tivibuddy/features/updates/domain/update_source.dart';
 import 'package:tivibuddy/l10n/app_localizations.dart';
 
 import 'fake_credential_store.dart';
@@ -42,6 +45,8 @@ ProviderContainer _createContainer(
       credentialStoreProvider.overrideWithValue(
         credentials ?? FakeCredentialStore(),
       ),
+      // No GitHub requests from tests; the home screen checks for updates.
+      updateSourceProvider.overrideWithValue(const NoUpdates()),
       ...overrides,
     ],
   );
@@ -127,3 +132,11 @@ Future<void> pressBack(WidgetTester tester) async {
 }
 
 String? focusedLabel() => FocusManager.instance.primaryFocus?.debugLabel;
+
+/// Update source without releases.
+class NoUpdates implements UpdateSource {
+  const NoUpdates();
+
+  @override
+  Future<AppRelease?> latest() async => null;
+}
